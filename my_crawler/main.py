@@ -2,10 +2,13 @@ from crawlee.crawlers import PlaywrightCrawler
 from crawlee.storages import Dataset
 from crawlee.http_clients import HttpxHttpClient
 from .routes import router
+from .crawler import crawl4ai
 
 
 async def main() -> None:
     """The crawler entry point."""
+
+    await crawl4ai.start()
 
     crawler = PlaywrightCrawler(
         request_handler=router,
@@ -23,3 +26,6 @@ async def main() -> None:
             "https://cryptocurrencyjobs.co/",
         ]
     )
+
+    # Close the crawl4ai instance
+    await crawl4ai.close()

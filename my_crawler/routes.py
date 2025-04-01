@@ -1,6 +1,5 @@
 from datetime import datetime
 import json
-from crawl4ai import AsyncWebCrawler, CrawlerRunConfig, DefaultMarkdownGenerator
 from crawlee import Request
 from crawlee.storages import Dataset
 from crawlee.crawlers import PlaywrightCrawlingContext
@@ -8,18 +7,9 @@ from crawlee.router import Router
 import asyncio
 from pydantic_core import Url
 from urllib.parse import urlparse, urlunparse
+from .crawler import crawl4ai, crawl4ai_config
 
 router = Router[PlaywrightCrawlingContext]()
-
-
-def get_crawl4ai() -> tuple[AsyncWebCrawler, CrawlerRunConfig]:
-    """Get the crawl4ai instance"""
-    md_generator = DefaultMarkdownGenerator(
-        options={"ignore_links": True, "escape_html": False, "body_width": 80}
-    )
-    config = CrawlerRunConfig(markdown_generator=md_generator, css_selector="div.prose")
-    crawl4ai = AsyncWebCrawler()
-    return crawl4ai, config
 
 
 def parse_job_url(url: str) -> str:
@@ -50,9 +40,8 @@ async def default_handler(context: PlaywrightCrawlingContext) -> None:
         job = context.request.user_data["job"]
 
         # Get the job description
-        crawl4ai, config = get_crawl4ai()
         job_description = (
-            await crawl4ai.arun(url=job["job_url"], config=config)
+            await crawl4ai.arun(url=job["job_url"], config=crawl4ai_config)
         ).markdown
         job["job_description"] = job_description
 
