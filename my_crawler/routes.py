@@ -1,10 +1,25 @@
 from datetime import datetime
 import json
+from crawl4ai import AsyncWebCrawler, CrawlerRunConfig, DefaultMarkdownGenerator
+from crawlee import Request
+from crawlee.storages import Dataset
 from crawlee.crawlers import PlaywrightCrawlingContext
 from crawlee.router import Router
 import asyncio
+from pydantic_core import Url
+from urllib.parse import urlparse, urlunparse
 
 router = Router[PlaywrightCrawlingContext]()
+
+
+def get_crawl4ai() -> tuple[AsyncWebCrawler, CrawlerRunConfig]:
+    """Get the crawl4ai instance"""
+    md_generator = DefaultMarkdownGenerator(
+        options={"ignore_links": True, "escape_html": False, "body_width": 80}
+    )
+    config = CrawlerRunConfig(markdown_generator=md_generator, css_selector="div.prose")
+    crawl4ai = AsyncWebCrawler()
+    return crawl4ai, config
 
 
 def parse_job_url(url: str) -> str:
@@ -17,8 +32,41 @@ def parse_job_url(url: str) -> str:
 
 @router.default_handler
 async def default_handler(context: PlaywrightCrawlingContext) -> None:
-    """Default request handler."""
-    context.log.info(f"Processing {context.request.url} ...")
+    context.log.info(f"Processing URL: {context.request.url}")
+
+    url = Url(context.request.url)
+    # Url is not the main page
+    if url.path != "/":
+        context.log.info(f"Not the main page: {context.request.url}")
+
+        # Get the real job url to process it later
+        real_job_url = Url(
+            await context.page.locator("a")
+            .filter(has_text="Apply")
+            .first.get_attribute("href")
+        )
+
+        # Get the job data from the context
+        job = context.request.user_data["job"]
+
+        # Get the job description
+        crawl4ai, config = get_crawl4ai()
+        job_description = (
+            await crawl4ai.arun(url=job["job_url"], config=config)
+        ).markdown
+        job["job_description"] = job_description
+
+        parsed = urlparse(str(real_job_url))
+        real_job_url = Url(
+            urlunparse((parsed.scheme, parsed.netloc, parsed.path, "", "", ""))
+        )
+
+        job["real_job_url"] = str(real_job_url)
+
+        dataset = await Dataset.open(name="cryptocurrencyjobs")
+        await dataset.push_data(json.dumps(job, indent=2))
+
+        return
 
     # Locate all the jobs and wait for them to be attached in the DOM
     locator = context.page.locator("ol.ais-Hits-list")
@@ -31,7 +79,7 @@ async def default_handler(context: PlaywrightCrawlingContext) -> None:
 
     jobs = []
 
-    for li in all_jobs:
+    for li in all_jobs[:5]:
         title_future = li.locator("h2 > a").inner_text()
         job_url_future = li.locator("h2 > a").get_attribute("href")
         company_future = li.locator("h3").inner_text()
@@ -42,7 +90,7 @@ async def default_handler(context: PlaywrightCrawlingContext) -> None:
             title_future, job_url_future, company_future, tags_future, date_future
         )
 
-        job_url = parse_job_url(job_url)
+        job_url = parse_job_url(job_url or "")
         tags_text = [(await tag.inner_text()).strip().lower() for tag in tags]
         date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S")
         jobs.append(
@@ -51,7 +99,14 @@ async def default_handler(context: PlaywrightCrawlingContext) -> None:
                 "job_url": job_url,
                 "company": company,
                 "tags": tags_text,
-                "date": date,
+                "date": date.isoformat(),
             }
         )
-    print(json.dumps(jobs, indent=2, default=(lambda o: o.isoformat())))
+
+    for job in jobs:
+        context.log.info(f"Adding job: {job['job_url']}")
+        await context.add_requests(
+            requests=[
+                Request.from_url(url=job["job_url"], user_data={"job": job}),
+            ]
+        )
