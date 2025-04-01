@@ -1,0 +1,23 @@
+{
+  "id": "BKR8CxaMeg0lotr",
+  "unique_key": "https://cryptocurrencyjobs.co",
+  "order_no": null,
+  "handled_at": "2025-04-01 02:36:52.128494+00:00",
+  "request": {
+    "url": "https://cryptocurrencyjobs.co/",
+    "method": "GET",
+    "headers": {},
+    "payload": null,
+    "user_data": {
+      "__crawlee": {
+        "state": 3
+      }
+    },
+    "retry_count": 0,
+    "no_retry": false,
+    "loaded_url": "https://cryptocurrencyjobs.co/",
+    "handled_at": "2025-04-01 02:36:52.128494+00:00",
+    "unique_key": "https://cryptocurrencyjobs.co",
+    "id": "BKR8CxaMeg0lotr"
+  }
+}
