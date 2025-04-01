@@ -1,2 +1,4 @@
 storage
 .venv
+node_modules
+my_crawler/__pycache__
