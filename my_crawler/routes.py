@@ -88,9 +88,12 @@ async def default_handler(context: PlaywrightCrawlingContext) -> None:
                 "job_url": job_url,
                 "company": company,
                 "tags": tags_text,
-                "date": date.isoformat(),
+                "date": date,
             }
         )
+
+    jobs.sort(key=lambda x: x["date"], reverse=True)
+    jobs = [{**job, "date": job["date"].isoformat()} for job in jobs]
 
     for job in jobs:
         context.log.info(f"Adding job: {job['job_url']}")
