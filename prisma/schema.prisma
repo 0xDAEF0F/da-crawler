@@ -11,6 +11,19 @@ datasource db {
 }
 
 model Job {
-  id    Int    @id @default(autoincrement())
-  title String
+  id              Int      @id @default(autoincrement())
+  /// Job title. e.g., "Frontend JS Engineer"
+  title           String
+  /// Where did we find this job. e.g., "cryptocurrencyjobs.co"
+  source          String
+  /// The company that posted the job. e.g., "Wintermute"
+  company         String
+  /// Tags for the job. e.g., ["javascript", "react", "typescript"]
+  tags            String   @default("[]")
+  /// When did the job post was published.
+  date            DateTime
+  /// The actual job description. Markdown formatted.
+  job_description String
+  /// The URL of the job post.
+  job_url         String
 }

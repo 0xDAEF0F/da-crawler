@@ -4,4 +4,4 @@ node_modules
 my_crawler/__pycache__
 dist
 .env
-*.db
+*.db*
