@@ -8,6 +8,7 @@ import asyncio
 from pydantic_core import Url
 from urllib.parse import urlparse, urlunparse
 from .crawler import crawl4ai, crawl4ai_config
+from .utils import current_run_id
 
 router = Router[PlaywrightCrawlingContext]()
 
@@ -52,7 +53,7 @@ async def default_handler(context: PlaywrightCrawlingContext) -> None:
 
         job["real_job_url"] = str(real_job_url)
 
-        dataset = await Dataset.open(name="cryptocurrencyjobs")
+        dataset = await Dataset.open(name=f"cryptocurrencyjobs_{current_run_id}")
         await dataset.push_data(json.dumps(job, indent=2))
 
         return
