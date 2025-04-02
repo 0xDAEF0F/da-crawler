@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "bun run --watch --hot src/index.ts",
-    "build": "bun build src/index.ts --outdir dist"
+    "build": "bun build src/index.ts --outdir dist",
+    "test": "bun test src"
   },
   "prisma": {
     "seed": "bun run prisma/seed.ts"
