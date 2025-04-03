@@ -1,46 +1,75 @@
 import { PrismaClient } from "@prisma/client";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import express, { type Request, type Response } from "express";
-import { z } from "zod";
+import { sortedUniq, sortedUniqBy, uniq } from "lodash";
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import {
+  ListToolsRequestSchema,
+  CallToolRequestSchema,
+  type CallToolRequest,
+} from "@modelcontextprotocol/sdk/types.js";
+import { AVAILABLE_JOBS_TOOL, AVAILABLE_KEYWORDS_TOOL } from "./tools.js";
+import { getJobKeywords, getJobs } from "./actions.js";
 
-const prisma = new PrismaClient();
-const server = new McpServer({
-  name: "Job Searchoor",
-  version: "0.1.0",
+export const prisma = new PrismaClient();
+
+const server = new Server(
+  {
+    name: "Job Searchoor",
+    version: "0.1.0",
+  },
+  {
+    capabilities: {
+      tools: {},
+    },
+  }
+);
+
+server.setRequestHandler(ListToolsRequestSchema, () => {
+  console.error("Received ListToolsRequest");
+  return {
+    tools: [AVAILABLE_JOBS_TOOL, AVAILABLE_KEYWORDS_TOOL],
+  };
 });
 
-server.tool("echo", { message: z.string() }, async ({ message }) => ({
-  content: [{ type: "text", text: `Tool echo: ${message}` }],
-}));
+server.setRequestHandler(
+  CallToolRequestSchema,
+  async (request: CallToolRequest) => {
+    console.error("Received CallToolRequest:", request);
+    try {
+      const { name, arguments: args } = request.params;
 
-// TODO: Refactor this tool (need implement isRemote)
-server.tool(
-  "get-jobs",
-  {
-    sinceDate: z.string().datetime(),
-    isRemote: z.boolean().optional(),
-    keywords: z.array(z.string()).default([]),
-  },
-  async ({ sinceDate, isRemote, keywords }) => {
-    const date = new Date(sinceDate);
-    const jobs = (
-      await prisma.job.findMany({
-        where: { date: { gte: date } },
-      })
-    ).map((job) => ({ ...job, tags: JSON.parse(job.tags) }));
-    // filter jobs by keywords/tags
-    const filteredJobsByTags = jobs.filter((job) => {
-      if (keywords.length === 0) return true;
-      for (const keyword of keywords) {
-        if (job.tags.includes(keyword)) return true;
+      if (!args) {
+        throw new Error("No arguments provided");
       }
-      return false;
-    });
-    return {
-      content: [{ type: "text", text: JSON.stringify(filteredJobsByTags) }],
-    };
-  },
+
+      switch (name) {
+        case "get_job_keywords": {
+          return await getJobKeywords(args);
+        }
+        case "get_jobs": {
+          return await getJobs(args);
+        }
+        default:
+          return {
+            content: [{ type: "text", text: `Unknown tool: ${name}` }],
+            isError: true,
+          };
+      }
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
 );
 
 const app = express();
@@ -48,18 +77,19 @@ const app = express();
 const transports: { [sessionId: string]: SSEServerTransport } = {};
 
 app.get("/sse", async (_: Request, res: Response) => {
+  // console.log(`someone is connecting at ${new Date().toISOString()}`);
   const transport = new SSEServerTransport("/messages", res);
   transports[transport.sessionId] = transport;
   res.on("close", () => {
     delete transports[transport.sessionId];
-    console.log("deleting transport", transport.sessionId);
+    // console.log(`someone disconnected at ${new Date().toISOString()}`);
   });
   await server.connect(transport);
 });
 
 app.post("/messages", async (req: Request, res: Response) => {
   const sessionId = req.query.sessionId as string;
-  console.log("sessionId", sessionId);
+  // console.log("sessionId", sessionId);
   const transport = transports[sessionId];
   if (transport) {
     await transport.handlePostMessage(req, res);

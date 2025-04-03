@@ -4,26 +4,33 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const dirContents = await readdir("storage/datasets");
+// Delete all existing jobs
+await prisma.job.deleteMany();
 
-let targetDir = "";
-for (const dir of dirContents) {
-  if (dir.includes("cryptocurrencyjobs")) {
-    targetDir = `storage/datasets/${dir}`;
-    break;
-  }
+// they are ordered by unix timestamp
+const dirContents = await readdir("storage/datasets");
+const targetDir = dirContents[dirContents.length - 1];
+
+if (!targetDir) {
+  throw new Error("No target directory found");
 }
 
-const scrapedFiles = await readdir(targetDir);
+const scrapedFiles = await readdir(`storage/datasets/${targetDir}`);
 
 let scrapedData: Job[] = [];
 for (const file of scrapedFiles) {
   if (file.includes("__meta")) {
     continue;
   }
-  const contentJson = await Bun.file(`${targetDir}/${file}`).json();
-  const parsed = jobSchema.parse(contentJson);
-  scrapedData.push(parsed);
+  const contentJson = await Bun.file(
+    `storage/datasets/${targetDir}/${file}`,
+  ).json();
+  const maybeParsed = jobSchema.safeParse(contentJson);
+  if (maybeParsed.error) {
+    console.log(`Error parsing: "storage/datasets/${targetDir}/${file}"`);
+    throw new Error(maybeParsed.error.message);
+  }
+  scrapedData.push(maybeParsed.data);
 }
 
 for (const job of scrapedData) {

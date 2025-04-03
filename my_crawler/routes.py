@@ -69,7 +69,7 @@ async def default_handler(context: PlaywrightCrawlingContext) -> None:
 
     jobs = []
 
-    for li in all_jobs[:5]:
+    for li in all_jobs:
         title_future = li.locator("h2 > a").inner_text()
         job_url_future = li.locator("h2 > a").get_attribute("href")
         company_future = li.locator("h3").inner_text()

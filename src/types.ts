@@ -14,8 +14,8 @@ export const jobSchema = z
   .object({
     title: z.string().min(5).max(100),
     job_url: z.string().url(),
-    company: z.string().min(3).max(100),
-    tags: z.array(z.string().min(3)),
+    company: z.string().min(2).max(100),
+    tags: z.array(z.string().min(2)),
     date: z
       .string()
       .datetime({ local: true })
