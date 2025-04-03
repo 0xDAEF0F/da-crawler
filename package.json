@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "bun run --watch --hot src/index.ts",
-    "build": "bun build src/index.ts --outdir dist",
+    "start": "bun run build && bun run dist/index.js",
+    "build": "bun build src/index.ts --outdir dist --target node",
     "test": "bun test src"
   },
   "prisma": {
@@ -14,12 +15,15 @@
   "devDependencies": {
     "@prisma/client": "^6.5.0",
     "@types/bun": "latest",
+    "@types/express": "^5.0.1",
     "prisma": "^6.5.0"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.8.0",
+    "express": "^5.1.0",
     "zod": "^3.24.2"
   }
 }

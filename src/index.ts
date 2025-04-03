@@ -1,41 +1,59 @@
 import { PrismaClient } from "@prisma/client";
-import { readdir } from "node:fs/promises";
-import { jobSchema, type Job } from "./types";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import express, { type Request, type Response } from "express";
+import { z } from "zod";
 
 const prisma = new PrismaClient();
+const server = new McpServer({
+  name: "Job Searchoor",
+  version: "0.1.0",
+});
 
-const dirContents = await readdir("storage/datasets");
+server.tool("echo", { message: z.string() }, async ({ message }) => ({
+  content: [{ type: "text", text: `Tool echo: ${message}` }],
+}));
 
-let targetDir = "";
-for (const dir of dirContents) {
-  if (dir.includes("cryptocurrencyjobs")) {
-    targetDir = `storage/datasets/${dir}`;
-    break;
+server.tool(
+  "get-jobs",
+  {
+    sinceDate: z.string(),
+    isRemote: z.boolean().optional(),
+    keywords: z.array(z.string()).default([]),
+  },
+  async ({ sinceDate, isRemote, keywords }) => {
+    console.log({ sinceDate, isRemote, keywords });
+    return {
+      content: [{ type: "text", text: "jobs pending..." }],
+    };
   }
-}
+);
 
-const scrapedFiles = await readdir(targetDir);
+const app = express();
 
-let scrapedData: Job[] = [];
-for (const file of scrapedFiles) {
-  if (file.includes("__meta")) {
-    continue;
-  }
-  const contentJson = await Bun.file(`${targetDir}/${file}`).json();
-  const parsed = jobSchema.parse(contentJson);
-  scrapedData.push(parsed);
-}
+const transports: { [sessionId: string]: SSEServerTransport } = {};
 
-for (const job of scrapedData) {
-  await prisma.job.create({
-    data: {
-      title: job.title,
-      source: "cryptocurrencyjobs",
-      company: job.company,
-      tags: JSON.stringify(job.tags),
-      date: job.date,
-      job_description: job.jobDescription,
-      job_url: job.realJobUrl,
-    },
+app.get("/sse", async (_: Request, res: Response) => {
+  const transport = new SSEServerTransport("/messages", res);
+  transports[transport.sessionId] = transport;
+  res.on("close", () => {
+    delete transports[transport.sessionId];
+    console.log("deleting transport", transport.sessionId);
   });
-}
+  await server.connect(transport);
+});
+
+app.post("/messages", async (req: Request, res: Response) => {
+  const sessionId = req.query.sessionId as string;
+  console.log("sessionId", sessionId);
+  const transport = transports[sessionId];
+  if (transport) {
+    await transport.handlePostMessage(req, res);
+  } else {
+    console.error("No transport found for sessionId", sessionId);
+    res.status(400).send("No transport found for sessionId");
+  }
+});
+
+app.listen(3001);
+console.log(`Express server running at http://localhost:3001`);
