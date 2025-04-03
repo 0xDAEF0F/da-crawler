@@ -14,19 +14,33 @@ server.tool("echo", { message: z.string() }, async ({ message }) => ({
   content: [{ type: "text", text: `Tool echo: ${message}` }],
 }));
 
+// TODO: Refactor this tool (need implement isRemote)
 server.tool(
   "get-jobs",
   {
-    sinceDate: z.string(),
+    sinceDate: z.string().datetime(),
     isRemote: z.boolean().optional(),
     keywords: z.array(z.string()).default([]),
   },
   async ({ sinceDate, isRemote, keywords }) => {
-    console.log({ sinceDate, isRemote, keywords });
+    const date = new Date(sinceDate);
+    const jobs = (
+      await prisma.job.findMany({
+        where: { date: { gte: date } },
+      })
+    ).map((job) => ({ ...job, tags: JSON.parse(job.tags) }));
+    // filter jobs by keywords/tags
+    const filteredJobsByTags = jobs.filter((job) => {
+      if (keywords.length === 0) return true;
+      for (const keyword of keywords) {
+        if (job.tags.includes(keyword)) return true;
+      }
+      return false;
+    });
     return {
-      content: [{ type: "text", text: "jobs pending..." }],
+      content: [{ type: "text", text: JSON.stringify(filteredJobsByTags) }],
     };
-  }
+  },
 );
 
 const app = express();
