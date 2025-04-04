@@ -4,7 +4,10 @@ from crawl4ai import AsyncWebCrawler, CrawlerRunConfig, DefaultMarkdownGenerator
 md_generator = DefaultMarkdownGenerator(
     options={"ignore_links": True, "escape_html": False, "body_width": 80}
 )
-crawl4ai_config = CrawlerRunConfig(
-    markdown_generator=md_generator, css_selector="div.prose"
-)
+
+
+def get_config(css_selector: str) -> CrawlerRunConfig:
+    return CrawlerRunConfig(markdown_generator=md_generator, css_selector=css_selector)
+
+
 crawl4ai = AsyncWebCrawler()

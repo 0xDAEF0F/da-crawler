@@ -30,10 +30,25 @@ export async function getJobs(args: unknown) {
     await prisma.job.findMany({
       where: { date: { gte: date } },
     })
-  ).map((job) => ({ ...job, tags: JSON.parse(job.tags) as string[] }));
+  ).map((job) => ({
+    ...job,
+    tags: JSON.parse(job.tags) as string[],
+  }));
+
+  // filter jobs by remote
+  const jobsWithRemoteFilter = jobs.flatMap((job) => {
+    switch (isRemote) {
+      case undefined:
+        return [job];
+      case true:
+        return job.is_remote ? [job] : [];
+      case false:
+        return job.is_remote ? [] : [job];
+    }
+  });
 
   // filter jobs by keywords/tags
-  const filteredJobsByTags = jobs.filter((job) => {
+  const jobsWithTagFilter = jobsWithRemoteFilter.filter((job) => {
     if (keywords.length === 0) return true;
     for (const keyword of keywords) {
       if (job.tags.includes(keyword)) return true;
@@ -42,14 +57,17 @@ export async function getJobs(args: unknown) {
   });
 
   // filter jobs by excludeKeywords
-  const filteredJobsByExcludeKeywords = filteredJobsByTags.filter(
+  const jobsWithExcludeFilter = jobsWithTagFilter.filter(
     (job) => !excludeKeywords.some((keyword) => job.tags.includes(keyword))
   );
 
+  // sorted by date descending
+  const sortedFilteredJobs = jobsWithExcludeFilter.sort((a, b) => {
+    return b.date.getTime() - a.date.getTime();
+  });
+
   return {
-    content: [
-      { type: "text", text: JSON.stringify(filteredJobsByExcludeKeywords) },
-    ],
+    content: [{ type: "text", text: JSON.stringify(sortedFilteredJobs) }],
   };
 }
 
