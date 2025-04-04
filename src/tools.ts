@@ -23,6 +23,13 @@ export const AVAILABLE_JOBS_TOOL: Tool = {
         description: "Keywords to filter jobs by",
         default: [],
       },
+      excludeKeywords: {
+        type: "array",
+        items: { type: "string" },
+        description:
+          "Keywords to exclude from the jobs (if any of the results contains one of these keywords, it will be filtered out)",
+        default: [],
+      },
     },
   },
 };

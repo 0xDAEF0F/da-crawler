@@ -1,13 +1,6 @@
 import { readdir } from "node:fs/promises";
-import { jobSchema, type Job } from "./types";
-import { PrismaClient } from "@prisma/client";
+import { jobSchema, type Job } from "../src/types";
 
-const prisma = new PrismaClient();
-
-// Delete all existing jobs
-await prisma.job.deleteMany();
-
-// they are ordered by unix timestamp
 const dirContents = await readdir("storage/datasets");
 const targetDir = dirContents[dirContents.length - 1];
 
@@ -23,7 +16,7 @@ for (const file of scrapedFiles) {
     continue;
   }
   const contentJson = await Bun.file(
-    `storage/datasets/${targetDir}/${file}`,
+    `storage/datasets/${targetDir}/${file}`
   ).json();
   const maybeParsed = jobSchema.safeParse(contentJson);
   if (maybeParsed.error) {
@@ -33,16 +26,9 @@ for (const file of scrapedFiles) {
   scrapedData.push(maybeParsed.data);
 }
 
-for (const job of scrapedData) {
-  await prisma.job.create({
-    data: {
-      title: job.title,
-      source: "cryptocurrencyjobs",
-      company: job.company,
-      tags: JSON.stringify(job.tags),
-      date: job.date,
-      job_description: job.jobDescription,
-      job_url: job.realJobUrl,
-    },
-  });
+for (let i = 0; i < scrapedData.length; i++) {
+  const job = scrapedData[i]!;
+  if (job.jobDescription.toLowerCase().includes("remote")) {
+    console.log(`found remote word in description: ${i}`);
+  }
 }

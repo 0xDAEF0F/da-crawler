@@ -2,20 +2,27 @@ import { z } from "zod";
 import { prisma } from "./index";
 import { uniq } from "lodash";
 
+const sinceWhenSchema = z
+  .string()
+  .regex(/^\d+[dwm]$/)
+  .refine((a) => a[0] && +a[0] !== 0, "First digit must not be zero");
+
 const argsSchema = z.object({
-  sinceWhen: z
-    .string()
-    .regex(/^\d+[dwm]$/)
-    .refine((a) => a[0] && +a[0] !== 0, "First digit must not be zero"),
+  sinceWhen: sinceWhenSchema,
   isRemote: z.boolean().optional(),
   keywords: z
+    .array(z.string())
+    .default([])
+    .transform((keywords) => uniq(keywords.map((w) => w.toLowerCase()))),
+  excludeKeywords: z
     .array(z.string())
     .default([])
     .transform((keywords) => uniq(keywords.map((w) => w.toLowerCase()))),
 });
 
 export async function getJobs(args: unknown) {
-  const { sinceWhen, isRemote, keywords } = argsSchema.parse(args);
+  const { sinceWhen, isRemote, keywords, excludeKeywords } =
+    argsSchema.parse(args);
 
   const date: Date = getDateFromSinceWhen(sinceWhen);
 
@@ -34,14 +41,20 @@ export async function getJobs(args: unknown) {
     return false;
   });
 
+  // filter jobs by excludeKeywords
+  const filteredJobsByExcludeKeywords = filteredJobsByTags.filter(
+    (job) => !excludeKeywords.some((keyword) => job.tags.includes(keyword))
+  );
+
   return {
-    content: [{ type: "text", text: JSON.stringify(filteredJobsByTags) }],
+    content: [
+      { type: "text", text: JSON.stringify(filteredJobsByExcludeKeywords) },
+    ],
   };
 }
 
 export async function getJobKeywords(args: unknown) {
-  const { sinceWhen } = argsSchema.parse(args);
-
+  const { sinceWhen } = z.object({ sinceWhen: sinceWhenSchema }).parse(args);
   const date: Date = getDateFromSinceWhen(sinceWhen);
 
   const jobs = await prisma.job.findMany({

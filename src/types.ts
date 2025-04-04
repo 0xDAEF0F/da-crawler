@@ -8,6 +8,7 @@ export type Job = {
   date: Date;
   jobDescription: string;
   realJobUrl: string;
+  isRemote: boolean;
 };
 
 export const jobSchema = z
@@ -16,6 +17,7 @@ export const jobSchema = z
     job_url: z.string().url(),
     company: z.string().min(2).max(100),
     tags: z.array(z.string().min(2)),
+    is_remote: z.boolean(),
     date: z
       .string()
       .datetime({ local: true })

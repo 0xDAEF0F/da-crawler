@@ -26,4 +26,6 @@ model Job {
   job_description String
   /// The URL of the job post.
   job_url         String
+  /// Whether the job is remote.
+  is_remote       Boolean
 }

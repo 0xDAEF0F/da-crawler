@@ -56,6 +56,11 @@ async def default_handler(context: PlaywrightCrawlingContext) -> None:
         dataset = await Dataset.open(name=f"cryptocurrencyjobs_{current_run_id}")
         await dataset.push_data(json.dumps(job, indent=2))
 
+        print(
+            f"Finished processing {job['title']}@{job['company']}. Sleeping for 1 second."
+        )
+        await asyncio.sleep(0.3)
+
         return
 
     # Locate all the jobs and wait for them to be attached in the DOM
@@ -75,9 +80,15 @@ async def default_handler(context: PlaywrightCrawlingContext) -> None:
         company_future = li.locator("h3").inner_text()
         tags_future = li.locator("ul.flex.flex-wrap > li").all()
         date_future = li.locator("time").get_attribute("datetime")
+        is_remote_future = li.locator("a[href='/remote/']").is_visible()
 
-        title, job_url, company, tags, date_str = await asyncio.gather(
-            title_future, job_url_future, company_future, tags_future, date_future
+        title, job_url, company, tags, date_str, is_remote = await asyncio.gather(
+            title_future,
+            job_url_future,
+            company_future,
+            tags_future,
+            date_future,
+            is_remote_future,
         )
 
         job_url = parse_job_url(job_url or "")
@@ -90,6 +101,7 @@ async def default_handler(context: PlaywrightCrawlingContext) -> None:
                 "company": company,
                 "tags": tags_text,
                 "date": date,
+                "is_remote": is_remote,
             }
         )
 
