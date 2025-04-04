@@ -10,8 +10,8 @@ from urllib.parse import urlparse, urlunparse
 from .crawler import crawl4ai, get_config
 from .utils import current_run_id
 
-NUMBER_OF_JOBS = 20
-SLEEP_INTERVAL = 0.5
+NUMBER_OF_JOBS = 1000
+SLEEP_INTERVAL = 1
 
 router = Router[PlaywrightCrawlingContext]()
 

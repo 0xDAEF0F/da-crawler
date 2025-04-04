@@ -1,15 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import express, { type Request, type Response } from "express";
-import { sortedUniq, sortedUniqBy, uniq } from "lodash";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import {
   ListToolsRequestSchema,
   CallToolRequestSchema,
   type CallToolRequest,
 } from "@modelcontextprotocol/sdk/types.js";
-import { AVAILABLE_JOBS_TOOL, AVAILABLE_KEYWORDS_TOOL } from "./tools.js";
-import { getJobKeywords, getJobs } from "./actions.js";
+import { AVAILABLE_JOBS_TOOL, AVAILABLE_KEYWORDS_TOOL } from "./mcp-tools";
+import { getJobKeywords, getJobs } from "./mcp-actions";
 
 export const prisma = new PrismaClient();
 
@@ -35,7 +34,7 @@ server.setRequestHandler(ListToolsRequestSchema, () => {
 server.setRequestHandler(
   CallToolRequestSchema,
   async (request: CallToolRequest) => {
-    console.error("Received CallToolRequest:", request);
+    console.error("Received CallToolRequest:", request.params.name);
     try {
       const { name, arguments: args } = request.params;
 
@@ -77,19 +76,21 @@ const app = express();
 const transports: { [sessionId: string]: SSEServerTransport } = {};
 
 app.get("/sse", async (_: Request, res: Response) => {
-  // console.log(`someone is connecting at ${new Date().toISOString()}`);
+  console.log(`SessionId's ${Object.keys(transports).length}`);
   const transport = new SSEServerTransport("/messages", res);
   transports[transport.sessionId] = transport;
   res.on("close", () => {
+    console.error(`Connection closed for sessionId: ${transport.sessionId}`);
     delete transports[transport.sessionId];
-    // console.log(`someone disconnected at ${new Date().toISOString()}`);
+  });
+  res.on("finish", () => {
+    console.error(`Connection finished for sessionId: ${transport.sessionId}`);
   });
   await server.connect(transport);
 });
 
 app.post("/messages", async (req: Request, res: Response) => {
   const sessionId = req.query.sessionId as string;
-  // console.log("sessionId", sessionId);
   const transport = transports[sessionId];
   if (transport) {
     await transport.handlePostMessage(req, res);

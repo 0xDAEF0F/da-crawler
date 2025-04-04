@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { prisma } from "./index";
 import { uniq } from "lodash";
+import { normalizeTags } from "./types";
 
 const sinceWhenSchema = z
   .string()
@@ -13,11 +14,13 @@ const argsSchema = z.object({
   keywords: z
     .array(z.string())
     .default([])
-    .transform((keywords) => uniq(keywords.map((w) => w.toLowerCase()))),
+    .transform((keywords) => uniq(keywords.map((w) => w.toLowerCase())))
+    .transform(normalizeTags),
   excludeKeywords: z
     .array(z.string())
     .default([])
-    .transform((keywords) => uniq(keywords.map((w) => w.toLowerCase()))),
+    .transform((keywords) => uniq(keywords.map((w) => w.toLowerCase())))
+    .transform(normalizeTags),
 });
 
 export async function getJobs(args: unknown) {
@@ -57,9 +60,13 @@ export async function getJobs(args: unknown) {
   });
 
   // filter jobs by excludeKeywords
-  const jobsWithExcludeFilter = jobsWithTagFilter.filter(
-    (job) => !excludeKeywords.some((keyword) => job.tags.includes(keyword))
-  );
+  const jobsWithExcludeFilter = jobsWithTagFilter.filter((job) => {
+    const jobTags = job.tags.flatMap((tag) => tag.split(" "));
+    for (const excludeKeyword of excludeKeywords) {
+      if (jobTags.includes(excludeKeyword)) return false;
+    }
+    return true;
+  });
 
   // sorted by date descending
   const sortedFilteredJobs = jobsWithExcludeFilter.sort((a, b) => {

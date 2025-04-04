@@ -1,39 +1,50 @@
-import { z } from "zod";
+import { type } from "arktype";
+import { uniq } from "lodash";
 
-export type Job = {
-  title: string;
-  jobUrl: string;
-  company: string;
-  tags: string[];
-  date: Date;
-  jobDescription: string;
-  realJobUrl: string;
-  isRemote: boolean;
+const tagMappings = {
+  frontend: ["frontend", "front end", "front-end"],
+  backend: ["backend", "back end", "back-end"],
+  fullstack: ["fullstack", "full stack", "full-stack"],
 };
 
-export const jobSchema = z
-  .object({
-    title: z.string().min(5).max(100),
-    job_url: z.string().url(),
-    company: z.string().min(2).max(100),
-    tags: z.array(z.string().min(2)),
-    is_remote: z.boolean(),
-    date: z
-      .string()
-      .datetime({ local: true })
-      .transform((date) => new Date(date)),
-    job_description: z.string().min(10),
-    real_job_url: z.string().url(),
-  })
-  .transform((data) => {
-    const transformed: Record<string, unknown> = {};
-    Object.entries(data).forEach(([key, value]) => {
-      transformed[snakeToCamel(key)] = value;
-    });
-    return transformed as Job;
-  });
+export function normalizeTags(tags: string[]) {
+  const uniqueTags = uniq(tags);
+  const normalizedTags: string[] = [];
 
-// Utility function
-function snakeToCamel(str: string): string {
-  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+  // Track which normalized tags are present
+  const normalizedTagsPresent = new Set<string>();
+
+  // Process each tag
+  for (const tag of uniqueTags) {
+    let isNormalized = false;
+
+    // Check if tag matches any of our patterns to normalize
+    for (const [normalizedTag, variants] of Object.entries(tagMappings)) {
+      if (variants.some((variant) => tag.includes(variant))) {
+        normalizedTagsPresent.add(normalizedTag);
+        isNormalized = true;
+        break;
+      }
+    }
+
+    // If not matching any pattern, keep the original tag
+    if (!isNormalized) {
+      normalizedTags.push(tag);
+    }
+  }
+
+  // Add all normalized tags that were found
+  return [...normalizedTags, ...normalizedTagsPresent];
 }
+
+export const job = type({
+  title: type("string").to("string.lower"),
+  company: type("string >= 2").to("string.lower"),
+  tags: type("string[]").to("string.lower[]").pipe(normalizeTags),
+  date: "string.date.iso.parse",
+  is_remote: "boolean",
+  job_description: "string",
+  real_job_url: "string.url",
+});
+
+export type Job = typeof job.infer;

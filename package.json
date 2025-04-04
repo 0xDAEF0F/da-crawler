@@ -7,7 +7,7 @@
     "dev": "bun run --watch --hot src/index.ts",
     "start": "bun run build && bun run dist/index.js",
     "build": "bun build src/index.ts --outdir dist --target node",
-    "test": "bun test src"
+    "test": "bun test ./src/tests/**"
   },
   "prisma": {
     "seed": "bun run prisma/seed.ts"
@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.8.0",
+    "arktype": "^2.1.16",
     "express": "^5.1.0",
     "lodash": "^4.17.21",
     "zod": "^3.24.2"
