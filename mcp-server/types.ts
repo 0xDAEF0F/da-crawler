@@ -5,9 +5,13 @@ const tagMappings = {
   frontend: ["frontend", "front end", "front-end"],
   backend: ["backend", "back end", "back-end"],
   fullstack: ["fullstack", "full stack", "full-stack"],
+  react: ["react", "reactjs", "react.js"],
+  nodejs: ["node", "nodejs", "node.js"],
+  nextjs: ["nextjs", "next.js", "nextjs"],
+  ethers: ["ethers", "ethers.js", "ethersjs"],
 };
 
-export function normalizeTags(tags: string[]) {
+export function normalizeTags(tags: string[]): string[] {
   const uniqueTags = uniq(tags);
   const normalizedTags: string[] = [];
 

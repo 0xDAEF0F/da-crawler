@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { Hono } from "hono";
 import { getJobsArgs } from "../types";
 import { ArkErrors } from "arktype";
+import { normalizeTags } from "../mcp-server/types";
 
 const prisma = new PrismaClient();
 
@@ -20,7 +21,15 @@ app.post("/get-jobs", async (c) => {
     return c.json({ error: true, message: args.summary }, 400);
   }
 
-  const { keywords, excludeKeywords, sinceWhen, isRemote, limit } = args;
+  const {
+    keywords: kw,
+    excludeKeywords: ekw,
+    sinceWhen,
+    isRemote,
+    limit,
+  } = args;
+  const keywords = normalizeTags(kw);
+  const excludeKeywords = normalizeTags(ekw);
 
   const jobs = (
     await prisma.job.findMany({
