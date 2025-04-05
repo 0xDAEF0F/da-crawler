@@ -1,0 +1,10 @@
+### Get Jobs
+POST http://localhost:3000/get-jobs
+Content-Type: application/json
+
+{
+  "keywords": ["typescript", "react"],
+  "excludeKeywords": ["php", "wordpress"],
+  "sinceWhen": "1d",
+  "isRemote": true
+}
