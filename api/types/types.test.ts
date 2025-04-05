@@ -1,6 +1,7 @@
 import { test, expect } from "bun:test";
 import { ArkErrors } from "arktype";
-import { job, normalizeTags } from "../types";
+import { job } from ".";
+import { normalizeTags } from "../utils/utils";
 
 test("job type validation", () => {
   const inputExample = {
@@ -39,6 +40,6 @@ test("normalize tags", () => {
   ];
   const normalizedTags = normalizeTags(tags);
   expect(new Set(normalizedTags)).toEqual(
-    new Set(["frontend", "backend", "fullstack", "papa-johns"])
+    new Set(["frontend", "backend", "fullstack", "papa-johns"]),
   );
 });

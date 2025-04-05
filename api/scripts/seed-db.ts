@@ -1,9 +1,9 @@
 import { readdir } from "node:fs/promises";
-import { job, normalizeTags, type Job } from "../mcp-server/types";
+import { job, type Job } from "../types";
 import { PrismaClient } from "@prisma/client";
 import { partition, uniqBy } from "lodash";
 import { ArkErrors } from "arktype";
-import { cleanUrl } from "../mcp-server/utils";
+import { cleanUrl, normalizeTags } from "../utils";
 
 const prisma = new PrismaClient();
 

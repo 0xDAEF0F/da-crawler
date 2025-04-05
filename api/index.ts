@@ -1,8 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { Hono } from "hono";
-import { getJobsArgs } from "../types";
+import { getJobsArgs } from "./types";
 import { ArkErrors } from "arktype";
-import { normalizeTags } from "../mcp-server/types";
+import { normalizeTags } from "./utils";
 
 const prisma = new PrismaClient();
 
