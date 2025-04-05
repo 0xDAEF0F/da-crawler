@@ -8,12 +8,19 @@ const prisma = new PrismaClient();
 const app = new Hono();
 
 app.post("/get-jobs", async (c) => {
-  const args = getJobsArgs(await c.req.json());
+  const body = await c.req.json();
+
+  const args = getJobsArgs({
+    ...body,
+    keywords: body.keywords ?? [],
+    excludeKeywords: body.excludeKeywords ?? [],
+  });
+
   if (args instanceof ArkErrors) {
     return c.json({ error: true, message: args.summary }, 400);
   }
 
-  const { keywords, excludeKeywords, sinceWhen, isRemote } = args;
+  const { keywords, excludeKeywords, sinceWhen, isRemote, limit } = args;
 
   const jobs = (
     await prisma.job.findMany({
@@ -43,7 +50,10 @@ app.post("/get-jobs", async (c) => {
     return true;
   });
 
-  return c.json({ error: false, jobs: jobsWithExcludeFilter });
+  return c.json({
+    error: false,
+    jobs: jobsWithExcludeFilter.slice(0, limit ?? 10),
+  });
 });
 
 export default app;
