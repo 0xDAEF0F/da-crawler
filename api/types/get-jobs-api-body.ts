@@ -1,12 +1,8 @@
 import { type } from "arktype";
 
-// API args for `getJobs`
+// Schema for the `getJobs` API arguments/params in body
 export const getJobsArgs = type({
-  keywords: type("string[]").pipe((s) => s.map((k) => k.trim().toLowerCase())),
-  excludeKeywords: type("string[]").pipe((s) =>
-    s.map((k) => k.trim().toLowerCase())
-  ),
-  "limit?": "number.integer <= 100",
+  // 1d, 1w, 2d, 42w
   sinceWhen: type("/^[0-9]+[dw]$/").pipe((str) => {
     const amount = parseInt(str.slice(0, -1));
     const date = new Date();
@@ -15,6 +11,9 @@ export const getJobsArgs = type({
     date.setDate(date.getDate() - amount * (units === "d" ? 1 : 7));
     return date;
   }),
+  keywords: type("string.lower[] |> string.trim[]"),
+  excludeKeywords: type("string.lower[] |> string.trim[]"),
+  "limit?": "number.integer <= 100",
   "isRemote?": "boolean",
 });
 

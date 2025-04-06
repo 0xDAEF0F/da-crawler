@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { Hono } from "hono";
-import { getJobsArgs } from "./types";
+import { getJobsArgs } from "./types/get-jobs-api-body";
 import { ArkErrors } from "arktype";
 import { normalizeWords } from "./utils";
 import { KEYWORD_MAPPINGS } from "./constants";
