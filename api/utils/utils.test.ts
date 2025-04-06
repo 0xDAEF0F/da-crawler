@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test";
-import { cleanUrl } from "./utils";
+import { cleanUrl } from ".";
 
 test("cleanUrl - do nothing", () => {
   const url = "https://job-boards.greenhouse.io/avalabs/jobs/5368357004";

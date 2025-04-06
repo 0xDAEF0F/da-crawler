@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,15 +8,15 @@ datasource db {
 }
 
 model Job {
-  id              Int      @id @default(autoincrement())
+  id              Int            @id @default(autoincrement())
   /// Job title. e.g., "Frontend JS Engineer"
   title           String
   /// Where did we find this job. e.g., "cryptocurrencyjobs.co"
   source          String
-  /// The company that posted the job. e.g., "Wintermute"
+  /// The company that posted the job. e.g., "wintermute"
   company         String
   /// Tags for the job. e.g., ["javascript", "react", "typescript"]
-  tags            String   @default("[]")
+  tags            String         @default("[]")
   /// When did the job post was published.
   date            DateTime
   /// The actual job description. Markdown formatted.
@@ -28,4 +25,30 @@ model Job {
   job_url         String
   /// Whether the job is remote.
   is_remote       Boolean
+  /// The ai generated summary of the job.
+  ai_analysis     JobAiAnalysis?
+}
+
+model JobAiAnalysis {
+  id                      Int      @id @default(autoincrement())
+  job_id                  Int      @unique
+  /// ai generated job title from the job description
+  job_title               String
+  /// ai generated summary of the job
+  summary                 String
+  /// ai generated keywords for the job
+  keywords                String
+  /// whether ai think the job is remote or not
+  is_remote               Boolean?
+  /// is there indication that the job is focused on a specific country?
+  country                 String?
+  /// is there indication that the job is focused on a specific region?
+  region                  String?
+  /// ai generated is_full_time for the job
+  is_full_time            Boolean?
+  /// is there any indication if the job can pay in cryptocurrencies?
+  option_to_pay_in_crypto Boolean?
+
+  /// relation to the job obtained by scraping the web
+  job Job @relation(fields: [job_id], references: [id])
 }

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import json
 from crawlee import Request
 from crawlee.storages import Dataset
@@ -10,8 +10,17 @@ from urllib.parse import urlparse, urlunparse
 from .crawler import crawl4ai, get_config
 from .utils import current_run_id
 
-NUMBER_OF_JOBS = 1000
-SLEEP_INTERVAL = 1
+NUMBER_OF_JOBS = 100
+SLEEP_INTERVAL = 0.2
+
+JOB_DATE_THRESHOLD = 2  # days
+
+
+def get_job_date_threshold() -> datetime:
+    return datetime.now().replace(
+        hour=0, minute=0, second=0, microsecond=0
+    ) - timedelta(days=JOB_DATE_THRESHOLD)
+
 
 router = Router[PlaywrightCrawlingContext]()
 
@@ -59,6 +68,11 @@ async def cryptocurrencyjobs_main_handler(context: PlaywrightCrawlingContext) ->
         job_url = parse_job_url(job_url or "")
         tags_text = [(await tag.inner_text()).strip().lower() for tag in tags]
         date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S")
+
+        if date < get_job_date_threshold():
+            context.log.info(f"Skipping job: {title}@{company} because it is too old")
+            continue
+
         jobs.append(
             {
                 "title": title,
@@ -152,6 +166,10 @@ async def cryptojobs_main_handler(context: PlaywrightCrawlingContext) -> None:
             .startswith("remote")
         )
 
+        if parse_date(posted) < get_job_date_threshold():
+            context.log.info(f"Skipping job: {title}@{company} because it is too old")
+            continue
+
         job = {
             "title": title,
             "job_url": job_url,
@@ -190,12 +208,18 @@ async def cryptojobs_job_description_handler(
 
     job["job_description"] = job_description
 
-    real_job_url = await (
-        context.page.locator("button.btn")
-        .filter(has_text="Apply")
-        .nth(0)
-        .get_attribute("data-href")
-    )
+    try:
+        real_job_url = await (
+            context.page.locator("button.btn")
+            .filter(has_text="Apply")
+            .first.get_attribute("data-href")
+        )
+    except Exception as e:
+        context.log.error(
+            f"Error getting real job url for {job['job_url']}: {e}\nSkipping job."
+        )
+        return
+
     job["real_job_url"] = real_job_url
 
     dataset = await Dataset.open(name=f"cryptojobs_{current_run_id}")
@@ -210,15 +234,21 @@ async def cryptojobs_job_description_handler(
 # Yesterday, {n} days ago, {n} weeks ago, {n} months ago
 def parse_date(date_str: str) -> datetime:
     date_str = date_str.strip().lower()
-    now = datetime.now()
+    now = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     if "yesterday" in date_str:
         return now - timedelta(days=1)
     elif "days ago" in date_str:
         days = int(date_str.split()[0])
         return now - timedelta(days=days)
+    elif "week" in date_str:
+        weeks = int(date_str.split()[0])
+        return now - timedelta(days=7 * weeks)
     elif "weeks ago" in date_str:
         weeks = int(date_str.split()[0])
         return now - timedelta(weeks=weeks)
+    elif "month" in date_str:
+        months = int(date_str.split()[0])
+        return now - timedelta(days=30 * months)
     elif "months ago" in date_str:
         months = int(date_str.split()[0])
         return now - timedelta(days=30 * months)

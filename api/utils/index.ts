@@ -1,19 +1,21 @@
 import { uniq } from "lodash";
-import { KEYWORD_MAPPINGS } from "../constants";
 
-export function normalizeTags(tags: string[]): string[] {
-  const uniqueTags = uniq(tags);
-  const normalizedTags: string[] = [];
+export function normalizeWords(
+  words: string[],
+  mappings: Record<string, string[]>
+): string[] {
+  const uniqueWords = uniq(words);
+  const normalizedWords: string[] = [];
 
   // Track which normalized tags are present
   const normalizedTagsPresent = new Set<string>();
 
   // Process each tag
-  for (const tag of uniqueTags) {
+  for (const tag of uniqueWords) {
     let isNormalized = false;
 
     // Check if tag matches any of our patterns to normalize
-    for (const [normalizedTag, variants] of Object.entries(KEYWORD_MAPPINGS)) {
+    for (const [normalizedTag, variants] of Object.entries(mappings)) {
       if (variants.some((variant) => tag.includes(variant))) {
         normalizedTagsPresent.add(normalizedTag);
         isNormalized = true;
@@ -23,12 +25,12 @@ export function normalizeTags(tags: string[]): string[] {
 
     // If not matching any pattern, keep the original tag
     if (!isNormalized) {
-      normalizedTags.push(tag);
+      normalizedWords.push(tag);
     }
   }
 
   // Add all normalized tags that were found
-  return [...normalizedTags, ...normalizedTagsPresent];
+  return [...normalizedWords, ...normalizedTagsPresent];
 }
 
 export function cleanUrl(url: string): string {

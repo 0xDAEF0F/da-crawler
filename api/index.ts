@@ -2,7 +2,8 @@ import { PrismaClient } from "@prisma/client";
 import { Hono } from "hono";
 import { getJobsArgs } from "./types";
 import { ArkErrors } from "arktype";
-import { normalizeTags } from "./utils";
+import { normalizeWords } from "./utils";
+import { KEYWORD_MAPPINGS } from "./constants";
 
 const prisma = new PrismaClient();
 
@@ -28,8 +29,8 @@ app.post("/get-jobs", async (c) => {
     isRemote,
     limit,
   } = args;
-  const keywords = normalizeTags(kw);
-  const excludeKeywords = normalizeTags(ekw);
+  const keywords = normalizeWords(kw, KEYWORD_MAPPINGS);
+  const excludeKeywords = normalizeWords(ekw, KEYWORD_MAPPINGS);
 
   const jobs = (
     await prisma.job.findMany({

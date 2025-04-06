@@ -1,18 +1,17 @@
 import { readdir } from "node:fs/promises";
-import { job, type Job } from "../types";
+import { job, type Job } from "../types/job";
 import { PrismaClient } from "@prisma/client";
 import { partition, uniqBy } from "lodash";
 import { ArkErrors } from "arktype";
-import { cleanUrl, normalizeTags } from "../utils";
 
 const prisma = new PrismaClient();
 
-// Delete everything first
+// Delete everything first (optional)
 await prisma.job.deleteMany();
 
 const [cryptocurrencyJobs, cryptoJobs] = partition(
   await readdir("storage/datasets"),
-  (dir) => dir.includes("cryptocurrencyjobs"),
+  (dir) => dir.includes("cryptocurrencyjobs")
 );
 
 const dateReducer = (curr: string, acc: string) => {
@@ -25,12 +24,12 @@ const cryptocurrencyJobsScrapeDir = cryptocurrencyJobs.reduce(dateReducer);
 const cryptoJobsScrapeDir = cryptoJobs.reduce(dateReducer);
 
 console.log(
-  `--- Cryptocurrency Jobs Scrape Dir: ${cryptocurrencyJobsScrapeDir}`,
+  `--- Cryptocurrency Jobs Scrape Dir: ${cryptocurrencyJobsScrapeDir}`
 );
 console.log(`--- Crypto Jobs Scrape Dir: ${cryptoJobsScrapeDir}`);
 
 const scrapedFilesA = await readdir(
-  `storage/datasets/${cryptocurrencyJobsScrapeDir}`,
+  `storage/datasets/${cryptocurrencyJobsScrapeDir}`
 );
 const scrapedFilesB = await readdir(`storage/datasets/${cryptoJobsScrapeDir}`);
 
@@ -40,12 +39,12 @@ for (const file of scrapedFilesA) {
     continue;
   }
   const contentJson = await Bun.file(
-    `storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}`,
+    `storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}`
   ).json();
   const maybeParsed = job(contentJson);
   if (maybeParsed instanceof ArkErrors) {
     console.error(
-      `Error parsing: "storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}"`,
+      `Error parsing: "storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}"`
     );
     throw new Error(maybeParsed.summary);
   }
@@ -60,12 +59,12 @@ for (const file of scrapedFilesB) {
     continue;
   }
   const contentJson = await Bun.file(
-    `storage/datasets/${cryptoJobsScrapeDir}/${file}`,
+    `storage/datasets/${cryptoJobsScrapeDir}/${file}`
   ).json();
   const maybeParsed = job(contentJson);
   if (maybeParsed instanceof ArkErrors) {
     console.error(
-      `Error parsing: "storage/datasets/${cryptoJobsScrapeDir}/${file}"`,
+      `Error parsing: "storage/datasets/${cryptoJobsScrapeDir}/${file}"`
     );
     throw new Error(maybeParsed.summary);
   }
@@ -77,26 +76,20 @@ console.log(`--- Crypto Jobs: ${jobsB.length}`);
 const allJobs = [
   ...jobsA.map((j) => ({
     ...j,
-    tags: normalizeTags(j.tags),
     source: "cryptocurrencyjobs",
   })),
   ...jobsB.map((j) => ({
     ...j,
-    tags: normalizeTags(j.tags),
     source: "cryptojobs",
   })),
 ];
 
 console.log(`--- All Jobs: ${allJobs.length}`);
 
-let allJobs_ = allJobs.map((job) => ({
-  ...job,
-  real_job_url: cleanUrl(job.real_job_url),
-}));
-let allJobsUniqBy = uniqBy(allJobs_, "real_job_url");
+let allJobsUniqBy = uniqBy(allJobs, "real_job_url");
 
 console.log(
-  `--- Unique Jobs (filtered by real_job_url): ${allJobsUniqBy.length}`,
+  `--- Unique Jobs (filtered by real_job_url): ${allJobsUniqBy.length}`
 );
 
 for (const job of allJobsUniqBy) {

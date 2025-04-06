@@ -1,7 +1,8 @@
 import { test, expect } from "bun:test";
 import { ArkErrors } from "arktype";
-import { job } from ".";
-import { normalizeTags } from "../utils/utils";
+import { job } from "./job";
+import { cleanUrl, normalizeWords } from "../utils";
+import { KEYWORD_MAPPINGS } from "../constants";
 
 test("job type validation", () => {
   const inputExample = {
@@ -38,8 +39,14 @@ test("normalize tags", () => {
     "full stack",
     "full-stack",
   ];
-  const normalizedTags = normalizeTags(tags);
+  const normalizedTags = normalizeWords(tags, KEYWORD_MAPPINGS);
   expect(new Set(normalizedTags)).toEqual(
-    new Set(["frontend", "backend", "fullstack", "papa-johns"]),
+    new Set(["frontend", "backend", "fullstack", "papa-johns"])
   );
+});
+
+test("clean url", () => {
+  const url = "https://www.example.com/job/1234567890/apply?lala=123";
+  const cleanedUrl = cleanUrl(url);
+  expect(cleanedUrl).toEqual("https://www.example.com/job/1234567890?lala=123");
 });

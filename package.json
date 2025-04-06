@@ -6,7 +6,8 @@
   "scripts": {
     "dev:api": "bun run --watch --hot api/index.ts",
     "build:api": "bun build api/index.ts --outdir dist/api --target bun",
-    "start:api": "bun run build:api && bun run dist/api/index.js"
+    "start:api": "bun run build:api && bun run dist/api/index.js",
+    "test": "bun test ./api/**/*.test.ts"
   },
   "devDependencies": {
     "@prisma/client": "^6.5.0",
@@ -22,11 +23,13 @@
     "@modelcontextprotocol/sdk": "^1.8.0",
     "@valibot/to-json-schema": "^1.0.0",
     "arktype": "^2.1.16",
+    "dotenv": "^16.4.7",
     "effect": "^3.14.6",
     "express": "^5.1.0",
     "fastmcp": "^1.21.0",
     "hono": "^4.7.5",
     "lodash": "^4.17.21",
+    "openai": "^4.91.1",
     "zod": "^3.24.2"
   }
 }
