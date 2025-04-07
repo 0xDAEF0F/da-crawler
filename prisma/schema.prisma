@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// A job post obtained by web scraping
 model Job {
   id              Int            @id @default(autoincrement())
   /// Job title. e.g., "Frontend JS Engineer"
@@ -22,13 +23,14 @@ model Job {
   /// The actual job description. Markdown formatted.
   job_description String
   /// The URL of the job post.
-  job_url         String
+  job_url         String         @unique
   /// Whether the job is remote.
   is_remote       Boolean
-  /// The ai generated summary of the job.
+  /// The ai generated analysis of the job.
   ai_analysis     JobAiAnalysis?
 }
 
+/// AI generated analysis of the job.
 model JobAiAnalysis {
   id                      Int      @id @default(autoincrement())
   job_id                  Int      @unique
@@ -48,6 +50,8 @@ model JobAiAnalysis {
   is_full_time            Boolean?
   /// is there any indication if the job can pay in cryptocurrencies?
   option_to_pay_in_crypto Boolean?
+  /// (range based) e.g., "100000-120000"
+  compensation_amount     String?
 
   /// relation to the job obtained by scraping the web
   job Job @relation(fields: [job_id], references: [id])

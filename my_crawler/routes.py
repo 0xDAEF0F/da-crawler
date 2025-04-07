@@ -7,13 +7,15 @@ from crawlee.router import Router
 import asyncio
 from pydantic_core import Url
 from urllib.parse import urlparse, urlunparse
+
+from my_crawler.db import is_job_already_scraped
 from .crawler import crawl4ai, get_config
-from .utils import current_run_id
+from .utils import current_run_id, parse_job_url
 
-NUMBER_OF_JOBS = 100
-SLEEP_INTERVAL = 0.2
+NUMBER_OF_JOBS = 10000
+SLEEP_INTERVAL = 0.5
 
-JOB_DATE_THRESHOLD = 2  # days
+JOB_DATE_THRESHOLD = 10  # days
 
 
 def get_job_date_threshold() -> datetime:
@@ -23,14 +25,6 @@ def get_job_date_threshold() -> datetime:
 
 
 router = Router[PlaywrightCrawlingContext]()
-
-
-def parse_job_url(url: str) -> str:
-    """Parse the job URL to ensure it is absolute for cryptocurrencyjobs.co"""
-    if url.startswith("http"):
-        return url
-    else:
-        return f"https://cryptocurrencyjobs.co{url}"
 
 
 @router.handler(label="cryptocurrencyjobs_main")
@@ -65,12 +59,22 @@ async def cryptocurrencyjobs_main_handler(context: PlaywrightCrawlingContext) ->
             is_remote_future,
         )
 
-        job_url = parse_job_url(job_url or "")
+        # Handle relative URLs
+        if job_url.startswith("http"):
+            job_url = parse_job_url(job_url)
+        else:
+            job_url = parse_job_url(f"https://cryptocurrencyjobs.co{job_url}")
+
         tags_text = [(await tag.inner_text()).strip().lower() for tag in tags]
         date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S")
 
         if date < get_job_date_threshold():
             context.log.info(f"Skipping job: {title}@{company} because it is too old")
+            continue
+        elif is_job_already_scraped(job_url):
+            context.log.info(
+                f"Skipping job: {title}@{company} because it is already scraped"
+            )
             continue
 
         jobs.append(
@@ -86,6 +90,10 @@ async def cryptocurrencyjobs_main_handler(context: PlaywrightCrawlingContext) ->
 
     jobs.sort(key=lambda x: x["date"], reverse=True)
     jobs = [{**job, "date": job["date"].isoformat()} for job in jobs]
+
+    context.log.info("--------------------------------------")
+    context.log.info(f"{len(jobs)} JOBS SHOULD BE SCRAPED")
+    context.log.info("--------------------------------------")
 
     for job in jobs[:NUMBER_OF_JOBS]:
         context.log.info(f"Adding job: {job['job_url']}")

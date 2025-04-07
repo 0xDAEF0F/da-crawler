@@ -6,9 +6,6 @@ import { ArkErrors } from "arktype";
 
 const prisma = new PrismaClient();
 
-// Delete everything first (optional)
-await prisma.job.deleteMany();
-
 const [cryptocurrencyJobs, cryptoJobs] = partition(
   await readdir("storage/datasets"),
   (dir) => dir.includes("cryptocurrencyjobs")
@@ -93,6 +90,15 @@ console.log(
 );
 
 for (const job of allJobsUniqBy) {
+  const alreadyExists = await prisma.job.findUnique({
+    where: { job_url: job.real_job_url },
+  });
+
+  if (alreadyExists) {
+    console.log(`--- Job already exists: ${job.real_job_url}`);
+    continue;
+  }
+
   await prisma.job.create({
     data: {
       company: job.company,

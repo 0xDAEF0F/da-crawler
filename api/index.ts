@@ -4,7 +4,6 @@ import { getJobsArgs } from "./types/get-jobs-api-body";
 import { ArkErrors } from "arktype";
 import { normalizeWords } from "./utils";
 import { KEYWORD_MAPPINGS } from "./constants";
-import { job } from "./types/job";
 import { uniq } from "lodash";
 import type { JobResponse } from "./types/get-jobs-api-response";
 
@@ -81,6 +80,7 @@ app.post("/get-jobs", async (c) => {
 
   const jobsWithLimit = jobsWithExcludeFilter.slice(0, limit ?? 10);
 
+  // Need validation for response
   const jobsResponse = jobsWithLimit.map(
     (job): JobResponse => ({
       company: job.company,
