@@ -14,6 +14,7 @@
     "@types/bun": "latest",
     "@types/express": "^5.0.1",
     "@types/lodash": "^4.17.16",
+    "@types/turndown": "^5.0.5",
     "prisma": "^6.5.0"
   },
   "peerDependencies": {
@@ -30,6 +31,7 @@
     "hono": "^4.7.5",
     "lodash": "^4.17.21",
     "openai": "^4.91.1",
+    "turndown": "^7.2.0",
     "zod": "^3.24.2"
   }
 }

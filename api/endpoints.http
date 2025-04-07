@@ -1,10 +1,11 @@
 ### Get Jobs
-POST http://localhost:3000/get-jobs
+# POST http://localhost:3000/get-jobs
+POST https://terribly-true-mullet.ngrok-free.app/get-jobs
 Content-Type: application/json
 
 {
-  "keywords": ["typescript", "react"],
-  "excludeKeywords": ["php", "wordpress"],
-  "sinceWhen": "1d",
+  "keywords": ["rust", "typescript", "nodejs", "frontend"],
+  "excludeKeywords": [],
+  "sinceWhen": "2d",
   "isRemote": true
 }

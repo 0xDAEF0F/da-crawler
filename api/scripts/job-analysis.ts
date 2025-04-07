@@ -19,7 +19,7 @@ a team player" or "punctuality required") or obvious information (e.g., "must fo
 that applies to most jobs and isn't critical for the applicant to understand the role. Focus on the
 core responsibilities, requirements, and unique aspects of the position.
 
-Respond in a stringified JSON format with the following information (null if unclear):
+Respond in a stringified JSON format with the following information:
 
 "job_title": string, // Best representation of the job title
 "summary": string, // Summary of the job description
@@ -61,14 +61,15 @@ for (const job of jobs) {
     ],
   });
 
-  const summary_ = jobAiAnalysis(summary.choices[0]?.message.content);
+  const summary_ = jobAiAnalysis(summary?.choices[0]?.message?.content);
 
   if (summary_ instanceof type.errors) {
-    console.error(summary_.summary);
+    console.error(`Failed to analyze job ${job.title}`);
+    console.log(`Reason: ${summary_.summary}`);
     continue;
   }
 
-  console.log(summary_);
+  console.log(`Analyzed job ${job.title}@${job.company}`);
 
   await prisma.jobAiAnalysis.create({
     data: {
