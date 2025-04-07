@@ -5,6 +5,7 @@ import { ArkErrors } from "arktype";
 import { normalizeWords } from "./utils";
 import { KEYWORD_MAPPINGS } from "./constants";
 import { uniq } from "lodash";
+import { getConnInfo } from "hono/bun";
 import type { JobResponse } from "./types/get-jobs-api-response";
 
 const prisma = new PrismaClient();
@@ -12,6 +13,8 @@ const prisma = new PrismaClient();
 const app = new Hono();
 
 app.post("/get-jobs", async (c) => {
+  console.log(`Request from: ${getConnInfo(c).remote.address}`);
+
   const body = await c.req.json();
 
   const args = getJobsArgs({
