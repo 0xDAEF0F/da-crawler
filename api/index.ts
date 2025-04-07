@@ -4,6 +4,9 @@ import { getJobsArgs } from "./types/get-jobs-api-body";
 import { ArkErrors } from "arktype";
 import { normalizeWords } from "./utils";
 import { KEYWORD_MAPPINGS } from "./constants";
+import { job } from "./types/job";
+import { uniq } from "lodash";
+import type { JobResponse } from "./types/get-jobs-api-response";
 
 const prisma = new PrismaClient();
 
@@ -29,8 +32,12 @@ app.post("/get-jobs", async (c) => {
     isRemote,
     limit,
   } = args;
-  const keywords = normalizeWords(kw, KEYWORD_MAPPINGS);
-  const excludeKeywords = normalizeWords(ekw, KEYWORD_MAPPINGS);
+  const keywords = normalizeWords(kw, KEYWORD_MAPPINGS).map((k) =>
+    k.toLowerCase()
+  );
+  const excludeKeywords = normalizeWords(ekw, KEYWORD_MAPPINGS).map((k) =>
+    k.toLowerCase()
+  );
 
   const jobs = (
     await prisma.job.findMany({
@@ -38,31 +45,65 @@ app.post("/get-jobs", async (c) => {
         date: { gte: sinceWhen },
         ...(isRemote && { is_remote: true }),
       },
+      include: {
+        ai_analysis: true,
+      },
       orderBy: { date: "desc" },
     })
-  ).map((job) => ({ ...job, tags: JSON.parse(job.tags) as string[] }));
+  ).map((job) => ({
+    ...job,
+    tags: JSON.parse(job.tags) as string[],
+    ai_analysis: {
+      ...job.ai_analysis,
+      keywords: JSON.parse(job.ai_analysis?.keywords ?? "[]") as string[],
+    },
+  }));
 
   // filter jobs by keywords/tags
   const jobsWithTagFilter = jobs.filter((job) => {
     if (keywords.length === 0) return true;
+    const jobKeywords = uniq([...job.tags, ...job.ai_analysis.keywords]);
     for (const keyword of keywords) {
-      if (job.tags.includes(keyword)) return true;
+      if (jobKeywords.includes(keyword)) return true;
     }
     return false;
   });
 
   // filter jobs by excludeKeywords
   const jobsWithExcludeFilter = jobsWithTagFilter.filter((job) => {
-    const jobTags = job.tags.flatMap((tag) => tag.split(" "));
+    if (excludeKeywords.length === 0) return true;
+    const jobKeywords = uniq([...job.tags, ...job.ai_analysis.keywords]);
     for (const excludeKeyword of excludeKeywords) {
-      if (jobTags.includes(excludeKeyword)) return false;
+      if (jobKeywords.includes(excludeKeyword)) return false;
     }
     return true;
   });
 
+  const jobsWithLimit = jobsWithExcludeFilter.slice(0, limit ?? 10);
+
+  const jobsResponse = jobsWithLimit.map(
+    (job): JobResponse => ({
+      company: job.company,
+      date: job.date,
+      job_description: job.ai_analysis?.summary || job.job_description,
+      job_url: job.job_url,
+      keywords: uniq([
+        ...job.ai_analysis.keywords,
+        ...job.tags,
+        job.ai_analysis.option_to_pay_in_crypto ? "crypto-pay" : [],
+      ]).flat(),
+      location:
+        job.ai_analysis?.country && job.ai_analysis?.region
+          ? `${job.ai_analysis.country} | ${job.ai_analysis.region}`
+          : job.ai_analysis?.country || job.ai_analysis?.region || undefined,
+      job_title: job.ai_analysis?.job_title || job.title,
+      is_remote: job.is_remote,
+    })
+  );
+
   return c.json({
     error: false,
-    jobs: jobsWithExcludeFilter.slice(0, limit ?? 10),
+    jobs: jobsResponse,
   });
 });
 
