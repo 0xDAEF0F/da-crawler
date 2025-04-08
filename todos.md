@@ -1,4 +1,5 @@
 # Todos
 
-- [ ] How to know if the job is still available? If not just remove it.
-- [ ] Dont scrape jobs that are already in DB.
+- [ ] Dont scrape jobs that are already in DB python not working.
+- [ ] When sending jobs to llm dont send if description less than x characters
+- [ ] Add to datasets the ai summaries

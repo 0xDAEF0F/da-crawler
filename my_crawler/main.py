@@ -1,4 +1,4 @@
-from crawlee import Request
+from crawlee import ConcurrencySettings, Request
 from crawlee.crawlers import PlaywrightCrawler
 from crawlee.http_clients import HttpxHttpClient
 from .routes import router
@@ -23,6 +23,7 @@ async def main() -> None:
         headless=True,
         max_requests_per_crawl=None,
         http_client=HttpxHttpClient(),
+        concurrency_settings=ConcurrencySettings(max_concurrency=1),
     )
 
     await crawler.run([cryptocurrencyjobs, cryptojobs])

@@ -47,6 +47,7 @@ const remote3CoJob = type({
     const urlObj = new URL(url);
     return cleanUrl(`${urlObj.origin}${urlObj.pathname}`);
   }),
+  slug: type("string").pipe((slug) => `https://remote3.co/remote-jobs/${slug}`),
   categories: type("string.json.parse").to("string[]"),
   companies: type({
     name: type("string.lower").narrow((n, ctx) =>
@@ -113,6 +114,15 @@ console.log(
 
 // Save the jobs to the database
 for (const job of jobsToSave) {
+  const alreadySavedJob = await prisma.job.findFirst({
+    where: {
+      OR: [{ job_url: job.apply_url }, { job_description_url: job.slug }],
+    },
+  });
+  if (alreadySavedJob) {
+    console.log(`Job ${job.title} already exists in db. Skipping`);
+    continue;
+  }
   try {
     await prisma.job.create({
       data: {
@@ -120,6 +130,7 @@ for (const job of jobsToSave) {
         date: job.live_at,
         job_description: job.description,
         job_url: job.apply_url,
+        job_description_url: job.slug,
         title: job.title,
         source: "remote3-co",
         tags: JSON.stringify(job.categories),

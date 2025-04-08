@@ -13,6 +13,8 @@ export const job = type({
   date: "string.date.iso.parse",
   is_remote: "boolean",
   job_description: "string",
+  job_url: type("string"),
+  // the `apply_url`
   real_job_url: type("string.url").pipe(cleanUrl),
 });
 

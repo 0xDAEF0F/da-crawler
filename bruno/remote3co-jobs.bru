@@ -1,0 +1,23 @@
+meta {
+  name: remote3co-jobs
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://ojpncdvueyetebptprsv.supabase.co/rest/v1/jobs?select=*,companies(*)&is_draft=eq.false&order=live_at.desc&offset=0&limit=10
+  body: none
+  auth: inherit
+}
+
+params:query {
+  select: *,companies(*)
+  is_draft: eq.false
+  order: live_at.desc
+  offset: 0
+  limit: 10
+}
+
+headers {
+  apikey: {{process.env.REMOTE3_CO_API_KEY}}
+}

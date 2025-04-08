@@ -108,6 +108,7 @@ for (const job of allJobsUniqBy) {
       is_remote: job.is_remote,
       job_description: job.job_description,
       job_url: job.real_job_url,
+      job_description_url: job.job_url,
       source: job.source,
     },
   });

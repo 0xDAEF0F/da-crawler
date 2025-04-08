@@ -9,25 +9,27 @@ datasource db {
 
 /// A job post obtained by web scraping
 model Job {
-  id              Int            @id @default(autoincrement())
+  id                  Int            @id @default(autoincrement())
   /// Job title. e.g., "Frontend JS Engineer"
-  title           String
+  title               String
   /// Where did we find this job. e.g., "cryptocurrencyjobs.co"
-  source          String
+  source              String
   /// The company that posted the job. e.g., "wintermute"
-  company         String
+  company             String
   /// Tags for the job. e.g., ["javascript", "react", "typescript"]
-  tags            String         @default("[]")
+  tags                String         @default("[]")
   /// When did the job post was published.
-  date            DateTime
+  date                DateTime
   /// The actual job description. Markdown formatted.
-  job_description String
+  job_description     String
+  /// The URL of the job description page (in source).
+  job_description_url String?
   /// The URL of the job post.
-  job_url         String         @unique
+  job_url             String         @unique
   /// Whether the job is remote.
-  is_remote       Boolean
+  is_remote           Boolean
   /// The ai generated analysis of the job.
-  ai_analysis     JobAiAnalysis?
+  ai_analysis         JobAiAnalysis?
 }
 
 /// AI generated analysis of the job.

@@ -11,7 +11,10 @@ current_run_id = get_unix_timestamp_seconds()
 
 
 def parse_job_url(url: str) -> str:
-    """Parses the job url and removes the last path segment if it contains 'apply' or 'application'"""
+    """
+    Parses the job url and removes the last path segment if it contains 'apply'
+    or 'application' and the query params as well
+    """
     parsed = Url(url)
     # Remove trailing slashes from the path and split into segments
     path_segments = [segment for segment in parsed.path.split("/") if segment]
@@ -26,8 +29,8 @@ def parse_job_url(url: str) -> str:
             parsed.scheme,
             parsed.host,
             "/".join(path_segments),
-            "",  # params
-            parsed.query,
-            parsed.fragment,
+            None,
+            None,
+            None,
         )
     )

@@ -1,21 +1,19 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import json
 from crawlee import Request
 from crawlee.storages import Dataset
 from crawlee.crawlers import PlaywrightCrawlingContext
 from crawlee.router import Router
 import asyncio
-from pydantic_core import Url
-from urllib.parse import urlparse, urlunparse
 
-from my_crawler.db import is_job_already_scraped
+from my_crawler.db import is_real_job_url_in_db, is_job_description_url_in_db
 from .crawler import crawl4ai, get_config
 from .utils import current_run_id, parse_job_url
 
-NUMBER_OF_JOBS = 10000
+MAX_NUMBER_OF_JOBS_PER_SITE = 20
 SLEEP_INTERVAL = 0.5
 
-JOB_DATE_THRESHOLD = 10  # days
+JOB_DATE_THRESHOLD = 1  # days
 
 
 def get_job_date_threshold() -> datetime:
@@ -28,7 +26,7 @@ router = Router[PlaywrightCrawlingContext]()
 
 
 @router.handler(label="cryptocurrencyjobs_main")
-async def cryptocurrencyjobs_main_handler(context: PlaywrightCrawlingContext) -> None:
+async def ccj_main_handler(context: PlaywrightCrawlingContext) -> None:
     context.log.info(f"Processing URL: {context.request.url}")
 
     # Locate all the jobs and wait for them to be attached in the DOM
@@ -37,8 +35,6 @@ async def cryptocurrencyjobs_main_handler(context: PlaywrightCrawlingContext) ->
 
     # Get all the jobs
     all_jobs = await locator.locator("li.ais-Hits-item").all()
-
-    context.log.info(f"Found {len(all_jobs)} jobs at cryptocurrencyjobs.co")
 
     jobs = []
 
@@ -61,20 +57,18 @@ async def cryptocurrencyjobs_main_handler(context: PlaywrightCrawlingContext) ->
 
         # Handle relative URLs
         if job_url.startswith("http"):
-            job_url = parse_job_url(job_url)
+            job_url = job_url
         else:
-            job_url = parse_job_url(f"https://cryptocurrencyjobs.co{job_url}")
+            job_url = f"https://cryptocurrencyjobs.co{job_url}"
 
         tags_text = [(await tag.inner_text()).strip().lower() for tag in tags]
         date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S")
 
         if date < get_job_date_threshold():
-            context.log.info(f"Skipping job: {title}@{company} because it is too old")
+            context.log.info(f"Job: {title}, too old. Skipping")
             continue
-        elif is_job_already_scraped(job_url):
-            context.log.info(
-                f"Skipping job: {title}@{company} because it is already scraped"
-            )
+        elif is_job_description_url_in_db(job_url):
+            context.log.info(f"Job: {title} already in db. Skipping")
             continue
 
         jobs.append(
@@ -92,11 +86,12 @@ async def cryptocurrencyjobs_main_handler(context: PlaywrightCrawlingContext) ->
     jobs = [{**job, "date": job["date"].isoformat()} for job in jobs]
 
     context.log.info("--------------------------------------")
-    context.log.info(f"{len(jobs)} JOBS SHOULD BE SCRAPED")
+    context.log.info(
+        f"Adding {len(jobs[:MAX_NUMBER_OF_JOBS_PER_SITE])} jobs to the queue"
+    )
     context.log.info("--------------------------------------")
 
-    for job in jobs[:NUMBER_OF_JOBS]:
-        context.log.info(f"Adding job: {job['job_url']}")
+    for job in jobs[:MAX_NUMBER_OF_JOBS_PER_SITE]:
         await context.add_requests(
             requests=[
                 Request.from_url(
@@ -109,42 +104,35 @@ async def cryptocurrencyjobs_main_handler(context: PlaywrightCrawlingContext) ->
 
 
 @router.handler(label="cryptocurrencyjobs_job_description")
-async def job_description_handler(context: PlaywrightCrawlingContext) -> None:
+async def ccj_job_description_handler(context: PlaywrightCrawlingContext) -> None:
     # Job data from the request context
     job = context.request.user_data["job"]
 
     context.log.info(f"Processing job description: {job['title']}@{job['company']}")
 
     # Get the real job url to process it later
-    real_job_url = Url(
+    job["real_job_url"] = parse_job_url(
         await context.page.locator("a")
         .filter(has_text="Apply")
         .first.get_attribute("href")
     )
 
+    if is_real_job_url_in_db(job["real_job_url"]):
+        context.log.info(f"Job: {job['title']} already in db. Skipping")
+        return
+
     # Get the job description
-    job_description = (
+    job["job_description"] = (
         await crawl4ai.arun(
             url=job["job_url"], config=get_config(css_selector="div.prose")
         )
     ).markdown
 
-    # Set the job description
-    job["job_description"] = job_description
-
-    # Parse the url
-    parsed = urlparse(str(real_job_url))
-    real_job_url = Url(
-        urlunparse((parsed.scheme, parsed.netloc, parsed.path, "", "", ""))
-    )
-
-    job["real_job_url"] = str(real_job_url)
-
     dataset = await Dataset.open(name=f"cryptocurrencyjobs_{current_run_id}")
     await dataset.push_data(json.dumps(job, indent=2))
 
     context.log.info(
-        f"Finished processing {job['title']}@{job['company']}. Sleeping for {SLEEP_INTERVAL} seconds."
+        f"Finished processing {job['title']}. Sleeping for {SLEEP_INTERVAL} seconds."
     )
     await asyncio.sleep(SLEEP_INTERVAL)
 
@@ -155,11 +143,13 @@ async def cryptojobs_main_handler(context: PlaywrightCrawlingContext) -> None:
 
     jobs_section = context.page.locator("#searchForm > section.job_listing")
 
-    all_jobs = await jobs_section.locator("div.new-box").all()
+    all_jobs_locators = await jobs_section.locator("div.new-box").all()
 
-    context.log.info(f"Found {len(all_jobs)} jobs at cryptojobs.com")
+    context.log.info(f"Found {len(all_jobs_locators)} jobs at cryptojobs.com")
 
-    for job in all_jobs[:NUMBER_OF_JOBS]:
+    jobs = []
+
+    for job in all_jobs_locators:
         job_title_url_locator = job.locator("a").nth(0)
         title = (await job_title_url_locator.text_content()).strip()
         job_url = (await job_title_url_locator.get_attribute("href")).strip()
@@ -175,20 +165,36 @@ async def cryptojobs_main_handler(context: PlaywrightCrawlingContext) -> None:
         )
 
         if parse_date(posted) < get_job_date_threshold():
-            context.log.info(f"Skipping job: {title}@{company} because it is too old")
+            context.log.info(f"Skipping job: {title} because it is too old")
+            continue
+        elif is_job_description_url_in_db(job_url):
+            context.log.info(f"Job: {title} already in db. Skipping")
             continue
 
-        job = {
-            "title": title,
-            "job_url": job_url,
-            "company": company,
-            "date": parse_date(posted).isoformat(),
-            "is_remote": is_remote,
-        }
+        jobs.append(
+            {
+                "title": title,
+                "job_url": job_url,
+                "company": company,
+                "date": parse_date(posted),
+                "is_remote": is_remote,
+            }
+        )
+
+    jobs.sort(key=lambda x: x["date"], reverse=True)
+    jobs = [{**job, "date": job["date"].isoformat()} for job in jobs]
+
+    context.log.info("--------------------------------------")
+    context.log.info(
+        f"Adding {len(jobs[:MAX_NUMBER_OF_JOBS_PER_SITE])} jobs to the queue"
+    )
+    context.log.info("--------------------------------------")
+
+    for job in jobs[:MAX_NUMBER_OF_JOBS_PER_SITE]:
         await context.add_requests(
             requests=[
                 Request.from_url(
-                    url=job_url,
+                    url=job["job_url"],
                     label="cryptojobs_job_description",
                     user_data={"job": job},
                 ),
@@ -202,7 +208,7 @@ async def cryptojobs_job_description_handler(
 ) -> None:
     job = context.request.user_data["job"]
 
-    context.log.info(f"Processing job description: {job['title']}@{job['company']}")
+    context.log.info(f"Processing job description: {job['title']}")
 
     tags = await context.page.locator("ul.tags").nth(0).locator("li").all()
     tags_text = [(await tag.inner_text()).strip().lower() for tag in tags]
@@ -228,13 +234,13 @@ async def cryptojobs_job_description_handler(
         )
         return
 
-    job["real_job_url"] = real_job_url
+    job["real_job_url"] = parse_job_url(real_job_url)
 
     dataset = await Dataset.open(name=f"cryptojobs_{current_run_id}")
     await dataset.push_data(json.dumps(job, indent=2))
 
     context.log.info(
-        f"Finished processing {job['title']}@{job['company']}. Sleeping for {SLEEP_INTERVAL} seconds."
+        f"Finished processing {job['title']}. Sleeping for {SLEEP_INTERVAL} seconds."
     )
     await asyncio.sleep(SLEEP_INTERVAL)
 
