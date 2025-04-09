@@ -24,6 +24,7 @@ async def main() -> None:
         max_requests_per_crawl=None,
         http_client=HttpxHttpClient(),
         concurrency_settings=ConcurrencySettings(max_concurrency=1),
+        request_handler_timeout=10000,  # 10 seconds
     )
 
     await crawler.run([cryptocurrencyjobs, cryptojobs])

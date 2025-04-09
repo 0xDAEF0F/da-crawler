@@ -6,7 +6,11 @@ from crawlee.crawlers import PlaywrightCrawlingContext
 from crawlee.router import Router
 import asyncio
 
-from my_crawler.db import is_real_job_url_in_db, is_job_description_url_in_db
+from my_crawler.db import (
+    is_job_title_and_company_in_db,
+    is_real_job_url_in_db,
+    is_job_description_url_in_db,
+)
 from .crawler import crawl4ai, get_config
 from .utils import current_run_id, parse_job_url
 
@@ -69,6 +73,9 @@ async def ccj_main_handler(context: PlaywrightCrawlingContext) -> None:
             continue
         elif is_job_description_url_in_db(job_url):
             context.log.info(f"Job: {title} already in db. Skipping")
+            continue
+        elif is_job_title_and_company_in_db(title, company):
+            context.log.info(f"Job: {title}@{company} already in db. Skipping")
             continue
 
         jobs.append(
@@ -169,6 +176,9 @@ async def cryptojobs_main_handler(context: PlaywrightCrawlingContext) -> None:
             continue
         elif is_job_description_url_in_db(job_url):
             context.log.info(f"Job: {title} already in db. Skipping")
+            continue
+        elif is_job_title_and_company_in_db(title, company):
+            context.log.info(f"Job: {title}@{company} already in db. Skipping")
             continue
 
         jobs.append(
