@@ -47,21 +47,32 @@ const jobs = await prisma.job.findMany({
 
 console.log(`--- ${jobs.length} jobs to analyze`);
 
-for (const job of jobs) {
-  const summary = await openai.chat.completions.create({
-    model: "openrouter/quasar-alpha",
-    messages: [
-      {
-        role: "user",
-        content: [
-          { type: "text", text: summarizePrompt },
-          { type: "text", text: `JOB DESCRIPTION: ${job.job_description}` },
+const jobsSummaries = (
+  await Promise.all(
+    jobs.map(async (job) => {
+      const summary = await openai.chat.completions.create({
+        model: "openrouter/quasar-alpha",
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: summarizePrompt },
+              { type: "text", text: `JOB DESCRIPTION: ${job.job_description}` },
+            ],
+          },
         ],
-      },
-    ],
-  });
+      });
+      return {
+        job,
+        summary: summary.choices[0]?.message?.content,
+      };
+    })
+  )
+).filter((job) => job.summary);
 
-  const summary_ = jobAiAnalysis(summary?.choices[0]?.message?.content);
+for (const job_ of jobsSummaries) {
+  const { job, summary } = job_;
+  const summary_ = jobAiAnalysis(summary);
 
   if (summary_ instanceof type.errors) {
     console.error(`Failed to analyze job ${job.title}`);
