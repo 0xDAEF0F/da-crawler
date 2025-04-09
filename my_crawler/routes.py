@@ -10,10 +10,10 @@ from my_crawler.db import is_real_job_url_in_db, is_job_description_url_in_db
 from .crawler import crawl4ai, get_config
 from .utils import current_run_id, parse_job_url
 
-MAX_NUMBER_OF_JOBS_PER_SITE = 20
+MAX_NUMBER_OF_JOBS_PER_SITE = 200
 SLEEP_INTERVAL = 0.5
 
-JOB_DATE_THRESHOLD = 1  # days
+JOB_DATE_THRESHOLD = 7  # days
 
 
 def get_job_date_threshold() -> datetime:
