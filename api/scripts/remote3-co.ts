@@ -98,6 +98,7 @@ for (const jobData of data as unknown[]) {
 
 console.log(`After validation, found ${validatedJobs.length} jobs`);
 
+// Filter out no longer available jobs
 const jobsToSave = await Promise.all(
   validatedJobs.filter(async (job) => {
     const isNoLongerAvailable = await checkUrlContainsText(
@@ -109,20 +110,29 @@ const jobsToSave = await Promise.all(
 );
 
 console.log(
-  `After filtering for no longer available, found ${jobsToSave.length} jobs to save`
+  `After filtering for no longer available jobs, ${jobsToSave.length} remained.`
+);
+
+// Filter out duplicate jobs
+const nonDuplicateJobs = await Promise.all(
+  jobsToSave.filter(async (job) => {
+    const alreadySavedJob = await prisma.job.findFirst({
+      where: {
+        OR: [{ job_url: job.apply_url }, { job_description_url: job.slug }],
+      },
+    });
+    return !alreadySavedJob;
+  })
+);
+
+console.log(
+  `Found ${
+    jobsToSave.length - nonDuplicateJobs.length
+  } duplicate jobs. Saving ${nonDuplicateJobs.length} jobs to db.`
 );
 
 // Save the jobs to the database
-for (const job of jobsToSave) {
-  const alreadySavedJob = await prisma.job.findFirst({
-    where: {
-      OR: [{ job_url: job.apply_url }, { job_description_url: job.slug }],
-    },
-  });
-  if (alreadySavedJob) {
-    console.log(`Job ${job.title} already exists in db. Skipping`);
-    continue;
-  }
+for (const job of nonDuplicateJobs) {
   try {
     await prisma.job.create({
       data: {
@@ -138,6 +148,6 @@ for (const job of jobsToSave) {
       },
     });
   } catch (e) {
-    console.error(`Error saving job ${job.title}:`, e);
+    console.error(`Error persisting job: ${job.title}`);
   }
 }
