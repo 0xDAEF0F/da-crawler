@@ -1,3 +1,4 @@
+from datetime import timedelta
 from crawlee import ConcurrencySettings, Request
 from crawlee.crawlers import PlaywrightCrawler
 from crawlee.http_clients import HttpxHttpClient
@@ -24,7 +25,7 @@ async def main() -> None:
         max_requests_per_crawl=None,
         http_client=HttpxHttpClient(),
         concurrency_settings=ConcurrencySettings(max_concurrency=1),
-        request_handler_timeout=10000,  # 10 seconds
+        request_handler_timeout=timedelta(seconds=10),
     )
 
     await crawler.run([cryptocurrencyjobs, cryptojobs])
