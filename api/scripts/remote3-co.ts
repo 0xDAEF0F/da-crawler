@@ -87,16 +87,17 @@ const validatedJobs = [];
 for (const jobData of data as unknown[]) {
   const validated = remote3CoJob(jobData);
   if (validated instanceof type.errors) {
-    console.error(`Error: ${validated.summary}`);
-  } else {
-    if (validated.description_format === "html") {
-      validated.description = turndownService.turndown(validated.description);
-    }
-    validatedJobs.push(validated);
+    continue;
   }
+  if (validated.description_format === "html") {
+    validated.description = turndownService.turndown(validated.description);
+  }
+  validatedJobs.push(validated);
 }
 
-console.log(`After validation, found ${validatedJobs.length} jobs`);
+console.log(
+  `${data.length - validatedJobs.length} jobs did not pass validation filter`
+);
 
 // Filter out no longer available jobs
 const jobsToSave = await Promise.all(
@@ -113,17 +114,19 @@ console.log(
   `After filtering for no longer available jobs, ${jobsToSave.length} remained.`
 );
 
+const nonDuplicateJobs = [];
+
 // Filter out duplicate jobs
-const nonDuplicateJobs = await Promise.all(
-  jobsToSave.filter(async (job) => {
-    const alreadySavedJob = await prisma.job.findFirst({
-      where: {
-        OR: [{ job_url: job.apply_url }, { job_description_url: job.slug }],
-      },
-    });
-    return !alreadySavedJob;
-  })
-);
+for (const job of jobsToSave) {
+  const alreadySavedJob = await prisma.job.findFirst({
+    where: {
+      OR: [{ job_url: job.apply_url }, { job_description_url: job.slug }],
+    },
+  });
+  if (!alreadySavedJob) {
+    nonDuplicateJobs.push(job);
+  }
+}
 
 console.log(
   `Found ${
@@ -131,7 +134,7 @@ console.log(
   } duplicate jobs. Saving ${nonDuplicateJobs.length} jobs to db.`
 );
 
-// Save the jobs to the database
+// Save the unique jobs to the database
 for (const job of nonDuplicateJobs) {
   try {
     await prisma.job.create({
