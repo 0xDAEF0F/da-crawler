@@ -152,11 +152,14 @@ async def cryptojobs_main_handler(context: PlaywrightCrawlingContext) -> None:
 
     all_jobs_locators = await jobs_section.locator("div.new-box").all()
 
-    context.log.info(f"Found {len(all_jobs_locators)} jobs at cryptojobs.com")
-
     jobs = []
 
     for job in all_jobs_locators:
+        if await job.locator("span.easy-apply").count() > 0:
+            # Skip easy apply jobs (you need to be logged in to apply)
+            context.log.debug(f"Skipping job because it is an easy apply job")
+            continue
+
         job_title_url_locator = job.locator("a").nth(0)
         title = (await job_title_url_locator.text_content()).strip()
         job_url = (await job_title_url_locator.get_attribute("href")).strip()
@@ -172,13 +175,13 @@ async def cryptojobs_main_handler(context: PlaywrightCrawlingContext) -> None:
         )
 
         if parse_date(posted) < get_job_date_threshold():
-            context.log.info(f"Skipping job: {title} because it is too old")
+            context.log.debug(f"Skipping job: {title} because it is too old")
             continue
         elif is_job_description_url_in_db(job_url):
-            context.log.info(f"Job: {title} already in db. Skipping")
+            context.log.debug(f"Job: {title} already in db. Skipping")
             continue
         elif is_job_title_and_company_in_db(title, company):
-            context.log.info(f"Job: {title}@{company} already in db. Skipping")
+            context.log.debug(f"Job: {title}@{company} already in db. Skipping")
             continue
 
         jobs.append(
@@ -196,7 +199,7 @@ async def cryptojobs_main_handler(context: PlaywrightCrawlingContext) -> None:
 
     context.log.info("--------------------------------------")
     context.log.info(
-        f"Adding {len(jobs[:MAX_NUMBER_OF_JOBS_PER_SITE])} jobs to the queue"
+        f"Adding {len(jobs[:MAX_NUMBER_OF_JOBS_PER_SITE])} jobs from cryptojobs.com to the queue"
     )
     context.log.info("--------------------------------------")
 
@@ -218,7 +221,7 @@ async def cryptojobs_job_description_handler(
 ) -> None:
     job = context.request.user_data["job"]
 
-    context.log.info(f"Processing job description: {job['title']}")
+    context.log.debug(f"Processing job description: {job['title']}")
 
     tags = await context.page.locator("ul.tags").nth(0).locator("li").all()
     tags_text = [(await tag.inner_text()).strip().lower() for tag in tags]
