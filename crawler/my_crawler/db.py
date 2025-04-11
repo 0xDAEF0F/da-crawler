@@ -1,6 +1,6 @@
 import sqlite3
 
-conn = sqlite3.connect("prisma/dev.db")
+conn = sqlite3.connect("../prisma/dev.db")
 
 
 def is_real_job_url_in_db(url: str) -> bool:

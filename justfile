@@ -1,8 +1,9 @@
 scrape-and-save:
-    uv run -m my_crawler
-    bun run api/scripts/remote3-co.ts
-    bun run api/scripts/add-jobs.ts
+    uv run --directory crawler -m my_crawler
+    bun run scripts/remote3-co.ts
+    bun run scripts/beincrypto.ts
+    bun run scripts/add-jobs.ts
     
 analyze-ai:
-    bun run api/scripts/job-analysis.ts
+    bun run scripts/job-analysis.ts
 
