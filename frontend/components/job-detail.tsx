@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 
 // Mock data based on the schema
 const MOCK_JOB = {
@@ -48,13 +48,13 @@ We're looking for a Senior Frontend Engineer to join our team and help build our
     compensation_amount: "120000-160000",
     option_to_pay_in_crypto: true,
   },
-}
+};
 
 export function JobDetail({ id }: { id: string }) {
-  const [isApplying, setIsApplying] = useState(false)
+  const [isApplying, setIsApplying] = useState(false);
 
   // In a real app, this would fetch the job by ID
-  const job = MOCK_JOB
+  const job = MOCK_JOB;
 
   return (
     <div className="bg-white rounded-lg border border-gray-200">
@@ -65,8 +65,12 @@ export function JobDetail({ id }: { id: string }) {
             <p className="text-xl text-gray-600 mt-1">{job.company}</p>
           </div>
           <div className="text-right">
-            <div className="text-lg font-medium">${job.ai_analysis.compensation_amount?.replace("-", " - $")}</div>
-            {job.ai_analysis.is_full_time && <span className="text-gray-600">Full-time</span>}
+            <div className="text-lg font-medium">
+              ${job.ai_analysis.compensation_amount?.replace("-", " - $")}
+            </div>
+            {job.ai_analysis.is_full_time && (
+              <span className="text-gray-600">Full-time</span>
+            )}
           </div>
         </div>
 
@@ -111,10 +115,15 @@ export function JobDetail({ id }: { id: string }) {
         {isApplying && (
           <div className="mt-4 p-4 bg-gray-50 rounded-md">
             <h3 className="font-medium">Quick Apply</h3>
-            <p className="text-sm text-gray-600 mt-1">Submit your application directly through our platform.</p>
+            <p className="text-sm text-gray-600 mt-1">
+              Submit your application directly through our platform.
+            </p>
             <form className="mt-3 space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Email
                 </label>
                 <input
@@ -125,7 +134,10 @@ export function JobDetail({ id }: { id: string }) {
                 />
               </div>
               <div>
-                <label htmlFor="resume" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="resume"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Resume
                 </label>
                 <input
@@ -162,7 +174,11 @@ export function JobDetail({ id }: { id: string }) {
       <div className="p-6">
         <div className="prose max-w-none">
           {/* In a real app, you would render the markdown with a library */}
-          <div dangerouslySetInnerHTML={{ __html: formatMarkdown(job.job_description) }} />
+          <div
+            dangerouslySetInnerHTML={{
+              __html: formatMarkdown(job.job_description),
+            }}
+          />
         </div>
       </div>
 
@@ -189,7 +205,7 @@ export function JobDetail({ id }: { id: string }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // Simple markdown formatter for demo purposes
@@ -202,12 +218,12 @@ function formatMarkdown(markdown: string): string {
     .replace(/\*\*(.*)\*\*/gm, "<strong>$1</strong>")
     .replace(/\*(.*)\*/gm, "<em>$1</em>")
     .replace(/- (.*)/gm, "<li>$1</li>")
-    .replace(/\n\n/gm, "<br/>")
+    .replace(/\n\n/gm, "<br/>");
 
   // Wrap lists
   html = html.replace(/<li>.*?<\/li>/gs, (match) => {
-    return `<ul>${match}</ul>`
-  })
+    return `<ul>${match}</ul>`;
+  });
 
-  return html
+  return html;
 }
