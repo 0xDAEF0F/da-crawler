@@ -52,6 +52,10 @@ export function cleanUrl(url: string): string {
     parsedUrl.pathname =
       pathSegments.length > 0 ? `/${pathSegments.join("/")}` : "";
 
+    // Remove query parameters and hash fragment
+    parsedUrl.search = "";
+    parsedUrl.hash = "";
+
     return parsedUrl.toString();
   } catch (error) {
     // Return original URL if parsing fails

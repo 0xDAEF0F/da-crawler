@@ -5,10 +5,10 @@ import { KEYWORD_MAPPINGS } from "../constants";
 
 // Job schema in database
 export const job = type({
-  title: type("string").to("string.lower"),
-  company: type("string >= 2").to("string.lower"),
+  title: "string.lower |> string.trim",
+  company: "string >= 2 |> string.trim |> string.lower",
   tags: type("string[]")
-    .to("string.lower[]")
+    .to("string.lower[] |> string.trim[]")
     .pipe((tags) => normalizeWords(tags, KEYWORD_MAPPINGS)),
   date: "string.date.iso.parse",
   is_remote: "boolean",
