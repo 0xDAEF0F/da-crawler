@@ -3,7 +3,7 @@ import { prisma } from "../utils/db";
 import { uniq } from "lodash";
 import { type } from "arktype";
 
-export async function allTags(c: Context) {
+export async function getTags(c: Context) {
   const tags = await prisma.job.findMany({
     select: {
       tags: true,
