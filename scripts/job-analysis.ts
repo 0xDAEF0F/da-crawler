@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import OpenAI from "openai";
 import dotenv from "dotenv";
 import { type } from "arktype";
-import { jobAiAnalysis } from "../types/job-ai-analysis";
+import { jobAiAnalysis } from "../api/types/job-ai-analysis";
 
 dotenv.config();
 
@@ -51,7 +51,7 @@ const jobsSummaries = (
   await Promise.all(
     jobs.map(async (job) => {
       const summary = await openai.chat.completions.create({
-        model: "openrouter/quasar-alpha",
+        model: "openrouter/optimus-alpha",
         messages: [
           {
             role: "user",
