@@ -1,11 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 import { Hono } from "hono";
 import { getJobsArgs } from "./types/get-jobs-api-body";
-import { ArkErrors } from "arktype";
+import { ArkErrors, type } from "arktype";
 import { normalizeWords } from "./utils";
 import { KEYWORD_MAPPINGS } from "./constants";
 import { uniq } from "lodash";
 import { getConnInfo } from "hono/bun";
+import { allTags } from "./routes/all-tags";
 import type { JobResponse } from "./types/get-jobs-api-response";
 
 const prisma = new PrismaClient();
@@ -109,5 +110,7 @@ app.post("/get-jobs", async (c) => {
     jobs: jobsResponse,
   });
 });
+
+app.get("/all-tags", allTags);
 
 export default app;

@@ -48,7 +48,7 @@ const remote3CoJob = type({
     return cleanUrl(`${urlObj.origin}${urlObj.pathname}`);
   }),
   slug: type("string").pipe((slug) => `https://remote3.co/remote-jobs/${slug}`),
-  categories: type("string.json.parse").to("string[]"),
+  categories: type("string.json.parse").to("string.lower[] |> string.trim[]"),
   companies: type({
     name: type("string.lower").narrow((n, ctx) =>
       n.includes("stealth") ? ctx.mustBe("not stealth") : true
