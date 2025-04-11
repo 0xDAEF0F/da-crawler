@@ -1,8 +1,11 @@
-import { JobFilters } from "@/components/job-filters"
-import { JobList } from "@/components/job-list"
-import { SearchBar } from "@/components/search-bar"
+import { JobFilters } from "@/components/job-filters";
+import { JobList } from "@/components/job-list";
+import { SearchBar } from "@/components/search-bar";
+import prisma from "@/lib/db";
 
-export default function Home() {
+export default async function Home() {
+  const jobs = await prisma.job.findMany();
+  console.log(jobs);
   return (
     <main className="container mx-auto px-4 py-8 max-w-6xl">
       <h1 className="text-3xl font-bold mb-8">Developer Jobs</h1>
@@ -19,5 +22,5 @@ export default function Home() {
         </section>
       </div>
     </main>
-  )
+  );
 }

@@ -1,5 +1,5 @@
 import { readdir } from "node:fs/promises";
-import { job, type Job } from "../types/job";
+import { job, type Job } from "../api/types/job";
 import { PrismaClient } from "@prisma/client";
 import { partition, uniqBy } from "lodash";
 import { ArkErrors } from "arktype";

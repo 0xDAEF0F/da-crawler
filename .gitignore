@@ -1,7 +1,7 @@
 storage
 .venv
 node_modules
-my_crawler/__pycache__
+__pycache__
 dist
 .env
 *.db*

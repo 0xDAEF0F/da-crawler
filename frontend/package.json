@@ -2,12 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
+  "scripts": {},
   "dependencies": {
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
