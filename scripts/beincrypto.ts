@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { job, type Job } from "../types/job";
+import { job, type Job } from "../api/types/job";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();

@@ -1,7 +1,7 @@
 import { type } from "arktype";
 import dotenv from "dotenv";
 import TurndownService from "turndown";
-import { cleanUrl } from "../utils";
+import { cleanUrl } from "../api/utils";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -82,7 +82,7 @@ const data = (await res.json()) as [];
 
 console.log(`Initially found ${data.length} jobs`);
 
-const validatedJobs = [];
+const validatedJobs: (typeof remote3CoJob.infer)[] = [];
 
 for (const jobData of data as unknown[]) {
   const validated = remote3CoJob(jobData);
@@ -114,7 +114,7 @@ console.log(
   `After filtering for no longer available jobs, ${jobsToSave.length} remained.`
 );
 
-const nonDuplicateJobs = [];
+const nonDuplicateJobs: (typeof remote3CoJob.infer)[] = [];
 
 // Filter out duplicate jobs
 for (const job of jobsToSave) {
