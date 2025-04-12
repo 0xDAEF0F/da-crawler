@@ -1,7 +1,11 @@
 import { type } from "arktype";
 
+export const trimmedLowerCaseStrings = type(
+  "string.lower[] |> string.trim[]"
+).pipe((arr) => arr.filter((str) => str));
+
 // Schema for the `getJobs` API arguments/params in body
-export const getJobsArgs = type({
+export const getJobsBody = type({
   // 1d, 1w, 2d, 42w
   sinceWhen: type("/^[0-9]+[dw]$/").pipe((str) => {
     const amount = parseInt(str.slice(0, -1));
@@ -11,10 +15,13 @@ export const getJobsArgs = type({
     date.setDate(date.getDate() - amount * (units === "d" ? 1 : 7));
     return date;
   }),
-  keywords: type("string.lower[] |> string.trim[]"),
-  excludeKeywords: type("string.lower[] |> string.trim[]"),
+  keywords: trimmedLowerCaseStrings,
+  // excludes jobs that contain these words in the title
+  "excludeFromTitle?": trimmedLowerCaseStrings,
+  // excludes jobs that contain these words in it's set of keywords/tags
+  excludeKeywords: trimmedLowerCaseStrings,
   "limit?": "number.integer <= 100",
   "isRemote?": "boolean",
 });
 
-export type GetJobsArgs = typeof getJobsArgs.infer;
+export type GetJobsBody = typeof getJobsBody.infer;

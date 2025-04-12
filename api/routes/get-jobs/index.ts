@@ -1,11 +1,11 @@
-import { getJobsArgs } from "../types/get-jobs-api-body";
+import { getJobsBody } from "./body-schema";
 import { ArkErrors } from "arktype";
-import { normalizeWords } from "../utils";
-import { KEYWORD_MAPPINGS } from "../constants";
+import { normalizeWords } from "../../utils";
+import { KEYWORD_MAPPINGS } from "../../constants";
 import { uniq } from "lodash";
 import { getConnInfo } from "hono/bun";
-import { prisma } from "../utils/db";
-import type { JobResponse } from "../types/get-jobs-api-response";
+import { prisma } from "../../utils/db";
+import type { JobResponse } from "../../types/get-jobs-api-response";
 import type { Context } from "hono";
 
 export const getJobs = async (c: Context) => {
@@ -13,7 +13,7 @@ export const getJobs = async (c: Context) => {
 
   const body = await c.req.json();
 
-  const args = getJobsArgs({
+  const args = getJobsBody({
     ...body,
     keywords: body.keywords ?? [],
     excludeKeywords: body.excludeKeywords ?? [],
@@ -26,6 +26,7 @@ export const getJobs = async (c: Context) => {
   const {
     keywords: kw,
     excludeKeywords: ekw,
+    excludeFromTitle,
     sinceWhen,
     isRemote,
     limit,
@@ -40,8 +41,17 @@ export const getJobs = async (c: Context) => {
   const jobs = (
     await prisma.job.findMany({
       where: {
+        is_remote: isRemote,
         date: { gte: sinceWhen },
-        ...(isRemote && { is_remote: true }),
+        AND: [
+          ...(excludeFromTitle ?? []).map((term) => ({
+            NOT: {
+              title: {
+                contains: term,
+              },
+            },
+          })),
+        ],
       },
       include: {
         ai_analysis: true,

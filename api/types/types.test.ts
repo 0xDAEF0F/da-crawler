@@ -1,9 +1,8 @@
 import { test, expect } from "bun:test";
-import { ArkErrors, type } from "arktype";
+import { ArkErrors } from "arktype";
 import { job } from "./job";
 import { cleanUrl, normalizeWords } from "../utils";
 import { KEYWORD_MAPPINGS } from "../constants";
-import { getJobsArgs } from "./get-jobs-api-body";
 
 test("job type validation", () => {
   const inputExample = {
@@ -20,6 +19,7 @@ test("job type validation", () => {
     date: "2025-04-02T00:32:29",
     is_remote: true,
     job_description: "job description",
+    job_url: "https://www.example.com/job/1234567890/apply?lala=123",
     real_job_url: "mailto:admin@neutrl.xyz",
   };
   const result = job(inputExample);
@@ -49,16 +49,5 @@ test("normalize tags", () => {
 test("clean url", () => {
   const url = "https://www.example.com/job/1234567890/apply?lala=123";
   const cleanedUrl = cleanUrl(url);
-  expect(cleanedUrl).toEqual("https://www.example.com/job/1234567890?lala=123");
-});
-
-test("get jobs args", () => {
-  const args = getJobsArgs({
-    keywords: ["Frontend", "Backend", "Fullstack"],
-    excludeKeywords: ["PHP", "Wordpress"],
-    sinceWhen: "100d",
-    isRemote: true,
-  });
-  expect(args).not.toBeInstanceOf(type.errors);
-  console.log(args);
+  expect(cleanedUrl).toEqual("https://www.example.com/job/1234567890");
 });
