@@ -7,7 +7,8 @@ scrape-and-save:
 analyze-ai:
     bun run scripts/job-analysis.ts
 
-run-api:
-    -pkill -f "bun run dist/api/index.js"
+rebuild-api:
     bun run build:api
-    tmux new-window -n api-server "bun run dist/api/index.js"
+
+run-api:
+    bun run --hot dist/api/index.js
