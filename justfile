@@ -8,6 +8,6 @@ analyze-ai:
     bun run scripts/job-analysis.ts
 
 run-api:
-    pkill -f "bun run dist/api/index.js" || true; true
+    pkill -f "bun run dist/api/index.js" || true
     bun run build:api
     tmux new-window -n api-server "bun run dist/api/index.js"
