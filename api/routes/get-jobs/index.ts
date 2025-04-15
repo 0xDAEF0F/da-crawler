@@ -93,6 +93,11 @@ export const getJobs = async (c: Context) => {
     offsetValue,
     offsetValue + limitValue
   );
+  // const totalPages = Math.ceil(
+  //   (jobsWithExcludeFilter.length - offsetValue > 0
+  //     ? jobsWithExcludeFilter.length - offsetValue
+  //     : 0) / limitValue
+  // );
 
   const jobsResponse = jobsWithLimit.map(
     (job): JobResponse => ({
@@ -117,5 +122,6 @@ export const getJobs = async (c: Context) => {
   return c.json({
     error: false,
     jobs: jobsResponse,
+    totalResults: jobsWithExcludeFilter.length,
   });
 };

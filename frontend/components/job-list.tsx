@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { capitalize } from "@/lib/utils";
 import {
   Pagination,
@@ -15,9 +16,21 @@ import {
 // imported from monorepo
 import { JobResponse } from "~/api/types/get-jobs-api-response";
 
-export function JobList({ jobs_ }: { jobs_: JobResponse[] }) {
+export function JobList({
+  jobs_,
+  totalResults,
+}: {
+  jobs_: JobResponse[];
+  totalResults: number;
+}) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [sortBy, setSortBy] = useState<"date" | "salary">("date");
-  const [currentPage, setCurrentPage] = useState(1);
+
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
+  const [currentPage, setCurrentPage] = useState(initialPage > 0 ? initialPage : 1);
+
   const itemsPerPage = 10; // Number of items per page
 
   const jobs = jobs_.map((j) => ({
@@ -26,17 +39,19 @@ export function JobList({ jobs_ }: { jobs_: JobResponse[] }) {
     date: new Date(j.date),
   }));
 
-  // Calculate pagination values
-  // const totalPages = Math.ceil(jobs.length / itemsPerPage);
-  const totalPages = 10;
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentJobs = jobs.slice(startIndex, endIndex);
+  const totalPages = Math.floor(totalResults / itemsPerPage);
+
+  const updateUrl = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", page.toString());
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    // Optional: Scroll to top when changing pages
-    // window.scrollTo(0, 0);
+    if (page > 0 && page <= totalPages) {
+      setCurrentPage(page);
+      updateUrl(page);
+    }
   };
 
   return (
@@ -57,7 +72,7 @@ export function JobList({ jobs_ }: { jobs_: JobResponse[] }) {
       </div>
 
       <div className="space-y-4">
-        {currentJobs.map((job) => (
+        {jobs.map((job) => (
           <Link
             href={`/jobs/${job.id}`}
             key={job.id}
@@ -113,12 +128,9 @@ export function JobList({ jobs_ }: { jobs_: JobResponse[] }) {
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
-                  href="#"
                   onClick={(e) => {
                     e.preventDefault();
-                    if (currentPage > 1) {
-                      handlePageChange(currentPage - 1);
-                    }
+                    handlePageChange(currentPage - 1);
                   }}
                   className={
                     currentPage === 1 ? "pointer-events-none opacity-50" : undefined
@@ -126,14 +138,11 @@ export function JobList({ jobs_ }: { jobs_: JobResponse[] }) {
                 />
               </PaginationItem>
 
-              {/* Dynamically generate page numbers (simplified example) */}
               {[...Array(totalPages)].map((_, index) => {
                 const page = index + 1;
-                // Add more sophisticated logic here for handling many pages (e.g., ellipsis) if needed
                 return (
                   <PaginationItem key={page}>
                     <PaginationLink
-                      href="#"
                       onClick={(e) => {
                         e.preventDefault();
                         handlePageChange(page);
@@ -148,12 +157,9 @@ export function JobList({ jobs_ }: { jobs_: JobResponse[] }) {
 
               <PaginationItem>
                 <PaginationNext
-                  href="#"
                   onClick={(e) => {
                     e.preventDefault();
-                    if (currentPage < totalPages) {
-                      handlePageChange(currentPage + 1);
-                    }
+                    handlePageChange(currentPage + 1);
                   }}
                   className={
                     currentPage === totalPages
