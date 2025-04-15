@@ -36,7 +36,7 @@ export function JobList({
 
   const jobs = jobs_.map((j) => ({
     ...j,
-    id: j.job_url,
+    id: j.id,
     date: new Date(j.date),
   }));
 
@@ -73,53 +73,56 @@ export function JobList({
       </div>
 
       <div className="space-y-4">
-        {jobs.map((job) => (
-          <Link
-            href={`/jobs/${job.id}`}
-            key={job.id}
-            className="block border border-gray-200 rounded-md p-4 hover:border-gray-400 transition-colors"
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-medium text-lg">{capitalize(job.job_title)}</h3>
-                <p className="text-gray-600">{capitalize(job.company)}</p>
+        {jobs.map((job) => {
+          return (
+            <Link
+              href={`/jobs/${job.id}`}
+              key={job.id}
+              className="block border border-gray-200 rounded-md p-4 hover:border-gray-400 transition-colors"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-medium text-lg">{capitalize(job.job_title)}</h3>
+                  <p className="text-gray-600">{capitalize(job.company)}</p>
+                </div>
+                <div className="text-right">
+                  <span className="text-gray-900 font-medium">$0 - $0</span>
+                </div>
               </div>
-              <div className="text-right">
-                <span className="text-gray-900 font-medium">$0 - $0</span>
+
+              <div className="mt-2 flex flex-wrap gap-1">
+                {job.keywords.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
+                  >
+                    {tag}
+                  </span>
+                ))}
+                {job.is_remote && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                    Remote
+                  </span>
+                )}
+                {true && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                    Crypto Payment
+                  </span>
+                )}
               </div>
-            </div>
 
-            <div className="mt-2 flex flex-wrap gap-1">
-              {job.keywords.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
-                >
-                  {tag}
-                </span>
-              ))}
-              {job.is_remote && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                  Remote
-                </span>
-              )}
-              {true && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                  Crypto Payment
-                </span>
-              )}
-            </div>
+              <div className="mt-3 text-sm text-gray-500">
+                {/* <p>{job.job_description}</p> */}
+                <p>{job.job_description.slice(0, 50)}...</p>
+              </div>
 
-            <div className="mt-3 text-sm text-gray-500">
-              <p>{job.job_description}</p>
-            </div>
-
-            <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
-              <span>Source: Source</span>
-              <span>{formatDate(job.date)}</span>
-            </div>
-          </Link>
-        ))}
+              <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
+                <span>Source: Source</span>
+                <span>{formatDate(job.date)}</span>
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       {/* Pagination Controls */}

@@ -3,14 +3,11 @@ import { ArkErrors } from "arktype";
 import { normalizeWords } from "../../utils";
 import { KEYWORD_MAPPINGS } from "../../constants";
 import { uniq } from "lodash";
-import { getConnInfo } from "hono/bun";
 import { prisma } from "../../utils/db";
 import type { JobResponse } from "../../types/get-jobs-api-response";
 import type { Context } from "hono";
 
 export const getJobs = async (c: Context) => {
-  console.log(`Request from: ${getConnInfo(c).remote.address}`);
-
   const body = await c.req.json();
 
   const args = getJobsBody({
@@ -93,16 +90,12 @@ export const getJobs = async (c: Context) => {
     offsetValue,
     offsetValue + limitValue
   );
-  // const totalPages = Math.ceil(
-  //   (jobsWithExcludeFilter.length - offsetValue > 0
-  //     ? jobsWithExcludeFilter.length - offsetValue
-  //     : 0) / limitValue
-  // );
 
   const jobsResponse = jobsWithLimit.map(
     (job): JobResponse => ({
+      id: job.id,
       company: job.company,
-      date: job.date,
+      date: job.date.toISOString(),
       job_description: job.ai_analysis?.summary || job.job_description,
       job_url: job.job_url,
       keywords: uniq([

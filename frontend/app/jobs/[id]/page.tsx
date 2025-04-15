@@ -1,13 +1,19 @@
 import { JobDetail } from "@/components/job-detail";
 import { RelatedJobs } from "@/components/related-jobs";
+import { BASE_URL } from "@/lib/utils";
 import Link from "next/link";
+import { GetJobResponse } from "~/api/routes/get-job"; // Assuming path
 
-export default async function JobPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const id = await params;
+async function getJobById(id: string): Promise<GetJobResponse> {
+  const res = await fetch(`${BASE_URL}/job/${id}`);
+  const json = await res.json();
+  // console.log(json);
+  return json;
+}
+
+export default async function JobPage({ params }: { params: Promise<{ id: string }> }) {
+  const id = (await params).id;
+  const job = await getJobById(id);
   return (
     <main className="container mx-auto px-4 py-8 max-w-6xl">
       <Link
@@ -31,11 +37,12 @@ export default async function JobPage({
 
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1">
-          <JobDetail id={id.slug} />
+          <JobDetail job={job} />
         </div>
 
         <aside className="w-full lg:w-80 shrink-0">
-          <RelatedJobs id={id.slug} />
+          {/* Assuming RelatedJobs might also need job data or just the ID */}
+          {/* <RelatedJobs id={jobUrl} /> */}
         </aside>
       </div>
     </main>

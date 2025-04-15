@@ -1,60 +1,45 @@
 "use client";
 
 import { useState } from "react";
+import { GetJobResponse } from "~/api/routes/get-job"; // Assuming path
 
-// Mock data based on the schema
-const MOCK_JOB = {
-  id: 1,
-  title: "Senior Frontend Engineer",
-  company: "Blockchain Inc",
-  source: "cryptocurrencyjobs.co",
-  tags: ["javascript", "react", "typescript"],
-  date: new Date("2023-05-15"),
-  is_remote: true,
-  job_description: `
-# Senior Frontend Engineer
+// Mock data based on the schema - REMOVED
+// const MOCK_JOB = { ... };
 
-## About Us
-Blockchain Inc is a leading DeFi platform with over $1B in TVL. We're building the future of finance.
+// Simple markdown formatter (moved up for clarity)
+function formatMarkdown(markdown: string): string {
+  let html = markdown
+    .replace(/^# (.*$)/gm, "<h1>$1</h1>")
+    .replace(/^## (.*$)/gm, "<h2>$1</h2>")
+    .replace(/^### (.*$)/gm, "<h3>$1</h3>")
+    .replace(/\*\*(.*)\*\*/gm, "<strong>$1</strong>")
+    .replace(/\*(.*)\*/gm, "<em>$1</em>")
+    .replace(/- (.*)/gm, "<li>$1</li>")
+    .replace(/\n\n/gm, "<br/>");
 
-## The Role
-We're looking for a Senior Frontend Engineer to join our team and help build our next-generation DeFi applications.
+  // Wrap lists
+  html = html.replace(/<li>.*?<\/li>/gs, (match) => {
+    return `<ul>${match}</ul>`;
+  });
 
-## Requirements
-- 5+ years of experience with JavaScript and React
-- Strong TypeScript skills
-- Experience with Web3 technologies
-- Excellent problem-solving abilities
+  return html;
+}
 
-## Benefits
-- Competitive salary: $120,000 - $160,000
-- Option to be paid in crypto
-- Fully remote
-- Flexible working hours
-- Health insurance
-- 401(k) matching
-  `,
-  job_url: "https://example.com/jobs/1",
-  job_description_url: "https://example.com/jobs/1/description",
-  ai_analysis: {
-    job_title: "Senior Frontend Engineer - DeFi",
-    summary:
-      "Senior role focused on building DeFi applications with React and TypeScript. Requires 5+ years of experience.",
-    keywords: "react, typescript, web3, defi, frontend, javascript",
-    is_remote: true,
-    country: null,
-    region: null,
-    is_full_time: true,
-    compensation_amount: "120000-160000",
-    option_to_pay_in_crypto: true,
-  },
+type Props = {
+  job: GetJobResponse;
 };
 
-export function JobDetail({ id }: { id: string }) {
+export function JobDetail({ job }: Props) {
   const [isApplying, setIsApplying] = useState(false);
 
-  // In a real app, this would fetch the job by ID
-  const job = MOCK_JOB;
+  // Determine AI analysis details safely
+  const compensationText = job.ai_compensation_amount
+    ? `$${job.ai_compensation_amount.replace("-", " - $")}`
+    : "N/A";
+  const isFullTime = job.is_full_time ?? false;
+  const optionToPayInCrypto = false;
+  const aiSummary = job.ai_summary ?? "No summary available.";
+  const aiKeywords = job.ai_keywords ?? [];
 
   return (
     <div className="bg-white rounded-lg border border-gray-200">
@@ -65,30 +50,28 @@ export function JobDetail({ id }: { id: string }) {
             <p className="text-xl text-gray-600 mt-1">{job.company}</p>
           </div>
           <div className="text-right">
-            <div className="text-lg font-medium">
-              ${job.ai_analysis.compensation_amount?.replace("-", " - $")}
-            </div>
-            {job.ai_analysis.is_full_time && (
-              <span className="text-gray-600">Full-time</span>
-            )}
+            <div className="text-lg font-medium">{compensationText}</div>
+            {isFullTime && <span className="text-gray-600">Full-time</span>}
           </div>
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">
-          {job.tags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800"
-            >
-              {tag}
-            </span>
-          ))}
+          {job.keywords?.map((tag) => {
+            return (
+              <span
+                key={tag}
+                className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800"
+              >
+                {tag}
+              </span>
+            );
+          })}
           {job.is_remote && (
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-green-100 text-green-800">
               Remote
             </span>
           )}
-          {job.ai_analysis.option_to_pay_in_crypto && (
+          {optionToPayInCrypto && (
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-purple-100 text-purple-800">
               Crypto Payment
             </span>
@@ -103,7 +86,7 @@ export function JobDetail({ id }: { id: string }) {
             Apply Now
           </button>
           <a
-            href={job.job_url}
+            href={job.job_url} // Use job_url from prop
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
@@ -173,7 +156,7 @@ export function JobDetail({ id }: { id: string }) {
 
       <div className="p-6">
         <div className="prose max-w-none">
-          {/* In a real app, you would render the markdown with a library */}
+          {/* Render the markdown from the job prop */}
           <div
             dangerouslySetInnerHTML={{
               __html: formatMarkdown(job.job_description),
@@ -187,12 +170,12 @@ export function JobDetail({ id }: { id: string }) {
         <div className="space-y-4">
           <div>
             <h3 className="text-sm font-medium text-gray-500">Summary</h3>
-            <p className="mt-1">{job.ai_analysis.summary}</p>
+            <p className="mt-1">{aiSummary}</p>
           </div>
           <div>
             <h3 className="text-sm font-medium text-gray-500">Keywords</h3>
             <div className="mt-1 flex flex-wrap gap-1">
-              {job.ai_analysis.keywords.split(", ").map((keyword) => (
+              {aiKeywords.map((keyword: string) => (
                 <span
                   key={keyword}
                   className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
@@ -202,28 +185,11 @@ export function JobDetail({ id }: { id: string }) {
               ))}
             </div>
           </div>
+          {/* Display other AI analysis fields if needed */}
         </div>
       </div>
     </div>
   );
 }
 
-// Simple markdown formatter for demo purposes
-// In a real app, you would use a proper markdown library
-function formatMarkdown(markdown: string): string {
-  let html = markdown
-    .replace(/^# (.*$)/gm, "<h1>$1</h1>")
-    .replace(/^## (.*$)/gm, "<h2>$1</h2>")
-    .replace(/^### (.*$)/gm, "<h3>$1</h3>")
-    .replace(/\*\*(.*)\*\*/gm, "<strong>$1</strong>")
-    .replace(/\*(.*)\*/gm, "<em>$1</em>")
-    .replace(/- (.*)/gm, "<li>$1</li>")
-    .replace(/\n\n/gm, "<br/>");
-
-  // Wrap lists
-  html = html.replace(/<li>.*?<\/li>/gs, (match) => {
-    return `<ul>${match}</ul>`;
-  });
-
-  return html;
-}
+// Removed formatMarkdown from here as it was moved up
