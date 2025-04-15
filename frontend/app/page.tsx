@@ -1,11 +1,13 @@
 import { JobFilters } from "@/components/job-filters";
 import { JobList } from "@/components/job-list";
 import { SearchBar } from "@/components/search-bar";
+import { BASE_URL } from "@/lib/utils";
 
-import { JobResponse } from "@/api/types/get-jobs-api-response";
+// imported from monorepo
+import { JobResponse } from "~/api/types/get-jobs-api-response";
 
 async function getLastJobs(num: number): Promise<JobResponse[]> {
-  const response = await fetch(`${process.env.PROD_API_URL}/get-jobs`, {
+  const response = await fetch(`${BASE_URL}/get-jobs`, {
     method: "POST",
     body: JSON.stringify({ limit: num, sinceWhen: "10d" }),
   });

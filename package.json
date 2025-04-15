@@ -14,7 +14,7 @@
     "dev:api": "bun run --watch --hot api/index.ts",
     "start:api": "bun run build:api && bun run dist/api/index.js",
     "test:api": "bun test api",
-    "dev:frontend": "cd frontend && next dev --turbopack",
+    "dev:frontend": "cd frontend && next dev --turbopack --port 3001",
     "build:frontend": "cd frontend && next build",
     "start:frontend": "cd frontend && next start",
     "lint:frontend": "cd frontend && next lint"

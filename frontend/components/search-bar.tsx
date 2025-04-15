@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export function SearchBar() {
-  const [query, setQuery] = useState("")
-  const router = useRouter()
+  const [query, setQuery] = useState("");
+  const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // In a real app, this would update the URL with search params
-    router.push(`/?q=${encodeURIComponent(query)}`)
-  }
+    router.push(`/?q=${encodeURIComponent(query)}`);
+  };
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
@@ -49,5 +49,5 @@ export function SearchBar() {
         </button>
       </div>
     </form>
-  )
+  );
 }
