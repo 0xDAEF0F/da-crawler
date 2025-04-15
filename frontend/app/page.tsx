@@ -32,15 +32,19 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
   const keywords = query ? query.split(" ").filter(Boolean) : undefined;
 
   const page = params?.page as string | undefined;
-  const offset = page ? parseInt(page) * 10 : 0;
 
-  const jobs = await getLastJobs(10, offset, keywords);
+  const getOffset = (page: number): number => {
+    if (page === 0) return 0;
+    return (page - 1) * 10;
+  };
 
-  console.log(
-    `called getLastJobs with ${10} jobs and offset ${offset} -- length: ${
-      jobs.jobs.length
-    }`
-  );
+  const jobs = await getLastJobs(10, getOffset(page ? +page : 1), keywords);
+
+  // console.log(
+  //   `called getLastJobs with ${10} jobs and offset ${getOffset(
+  //     page ? +page : 1
+  //   )} -- length: ${jobs.jobs.length}`
+  // );
 
   return (
     <main className="container mx-auto px-4 py-8 max-w-6xl">

@@ -11,6 +11,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
+  PaginationEllipsis,
 } from "@/components/ui/pagination";
 
 // imported from monorepo
@@ -138,22 +139,89 @@ export function JobList({
                 />
               </PaginationItem>
 
-              {[...Array(totalPages)].map((_, index) => {
-                const page = index + 1;
-                return (
-                  <PaginationItem key={page}>
-                    <PaginationLink
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handlePageChange(page);
-                      }}
-                      isActive={currentPage === page}
-                    >
-                      {page}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
-              })}
+              {/* TODO: this is garbage but it works */}
+              {(() => {
+                const pageNumbers = [];
+                const pagesToShow = 1; // Show 1 page before and 1 page after the current page
+                const startPage = Math.max(1, currentPage - pagesToShow);
+                const endPage = Math.min(totalPages, currentPage + pagesToShow);
+
+                // Always show the first page
+                if (startPage > 1) {
+                  pageNumbers.push(
+                    <PaginationItem key={1}>
+                      <PaginationLink
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(1);
+                        }}
+                        isActive={currentPage === 1}
+                      >
+                        1
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                }
+
+                // Show ellipsis before the main range if needed
+                if (startPage > 2) {
+                  pageNumbers.push(
+                    <PaginationItem key="ellipsis-start">
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  );
+                }
+
+                // Show pages around the current page
+                for (let page = startPage; page <= endPage; page++) {
+                  // Avoid duplicating the first page if it's already rendered
+                  if (page === 1 && startPage > 1) continue;
+                  // Avoid duplicating the last page if it will be rendered later
+                  if (page === totalPages && endPage < totalPages) continue;
+
+                  pageNumbers.push(
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(page);
+                        }}
+                        isActive={currentPage === page}
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                }
+
+                // Show ellipsis after the main range if needed
+                if (endPage < totalPages - 1) {
+                  pageNumbers.push(
+                    <PaginationItem key="ellipsis-end">
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  );
+                }
+
+                // Always show the last page
+                if (endPage < totalPages) {
+                  pageNumbers.push(
+                    <PaginationItem key={totalPages}>
+                      <PaginationLink
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(totalPages);
+                        }}
+                        isActive={currentPage === totalPages}
+                      >
+                        {totalPages}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                }
+
+                return pageNumbers;
+              })()}
 
               <PaginationItem>
                 <PaginationNext
