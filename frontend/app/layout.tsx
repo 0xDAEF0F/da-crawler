@@ -1,5 +1,6 @@
 import type React from "react";
 import "./globals.css";
+import { NuqsAdapter } from "nuqs/adapters/next";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
@@ -52,7 +53,7 @@ export default function RootLayout({
             </nav>
           </div>
         </header>
-        {children}
+        <NuqsAdapter>{children}</NuqsAdapter>
         <footer className="mt-12 border-t border-gray-200 bg-gray-50">
           <div className="container mx-auto px-4 py-8">
             <div className="text-center text-sm text-gray-500">

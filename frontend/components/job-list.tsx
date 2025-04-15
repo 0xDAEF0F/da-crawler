@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useQueryState, parseAsInteger } from "nuqs";
 import { capitalize } from "@/lib/utils";
 import {
   Pagination,
@@ -13,6 +14,13 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // imported from monorepo
 import { JobResponse } from "~/api/types/get-jobs-api-response";
@@ -29,12 +37,21 @@ export function JobList({
   const pathname = usePathname();
   const [sortBy, setSortBy] = useState<"date" | "salary">("date");
 
-  const initialPage = parseInt(searchParams.get("page") || "1", 10);
-  const [currentPage, setCurrentPage] = useState(
-    initialPage > 0 ? initialPage : 1,
+  const [currentPage, setCurrentPage] = useQueryState(
+    "page",
+    parseAsInteger.withDefault(1).withOptions({
+      // Keep existing page if possible, otherwise reset to 1 when limit changes
+      history: "replace",
+      shallow: false, // Use shallow routing false to trigger server refetch
+    }),
   );
-
-  const itemsPerPage = 10; // Number of items per page
+  const [itemsPerPage, setItemsPerPage] = useQueryState(
+    "limit",
+    parseAsInteger.withDefault(10).withOptions({
+      history: "replace",
+      shallow: false, // Use shallow routing false to trigger server refetch
+    }),
+  );
 
   const jobs = jobs_.map((j) => ({
     ...j,
@@ -42,35 +59,78 @@ export function JobList({
     date: new Date(j.date),
   }));
 
-  const totalPages = Math.floor(totalResults / itemsPerPage);
+  const totalPages = Math.ceil(totalResults / itemsPerPage);
 
-  const updateUrl = (page: number) => {
+  const updateUrl = (page: number, limit: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", page.toString());
+    params.set("limit", limit.toString());
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
-      updateUrl(page);
+      // updateUrl(page, itemsPerPage); // nuqs handles URL updates
+    }
+  };
+
+  const handleLimitChange = (limitStr: string) => {
+    const newLimit = parseInt(limitStr, 10);
+    if ([10, 20, 30, 40, 50].includes(newLimit)) {
+      const newTotalPages = Math.ceil(totalResults / newLimit);
+      const newPage = Math.min(currentPage ?? 1, newTotalPages); // Ensure page stays within bounds
+      // Set limit first, then page if it needs adjustment
+      setItemsPerPage(newLimit).then(() => {
+        if (currentPage !== newPage && newPage > 0) {
+          setCurrentPage(newPage > 0 ? newPage : 1);
+        } else if (currentPage === newPage) {
+          // If page doesn't change, ensure URL updates if needed (e.g., back button state)
+          // This might not be strictly necessary depending on nuqs behavior, but safer
+          setCurrentPage(currentPage);
+        }
+      });
     }
   };
 
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-medium">Jobs ({jobs.length})</h2>
-        <div className="flex items-center">
-          <span className="mr-2 text-sm text-gray-500">Sort by:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as "date" | "salary")}
-            className="rounded-md border-gray-300 text-sm focus:border-gray-500 focus:ring-gray-500 focus:outline-none"
-          >
-            <option value="date">Date</option>
-            <option value="salary">Salary</option>
-          </select>
+        <h2 className="text-lg font-medium">
+          Jobs ({jobs.length} of {totalResults})
+        </h2>
+        <div className="flex items-center space-x-4">
+          {/* Items per page selector */}
+          <div className="flex items-center">
+            <span className="mr-2 text-sm text-gray-500">Show:</span>
+            <Select
+              value={itemsPerPage.toString()}
+              onValueChange={handleLimitChange}
+            >
+              <SelectTrigger className="w-[80px] text-sm focus:ring-gray-500 focus:outline-none">
+                <SelectValue placeholder="Limit" />
+              </SelectTrigger>
+              <SelectContent>
+                {[10, 20, 30, 40, 50].map((limit) => (
+                  <SelectItem key={limit} value={limit.toString()}>
+                    {limit}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {/* Sort by selector */}
+          <div className="flex items-center">
+            <span className="mr-2 text-sm text-gray-500">Sort by:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as "date" | "salary")}
+              className="rounded-md border-gray-300 text-sm focus:border-gray-500 focus:ring-gray-500 focus:outline-none"
+            >
+              <option value="date">Date</option>
+              <option value="salary">Salary</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -117,7 +177,7 @@ export function JobList({
 
               <div className="mt-3 text-sm text-gray-500">
                 {/* <p>{job.job_description}</p> */}
-                <p>{job.job_description.slice(0, 50)}...</p>
+                <p>{job.job_description.slice(0, 150)}...</p>
               </div>
 
               <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
@@ -139,6 +199,7 @@ export function JobList({
                   onClick={(e) => {
                     e.preventDefault();
                     handlePageChange(currentPage - 1);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                   className={
                     currentPage === 1
@@ -163,6 +224,7 @@ export function JobList({
                         onClick={(e) => {
                           e.preventDefault();
                           handlePageChange(1);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
                         }}
                         isActive={currentPage === 1}
                       >
@@ -194,6 +256,7 @@ export function JobList({
                         onClick={(e) => {
                           e.preventDefault();
                           handlePageChange(page);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
                         }}
                         isActive={currentPage === page}
                       >
@@ -220,6 +283,7 @@ export function JobList({
                         onClick={(e) => {
                           e.preventDefault();
                           handlePageChange(totalPages);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
                         }}
                         isActive={currentPage === totalPages}
                       >
@@ -237,6 +301,7 @@ export function JobList({
                   onClick={(e) => {
                     e.preventDefault();
                     handlePageChange(currentPage + 1);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                   className={
                     currentPage === totalPages

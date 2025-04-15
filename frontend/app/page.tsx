@@ -3,42 +3,51 @@ import { JobList } from "@/components/job-list";
 import { SearchBar } from "@/components/search-bar";
 import { fetchAllTags } from "@/lib/fetchAllTags";
 import { fetchJobs } from "@/lib/fetchJobs";
+import { type } from "arktype";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+const searchParamsSchema = type({
+  limit: "string = '10'",
+  page: "string = '1'",
+  "q?": type("string | undefined").pipe(
+    (s) => s?.split(" ").filter(Boolean) ?? [],
+  ), // user search bar query
+  "tags?": type("string | undefined").pipe(
+    (s) => s?.split(",").filter(Boolean) ?? [],
+  ), // user selected tags
+}).to({
+  limit: "string.numeric.parse",
+  page: "string.numeric.parse",
+});
 
 export default async function Home({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const params = await searchParams;
+  const [params, allTags] = await Promise.all([searchParams, fetchAllTags()]);
+  const { limit, page, q, tags } = searchParamsSchema.assert(params); // let it burn
 
-  // Fetch all tags concurrently with other data fetching if needed
-  const allTags = await fetchAllTags();
+  console.log({
+    limit,
+    page,
+    q,
+    tags,
+  });
 
-  const query = params?.q as string | undefined;
-  const searchKeywords = query ? query.split(" ").filter(Boolean) : [];
-
-  const tags_ = params?.tags;
-  const tags = Array.isArray(tags_)
-    ? tags_.flatMap((t) => t.split(",")).filter(Boolean)
-    : typeof tags_ === "string"
-      ? tags_.split(",").filter(Boolean)
-      : [];
-
-  // Combine search keywords and selected tags
-  const combinedKeywords = [...new Set([...searchKeywords, ...tags])];
-
-  const page = params?.page as string | undefined;
+  const combinedKeywords = [...new Set([...[], ...(tags ?? [])])];
 
   const getOffset = (page: number): number => {
     if (page === 0) return 0;
-    return (page - 1) * 10;
+    return (page - 1) * limit;
   };
 
+  console.log(`offset: ${getOffset(page)}`);
+
   const jobs = await fetchJobs(
-    10,
-    getOffset(page ? +page : 1),
+    limit,
+    getOffset(page),
     combinedKeywords.length > 0 ? combinedKeywords : undefined,
   );
 
