@@ -1,8 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export function JobFilters() {
+type JobFiltersProps = {
+  availableTags: string[];
+};
+
+export function JobFilters({ availableTags }: JobFiltersProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
+
+  // Initialize selected tags from URL search params
+  useEffect(() => {
+    const currentTags = searchParams.get("tags");
+    if (currentTags) {
+      setSelectedTags(new Set(currentTags.split(",")));
+    } else {
+      setSelectedTags(new Set()); // Clear selection if no tags in URL
+    }
+  }, [searchParams]);
+
   const [filters, setFilters] = useState({
     remote: false,
     fullTime: false,
@@ -14,6 +33,32 @@ export function JobFilters() {
       ...prev,
       [name]: !prev[name],
     }));
+  };
+
+  const handleTagChange = (tag: string) => {
+    const newSelectedTags = new Set(selectedTags);
+    if (newSelectedTags.has(tag)) {
+      newSelectedTags.delete(tag);
+    } else {
+      newSelectedTags.add(tag);
+    }
+    setSelectedTags(newSelectedTags);
+
+    // Update URL
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    const tagsString = Array.from(newSelectedTags).join(",");
+
+    if (tagsString) {
+      current.set("tags", tagsString);
+    } else {
+      current.delete("tags");
+    }
+    // Reset page to 1 when filters change
+    current.delete("page");
+
+    const search = current.toString();
+    const query = search ? `?${search}` : "";
+    router.push(`/${query}`);
   };
 
   return (
@@ -69,42 +114,25 @@ export function JobFilters() {
         <div className="border-t border-gray-200 pt-4">
           <h3 className="mb-2 text-sm font-medium">Tags</h3>
           <div className="space-y-2">
-            {["javascript", "react", "typescript", "python", "blockchain"].map(
-              (tag) => (
-                <div key={tag} className="flex items-center">
-                  <input
-                    id={`tag-${tag}`}
-                    type="checkbox"
-                    className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-500"
-                  />
-                  <label
-                    htmlFor={`tag-${tag}`}
-                    className="ml-2 block text-sm text-gray-700"
-                  >
-                    {tag.charAt(0).toUpperCase() + tag.slice(1)}
-                  </label>
-                </div>
-              ),
-            )}
+            {availableTags.slice(10, 15).map((tag) => (
+              <div key={tag} className="flex items-center">
+                <input
+                  id={`tag-${tag}`}
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-500"
+                  checked={selectedTags.has(tag)}
+                  onChange={() => handleTagChange(tag)}
+                />
+                <label
+                  htmlFor={`tag-${tag}`}
+                  className="ml-2 block text-sm text-gray-700"
+                >
+                  {tag}
+                </label>
+              </div>
+            ))}
           </div>
         </div>
-
-        <div className="border-t border-gray-200 pt-4">
-          <h3 className="mb-2 text-sm font-medium">Salary Range</h3>
-          <select className="mt-1 block w-full rounded-md border-gray-300 py-2 pr-10 pl-3 text-base focus:border-gray-500 focus:ring-gray-500 focus:outline-none sm:text-sm">
-            <option>Any</option>
-            <option>$50k - $100k</option>
-            <option>$100k - $150k</option>
-            <option>$150k+</option>
-          </select>
-        </div>
-
-        <button
-          type="button"
-          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
-        >
-          Clear Filters
-        </button>
       </div>
     </div>
   );
