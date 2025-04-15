@@ -42,12 +42,12 @@ export function JobDetail({ job }: Props) {
   const aiKeywords = job.ai_keywords ?? [];
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex justify-between items-start">
+    <div className="rounded-lg border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 p-6">
+        <div className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-bold">{job.title}</h1>
-            <p className="text-xl text-gray-600 mt-1">{job.company}</p>
+            <p className="mt-1 text-xl text-gray-600">{job.company}</p>
           </div>
           <div className="text-right">
             <div className="text-lg font-medium">{compensationText}</div>
@@ -60,45 +60,39 @@ export function JobDetail({ job }: Props) {
             return (
               <span
                 key={tag}
-                className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800"
+                className="inline-flex items-center rounded-md bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-800"
               >
                 {tag}
               </span>
             );
           })}
           {job.is_remote && (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-green-100 text-green-800">
+            <span className="inline-flex items-center rounded-md bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800">
               Remote
             </span>
           )}
           {optionToPayInCrypto && (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-purple-100 text-purple-800">
+            <span className="inline-flex items-center rounded-md bg-purple-100 px-2.5 py-0.5 text-sm font-medium text-purple-800">
               Crypto Payment
             </span>
           )}
         </div>
 
         <div className="mt-6 flex gap-4">
-          <button
-            onClick={() => setIsApplying(true)}
-            className="px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-          >
-            Apply Now
-          </button>
           <a
-            href={job.job_url} // Use job_url from prop
+            href={job.job_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            className="rounded-md bg-gray-900 px-4 py-2 text-white hover:bg-gray-800 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
           >
-            View Original
+            Apply Now
           </a>
         </div>
 
         {isApplying && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-md">
+          <div className="mt-4 rounded-md bg-gray-50 p-4">
             <h3 className="font-medium">Quick Apply</h3>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="mt-1 text-sm text-gray-600">
               Submit your application directly through our platform.
             </p>
             <form className="mt-3 space-y-4">
@@ -112,7 +106,7 @@ export function JobDetail({ job }: Props) {
                 <input
                   type="email"
                   id="email"
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-gray-500 focus:ring-gray-500 focus:outline-none sm:text-sm"
                   placeholder="your@email.com"
                 />
               </div>
@@ -126,25 +120,20 @@ export function JobDetail({ job }: Props) {
                 <input
                   type="file"
                   id="resume"
-                  className="mt-1 block w-full text-sm text-gray-500
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-md file:border-0
-                    file:text-sm file:font-medium
-                    file:bg-gray-50 file:text-gray-700
-                    hover:file:bg-gray-100"
+                  className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-gray-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-100"
                 />
               </div>
               <div className="flex justify-end">
                 <button
                   type="button"
                   onClick={() => setIsApplying(false)}
-                  className="mr-3 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  className="mr-3 rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  className="rounded-md bg-gray-900 px-4 py-2 text-white hover:bg-gray-800 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
                 >
                   Submit Application
                 </button>
@@ -165,8 +154,8 @@ export function JobDetail({ job }: Props) {
         </div>
       </div>
 
-      <div className="p-6 bg-gray-50 border-t border-gray-200">
-        <h2 className="text-lg font-medium mb-4">AI Analysis</h2>
+      <div className="border-t border-gray-200 bg-gray-50 p-6">
+        <h2 className="mb-4 text-lg font-medium">AI Analysis</h2>
         <div className="space-y-4">
           <div>
             <h3 className="text-sm font-medium text-gray-500">Summary</h3>
@@ -178,7 +167,7 @@ export function JobDetail({ job }: Props) {
               {aiKeywords.map((keyword: string) => (
                 <span
                   key={keyword}
-                  className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
+                  className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800"
                 >
                   {keyword}
                 </span>

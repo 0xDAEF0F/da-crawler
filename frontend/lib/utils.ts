@@ -18,7 +18,7 @@ export const capitalize = (str: string) => {
     str
       .split(" ")
       .map((w) => type("string.capitalize")(w))
-      .join(" ")
+      .join(" "),
   )(str);
   if (result instanceof type.errors) {
     throw new Error("Invalid string");

@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import Link from "next/link"
+import Link from "next/link";
 
 // Mock data based on the schema
 const MOCK_RELATED_JOBS = [
@@ -37,22 +37,22 @@ const MOCK_RELATED_JOBS = [
       compensation_amount: "100000-130000",
     },
   },
-]
+];
 
 export function RelatedJobs({ id }: { id: string }) {
   // In a real app, this would fetch related jobs based on the current job
-  const relatedJobs = MOCK_RELATED_JOBS
+  const relatedJobs = MOCK_RELATED_JOBS;
 
   return (
-    <div className="bg-gray-50 rounded-lg border border-gray-200 p-4">
-      <h2 className="font-medium text-lg mb-4">Similar Jobs</h2>
+    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+      <h2 className="mb-4 text-lg font-medium">Similar Jobs</h2>
 
       <div className="space-y-3">
         {relatedJobs.map((job) => (
           <Link
             href={`/jobs/${job.id}`}
             key={job.id}
-            className="block bg-white p-3 rounded border border-gray-200 hover:border-gray-400 transition-colors"
+            className="block rounded border border-gray-200 bg-white p-3 transition-colors hover:border-gray-400"
           >
             <h3 className="font-medium">{job.title}</h3>
             <p className="text-sm text-gray-600">{job.company}</p>
@@ -61,13 +61,13 @@ export function RelatedJobs({ id }: { id: string }) {
               {job.tags.slice(0, 2).map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
+                  className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800"
                 >
                   {tag}
                 </span>
               ))}
               {job.is_remote && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                <span className="inline-flex items-center rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
                   Remote
                 </span>
               )}
@@ -88,5 +88,5 @@ export function RelatedJobs({ id }: { id: string }) {
         </Link>
       </div>
     </div>
-  )
+  );
 }

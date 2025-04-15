@@ -30,7 +30,9 @@ export function JobList({
   const [sortBy, setSortBy] = useState<"date" | "salary">("date");
 
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
-  const [currentPage, setCurrentPage] = useState(initialPage > 0 ? initialPage : 1);
+  const [currentPage, setCurrentPage] = useState(
+    initialPage > 0 ? initialPage : 1,
+  );
 
   const itemsPerPage = 10; // Number of items per page
 
@@ -57,14 +59,14 @@ export function JobList({
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-medium">Jobs ({jobs.length})</h2>
         <div className="flex items-center">
-          <span className="text-sm text-gray-500 mr-2">Sort by:</span>
+          <span className="mr-2 text-sm text-gray-500">Sort by:</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as "date" | "salary")}
-            className="text-sm border-gray-300 rounded-md focus:outline-none focus:ring-gray-500 focus:border-gray-500"
+            className="rounded-md border-gray-300 text-sm focus:border-gray-500 focus:ring-gray-500 focus:outline-none"
           >
             <option value="date">Date</option>
             <option value="salary">Salary</option>
@@ -78,15 +80,17 @@ export function JobList({
             <Link
               href={`/jobs/${job.id}`}
               key={job.id}
-              className="block border border-gray-200 rounded-md p-4 hover:border-gray-400 transition-colors"
+              className="block rounded-md border border-gray-200 p-4 transition-colors hover:border-gray-400"
             >
-              <div className="flex justify-between items-start">
+              <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-medium text-lg">{capitalize(job.job_title)}</h3>
+                  <h3 className="text-lg font-medium">
+                    {capitalize(job.job_title)}
+                  </h3>
                   <p className="text-gray-600">{capitalize(job.company)}</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-gray-900 font-medium">$0 - $0</span>
+                  <span className="font-medium text-gray-900">$0 - $0</span>
                 </div>
               </div>
 
@@ -94,18 +98,18 @@ export function JobList({
                 {job.keywords.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
+                    className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800"
                   >
                     {tag}
                   </span>
                 ))}
                 {job.is_remote && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                  <span className="inline-flex items-center rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
                     Remote
                   </span>
                 )}
                 {true && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                  <span className="inline-flex items-center rounded bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">
                     Crypto Payment
                   </span>
                 )}
@@ -116,7 +120,7 @@ export function JobList({
                 <p>{job.job_description.slice(0, 50)}...</p>
               </div>
 
-              <div className="mt-2 flex justify-between items-center text-xs text-gray-500">
+              <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
                 <span>Source: Source</span>
                 <span>{formatDate(job.date)}</span>
               </div>
@@ -137,7 +141,9 @@ export function JobList({
                     handlePageChange(currentPage - 1);
                   }}
                   className={
-                    currentPage === 1 ? "pointer-events-none opacity-50" : undefined
+                    currentPage === 1
+                      ? "pointer-events-none opacity-50"
+                      : undefined
                   }
                 />
               </PaginationItem>
@@ -162,7 +168,7 @@ export function JobList({
                       >
                         1
                       </PaginationLink>
-                    </PaginationItem>
+                    </PaginationItem>,
                   );
                 }
 
@@ -171,7 +177,7 @@ export function JobList({
                   pageNumbers.push(
                     <PaginationItem key="ellipsis-start">
                       <PaginationEllipsis />
-                    </PaginationItem>
+                    </PaginationItem>,
                   );
                 }
 
@@ -193,7 +199,7 @@ export function JobList({
                       >
                         {page}
                       </PaginationLink>
-                    </PaginationItem>
+                    </PaginationItem>,
                   );
                 }
 
@@ -202,7 +208,7 @@ export function JobList({
                   pageNumbers.push(
                     <PaginationItem key="ellipsis-end">
                       <PaginationEllipsis />
-                    </PaginationItem>
+                    </PaginationItem>,
                   );
                 }
 
@@ -219,7 +225,7 @@ export function JobList({
                       >
                         {totalPages}
                       </PaginationLink>
-                    </PaginationItem>
+                    </PaginationItem>,
                   );
                 }
 
@@ -249,7 +255,9 @@ export function JobList({
 
 function formatDate(date: Date): string {
   const now = new Date();
-  const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+  const diffDays = Math.floor(
+    (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
+  );
 
   if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Yesterday";

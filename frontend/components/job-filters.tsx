@@ -1,31 +1,31 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 
 export function JobFilters() {
   const [filters, setFilters] = useState({
     remote: false,
     fullTime: false,
     cryptoPayment: false,
-  })
+  });
 
   const handleFilterChange = (name: keyof typeof filters) => {
     setFilters((prev) => ({
       ...prev,
       [name]: !prev[name],
-    }))
-  }
+    }));
+  };
 
   return (
-    <div className="bg-gray-50 p-4 rounded-md">
-      <h2 className="font-semibold text-lg mb-4">Filters</h2>
+    <div className="rounded-md bg-gray-50 p-4">
+      <h2 className="mb-4 text-lg font-semibold">Filters</h2>
 
       <div className="space-y-4">
         <div className="flex items-center">
           <input
             id="remote"
             type="checkbox"
-            className="h-4 w-4 text-gray-900 focus:ring-gray-500 border-gray-300 rounded"
+            className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-500"
             checked={filters.remote}
             onChange={() => handleFilterChange("remote")}
           />
@@ -38,11 +38,14 @@ export function JobFilters() {
           <input
             id="fullTime"
             type="checkbox"
-            className="h-4 w-4 text-gray-900 focus:ring-gray-500 border-gray-300 rounded"
+            className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-500"
             checked={filters.fullTime}
             onChange={() => handleFilterChange("fullTime")}
           />
-          <label htmlFor="fullTime" className="ml-2 block text-sm text-gray-700">
+          <label
+            htmlFor="fullTime"
+            className="ml-2 block text-sm text-gray-700"
+          >
             Full-time Only
           </label>
         </div>
@@ -51,36 +54,44 @@ export function JobFilters() {
           <input
             id="cryptoPayment"
             type="checkbox"
-            className="h-4 w-4 text-gray-900 focus:ring-gray-500 border-gray-300 rounded"
+            className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-500"
             checked={filters.cryptoPayment}
             onChange={() => handleFilterChange("cryptoPayment")}
           />
-          <label htmlFor="cryptoPayment" className="ml-2 block text-sm text-gray-700">
+          <label
+            htmlFor="cryptoPayment"
+            className="ml-2 block text-sm text-gray-700"
+          >
             Crypto Payment Option
           </label>
         </div>
 
-        <div className="pt-4 border-t border-gray-200">
-          <h3 className="font-medium text-sm mb-2">Tags</h3>
+        <div className="border-t border-gray-200 pt-4">
+          <h3 className="mb-2 text-sm font-medium">Tags</h3>
           <div className="space-y-2">
-            {["javascript", "react", "typescript", "python", "blockchain"].map((tag) => (
-              <div key={tag} className="flex items-center">
-                <input
-                  id={`tag-${tag}`}
-                  type="checkbox"
-                  className="h-4 w-4 text-gray-900 focus:ring-gray-500 border-gray-300 rounded"
-                />
-                <label htmlFor={`tag-${tag}`} className="ml-2 block text-sm text-gray-700">
-                  {tag.charAt(0).toUpperCase() + tag.slice(1)}
-                </label>
-              </div>
-            ))}
+            {["javascript", "react", "typescript", "python", "blockchain"].map(
+              (tag) => (
+                <div key={tag} className="flex items-center">
+                  <input
+                    id={`tag-${tag}`}
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-500"
+                  />
+                  <label
+                    htmlFor={`tag-${tag}`}
+                    className="ml-2 block text-sm text-gray-700"
+                  >
+                    {tag.charAt(0).toUpperCase() + tag.slice(1)}
+                  </label>
+                </div>
+              ),
+            )}
           </div>
         </div>
 
-        <div className="pt-4 border-t border-gray-200">
-          <h3 className="font-medium text-sm mb-2">Salary Range</h3>
-          <select className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-gray-500 focus:border-gray-500 sm:text-sm rounded-md">
+        <div className="border-t border-gray-200 pt-4">
+          <h3 className="mb-2 text-sm font-medium">Salary Range</h3>
+          <select className="mt-1 block w-full rounded-md border-gray-300 py-2 pr-10 pl-3 text-base focus:border-gray-500 focus:ring-gray-500 focus:outline-none sm:text-sm">
             <option>Any</option>
             <option>$50k - $100k</option>
             <option>$100k - $150k</option>
@@ -90,11 +101,11 @@ export function JobFilters() {
 
         <button
           type="button"
-          className="w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
         >
           Clear Filters
         </button>
       </div>
     </div>
-  )
+  );
 }

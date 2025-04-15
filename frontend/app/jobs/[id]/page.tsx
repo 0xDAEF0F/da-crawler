@@ -11,18 +11,22 @@ async function getJobById(id: string): Promise<GetJobResponse> {
   return json;
 }
 
-export default async function JobPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function JobPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const id = (await params).id;
   const job = await getJobById(id);
   return (
-    <main className="container mx-auto px-4 py-8 max-w-6xl">
+    <main className="container mx-auto max-w-6xl px-4 py-8">
       <Link
         href="/"
-        className="inline-flex items-center mb-6 text-gray-600 hover:text-gray-900"
+        className="mb-6 inline-flex items-center text-gray-600 hover:text-gray-900"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4 mr-1"
+          className="mr-1 h-4 w-4"
           viewBox="0 0 20 20"
           fill="currentColor"
         >
@@ -35,12 +39,12 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
         Back to jobs
       </Link>
 
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col gap-8 lg:flex-row">
         <div className="flex-1">
           <JobDetail job={job} />
         </div>
 
-        <aside className="w-full lg:w-80 shrink-0">
+        <aside className="w-full shrink-0 lg:w-80">
           {/* Assuming RelatedJobs might also need job data or just the ID */}
           {/* <RelatedJobs id={jobUrl} /> */}
         </aside>

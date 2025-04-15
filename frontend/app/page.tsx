@@ -13,7 +13,7 @@ type GetLastJobsResponse = {
 async function getLastJobs(
   num: number,
   offset: number,
-  keywords?: string[]
+  keywords?: string[],
 ): Promise<GetLastJobsResponse> {
   const response = await fetch(`${BASE_URL}/get-jobs`, {
     method: "POST",
@@ -25,7 +25,11 @@ async function getLastJobs(
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-export default async function Home({ searchParams }: { searchParams: SearchParams }) {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   const params = await searchParams;
 
   const query = params?.q as string | undefined;
@@ -47,13 +51,13 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
   // );
 
   return (
-    <main className="container mx-auto px-4 py-8 max-w-6xl">
-      <h1 className="text-3xl font-bold mb-8">Developer Jobs</h1>
+    <main className="container mx-auto max-w-6xl px-4 py-8">
+      <h1 className="mb-8 text-3xl font-bold">Developer Jobs</h1>
 
       <SearchBar />
 
-      <div className="flex flex-col md:flex-row gap-6 mt-6">
-        <aside className="w-full md:w-64 shrink-0">
+      <div className="mt-6 flex flex-col gap-6 md:flex-row">
+        <aside className="w-full shrink-0 md:w-64">
           <JobFilters />
         </aside>
 
