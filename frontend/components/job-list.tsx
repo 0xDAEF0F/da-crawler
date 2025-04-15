@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { JobResponse } from "@/api/types/get-jobs-api-response";
+import { capitalize } from "@/lib/utils";
+
+// imported from monorepo
+import { JobResponse } from "~/api/types/get-jobs-api-response";
 
 export function JobList({ jobs_ }: { jobs_: JobResponse[] }) {
   const [sortBy, setSortBy] = useState<"date" | "salary">("date");
@@ -39,8 +42,8 @@ export function JobList({ jobs_ }: { jobs_: JobResponse[] }) {
           >
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="font-medium text-lg">{job.job_title}</h3>
-                <p className="text-gray-600">{job.company}</p>
+                <h3 className="font-medium text-lg">{capitalize(job.job_title)}</h3>
+                <p className="text-gray-600">{capitalize(job.company)}</p>
               </div>
               <div className="text-right">
                 <span className="text-gray-900 font-medium">$0 - $0</span>
@@ -85,9 +88,7 @@ export function JobList({ jobs_ }: { jobs_: JobResponse[] }) {
 
 function formatDate(date: Date): string {
   const now = new Date();
-  const diffDays = Math.floor(
-    (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
-  );
+  const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
   if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Yesterday";
