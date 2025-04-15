@@ -3,18 +3,41 @@
 import { useState } from "react";
 import Link from "next/link";
 import { capitalize } from "@/lib/utils";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 // imported from monorepo
 import { JobResponse } from "~/api/types/get-jobs-api-response";
 
 export function JobList({ jobs_ }: { jobs_: JobResponse[] }) {
   const [sortBy, setSortBy] = useState<"date" | "salary">("date");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // Number of items per page
 
   const jobs = jobs_.map((j) => ({
     ...j,
     id: j.job_url,
     date: new Date(j.date),
   }));
+
+  // Calculate pagination values
+  // const totalPages = Math.ceil(jobs.length / itemsPerPage);
+  const totalPages = 10;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentJobs = jobs.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Optional: Scroll to top when changing pages
+    // window.scrollTo(0, 0);
+  };
 
   return (
     <div>
@@ -34,7 +57,7 @@ export function JobList({ jobs_ }: { jobs_: JobResponse[] }) {
       </div>
 
       <div className="space-y-4">
-        {jobs.map((job) => (
+        {currentJobs.map((job) => (
           <Link
             href={`/jobs/${job.id}`}
             key={job.id}
@@ -82,6 +105,67 @@ export function JobList({ jobs_ }: { jobs_: JobResponse[] }) {
           </Link>
         ))}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex justify-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage > 1) {
+                      handlePageChange(currentPage - 1);
+                    }
+                  }}
+                  className={
+                    currentPage === 1 ? "pointer-events-none opacity-50" : undefined
+                  }
+                />
+              </PaginationItem>
+
+              {/* Dynamically generate page numbers (simplified example) */}
+              {[...Array(totalPages)].map((_, index) => {
+                const page = index + 1;
+                // Add more sophisticated logic here for handling many pages (e.g., ellipsis) if needed
+                return (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(page);
+                      }}
+                      isActive={currentPage === page}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage < totalPages) {
+                      handlePageChange(currentPage + 1);
+                    }
+                  }}
+                  className={
+                    currentPage === totalPages
+                      ? "pointer-events-none opacity-50"
+                      : undefined
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,8 +1,8 @@
 import { type } from "arktype";
 
-export const trimmedLowerCaseStrings = type(
-  "string.lower[] |> string.trim[]"
-).pipe((arr) => arr.filter((str) => str));
+export const trimmedLowerCaseStrings = type("string.lower[] |> string.trim[]").pipe(
+  (arr) => arr.filter((str) => str)
+);
 
 // Schema for the `getJobs` API arguments/params in body
 export const getJobsBody = type({
@@ -21,6 +21,7 @@ export const getJobsBody = type({
   // excludes jobs that contain these words in it's set of keywords/tags
   excludeKeywords: trimmedLowerCaseStrings,
   "limit?": "number.integer <= 100",
+  "offset?": "number.integer",
   "isRemote?": "boolean",
 });
 

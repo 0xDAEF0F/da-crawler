@@ -6,10 +6,14 @@ import { BASE_URL } from "@/lib/utils";
 // imported from monorepo
 import { JobResponse } from "~/api/types/get-jobs-api-response";
 
-async function getLastJobs(num: number, keywords?: string[]): Promise<JobResponse[]> {
+async function getLastJobs(
+  num: number,
+  offset: number,
+  keywords?: string[]
+): Promise<JobResponse[]> {
   const response = await fetch(`${BASE_URL}/get-jobs`, {
     method: "POST",
-    body: JSON.stringify({ limit: num, sinceWhen: "10d", keywords }),
+    body: JSON.stringify({ limit: num, sinceWhen: "10d", keywords, offset }),
   });
   const data = await response.json();
   return data.jobs;
@@ -18,13 +22,15 @@ async function getLastJobs(num: number, keywords?: string[]): Promise<JobRespons
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
-  console.log("Query Parameters:", await searchParams);
+  const params = await searchParams;
 
-  // TODO: improve this
-  const query = (await searchParams)?.q as string | undefined;
+  const query = params?.q as string | undefined;
   const keywords = query ? query.split(" ").filter(Boolean) : undefined;
 
-  const jobs = await getLastJobs(10, keywords);
+  const page = params?.page as string | undefined;
+  const offset = page ? parseInt(page) * 10 : 0;
+
+  const jobs = await getLastJobs(10, offset, keywords);
   return (
     <main className="container mx-auto px-4 py-8 max-w-6xl">
       <h1 className="text-3xl font-bold mb-8">Developer Jobs</h1>

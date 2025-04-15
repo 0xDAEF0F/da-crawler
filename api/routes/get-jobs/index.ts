@@ -30,10 +30,9 @@ export const getJobs = async (c: Context) => {
     sinceWhen,
     isRemote,
     limit,
+    offset,
   } = args;
-  const keywords = normalizeWords(kw, KEYWORD_MAPPINGS).map((k) =>
-    k.toLowerCase()
-  );
+  const keywords = normalizeWords(kw, KEYWORD_MAPPINGS).map((k) => k.toLowerCase());
   const excludeKeywords = normalizeWords(ekw, KEYWORD_MAPPINGS).map((k) =>
     k.toLowerCase()
   );
@@ -87,7 +86,13 @@ export const getJobs = async (c: Context) => {
     return true;
   });
 
-  const jobsWithLimit = jobsWithExcludeFilter.slice(0, limit ?? 10);
+  // Apply offset and limit
+  const offsetValue = offset ?? 0;
+  const limitValue = limit ?? 10;
+  const jobsWithLimit = jobsWithExcludeFilter.slice(
+    offsetValue,
+    offsetValue + limitValue
+  );
 
   const jobsResponse = jobsWithLimit.map(
     (job): JobResponse => ({
