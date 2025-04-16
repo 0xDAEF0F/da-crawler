@@ -7,7 +7,7 @@ import { ArkErrors } from "arktype";
 const prisma = new PrismaClient();
 
 const [cryptocurrencyJobs, cryptoJobs] = partition(
-  await readdir("storage/datasets"),
+  await readdir("crawler/storage/datasets"),
   (dir) => dir.includes("cryptocurrencyjobs")
 );
 
@@ -20,15 +20,13 @@ const dateReducer = (curr: string, acc: string) => {
 const cryptocurrencyJobsScrapeDir = cryptocurrencyJobs.reduce(dateReducer);
 const cryptoJobsScrapeDir = cryptoJobs.reduce(dateReducer);
 
-console.log(
-  `--- Cryptocurrency Jobs Scrape Dir: ${cryptocurrencyJobsScrapeDir}`
-);
+console.log(`--- Cryptocurrency Jobs Scrape Dir: ${cryptocurrencyJobsScrapeDir}`);
 console.log(`--- Crypto Jobs Scrape Dir: ${cryptoJobsScrapeDir}`);
 
 const scrapedFilesA = await readdir(
-  `storage/datasets/${cryptocurrencyJobsScrapeDir}`
+  `crawler/storage/datasets/${cryptocurrencyJobsScrapeDir}`
 );
-const scrapedFilesB = await readdir(`storage/datasets/${cryptoJobsScrapeDir}`);
+const scrapedFilesB = await readdir(`crawler/storage/datasets/${cryptoJobsScrapeDir}`);
 
 let jobsA: Job[] = [];
 for (const file of scrapedFilesA) {
@@ -36,12 +34,12 @@ for (const file of scrapedFilesA) {
     continue;
   }
   const contentJson = await Bun.file(
-    `storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}`
+    `crawler/storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}`
   ).json();
   const maybeParsed = job(contentJson);
   if (maybeParsed instanceof ArkErrors) {
     console.error(
-      `Error parsing: "storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}"`
+      `Error parsing: "crawler/storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}"`
     );
     throw new Error(maybeParsed.summary);
   }
@@ -56,12 +54,12 @@ for (const file of scrapedFilesB) {
     continue;
   }
   const contentJson = await Bun.file(
-    `storage/datasets/${cryptoJobsScrapeDir}/${file}`
+    `crawler/storage/datasets/${cryptoJobsScrapeDir}/${file}`
   ).json();
   const maybeParsed = job(contentJson);
   if (maybeParsed instanceof ArkErrors) {
     console.error(
-      `Error parsing: "storage/datasets/${cryptoJobsScrapeDir}/${file}"`
+      `Error parsing: "crawler/storage/datasets/${cryptoJobsScrapeDir}/${file}"`
     );
     throw new Error(maybeParsed.summary);
   }
@@ -85,9 +83,7 @@ console.log(`--- All Jobs: ${allJobs.length}`);
 
 let allJobsUniqBy = uniqBy(allJobs, "real_job_url");
 
-console.log(
-  `--- Unique Jobs (filtered by real_job_url): ${allJobsUniqBy.length}`
-);
+console.log(`--- Unique Jobs (filtered by real_job_url): ${allJobsUniqBy.length}`);
 
 for (const job of allJobsUniqBy) {
   const alreadyExists = await prisma.job.findUnique({

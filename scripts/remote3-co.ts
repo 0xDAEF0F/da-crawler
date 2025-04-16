@@ -3,15 +3,13 @@ import dotenv from "dotenv";
 import TurndownService from "turndown";
 import { cleanUrl } from "../api/utils";
 import { PrismaClient } from "@prisma/client";
+import { trimSubstr } from "./utils.test";
 
 const prisma = new PrismaClient();
 
 dotenv.config();
 
-async function checkUrlContainsText(
-  url: string,
-  searchText: string
-): Promise<boolean> {
+async function checkUrlContainsText(url: string, searchText: string): Promise<boolean> {
   try {
     const response = await fetch(url);
     const text = await response.text();
@@ -35,7 +33,7 @@ const remote3CoJob = type({
   id: "number",
   created_at: "string.date",
   live_at: "string.date",
-  title: "string.lower",
+  title: type("string.lower").pipe((t) => trimSubstr(t, ["| smartrecruiters"])),
   description: "string",
   description_format: "string.lower |> 'html'",
   type: "string.lower |> 'full-time' | 'contract'", // no internships
@@ -64,8 +62,7 @@ const res = await fetch(getJobsUrl, {
     apikey: process.env.REMOTE3_CO_API_KEY!,
     pragma: "no-cache",
     priority: "u=1, i",
-    "sec-ch-ua":
-      '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+    "sec-ch-ua": '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
     "sec-ch-ua-mobile": "?0",
     "sec-ch-ua-platform": '"macOS"',
     "sec-fetch-dest": "empty",
@@ -95,9 +92,7 @@ for (const jobData of data as unknown[]) {
   validatedJobs.push(validated);
 }
 
-console.log(
-  `${data.length - validatedJobs.length} jobs did not pass validation filter`
-);
+console.log(`${data.length - validatedJobs.length} jobs did not pass validation filter`);
 
 // Filter out no longer available jobs
 const jobsToSave = await Promise.all(

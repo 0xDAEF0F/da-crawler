@@ -17,7 +17,7 @@ from .utils import current_run_id, parse_job_url
 MAX_NUMBER_OF_JOBS_PER_SITE = 200
 SLEEP_INTERVAL = 0.5
 
-JOB_DATE_THRESHOLD = 7  # days
+JOB_DATE_THRESHOLD = 2  # days
 
 
 def get_job_date_threshold() -> datetime:

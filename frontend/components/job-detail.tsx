@@ -2,28 +2,9 @@
 
 import { useState } from "react";
 import { GetJobResponse } from "~/api/routes/get-job"; // Assuming path
-
-// Mock data based on the schema - REMOVED
-// const MOCK_JOB = { ... };
-
-// Simple markdown formatter (moved up for clarity)
-function formatMarkdown(markdown: string): string {
-  let html = markdown
-    .replace(/^# (.*$)/gm, "<h1>$1</h1>")
-    .replace(/^## (.*$)/gm, "<h2>$1</h2>")
-    .replace(/^### (.*$)/gm, "<h3>$1</h3>")
-    .replace(/\*\*(.*)\*\*/gm, "<strong>$1</strong>")
-    .replace(/\*(.*)\*/gm, "<em>$1</em>")
-    .replace(/- (.*)/gm, "<li>$1</li>")
-    .replace(/\n\n/gm, "<br/>");
-
-  // Wrap lists
-  html = html.replace(/<li>.*?<\/li>/gs, (match) => {
-    return `<ul>${match}</ul>`;
-  });
-
-  return html;
-}
+import Markdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
+import { capitalize } from "@/lib/utils";
 
 type Props = {
   job: GetJobResponse;
@@ -46,8 +27,10 @@ export function JobDetail({ job }: Props) {
       <div className="border-b border-gray-200 p-6">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold">{job.title}</h1>
-            <p className="mt-1 text-xl text-gray-600">{job.company}</p>
+            <h1 className="text-2xl font-bold">{capitalize(job.title)}</h1>
+            <p className="mt-1 text-xl text-gray-600">
+              {capitalize(job.company)}
+            </p>
           </div>
           <div className="text-right">
             <div className="text-lg font-medium">{compensationText}</div>
@@ -145,12 +128,10 @@ export function JobDetail({ job }: Props) {
 
       <div className="p-6">
         <div className="prose max-w-none">
-          {/* Render the markdown from the job prop */}
-          <div
-            dangerouslySetInnerHTML={{
-              __html: formatMarkdown(job.job_description),
-            }}
-          />
+          {/* Treats line breaks as hard line breaks */}
+          <Markdown remarkPlugins={[remarkBreaks]}>
+            {job.job_description}
+          </Markdown>
         </div>
       </div>
 
