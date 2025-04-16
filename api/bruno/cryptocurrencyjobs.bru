@@ -1,0 +1,50 @@
+meta {
+  name: cryptocurrencyjobs
+  type: http
+  seq: 7
+}
+
+post {
+  url: https://8ehcb38y1u-dsn.algolia.net/1/indexes/*/queries?x-algolia-agent=Algolia%20for%20JavaScript%20(4.10.5)%3B%20Browser%20(lite)%3B%20instantsearch.js%20(4.30.0)%3B%20JS%20Helper%20(3.5.5)&x-algolia-api-key=e3deada9c15551e6363ee91e7e7d59cc&x-algolia-application-id=8EHCB38Y1U
+  body: json
+  auth: inherit
+}
+
+params:query {
+  x-algolia-agent: Algolia for JavaScript (4.10.5); Browser (lite); instantsearch.js (4.30.0); JS Helper (3.5.5)
+  x-algolia-api-key: e3deada9c15551e6363ee91e7e7d59cc
+  x-algolia-application-id: 8EHCB38Y1U
+}
+
+headers {
+  Accept: */*
+  Accept-Language: en-US,en;q=0.9
+  Cache-Control: no-cache
+  Connection: keep-alive
+  Origin: https://cryptocurrencyjobs.co
+  Pragma: no-cache
+  Referer: https://cryptocurrencyjobs.co/
+  Sec-Fetch-Dest: empty
+  Sec-Fetch-Mode: cors
+  Sec-Fetch-Site: cross-site
+  User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+  sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"
+  sec-ch-ua-mobile: ?0
+  sec-ch-ua-platform: "macOS"
+  ~content-type: application/x-www-form-urlencoded
+}
+
+body:json {
+  {
+    "requests": [
+      {
+        "indexName": "jobs",
+        "params": "filters=searchFilter%3AIsHome&hitsPerPage=200&query=&highlightPreTag=__ais-highlight__&highlightPostTag=__%2Fais-highlight__&facets=%5B%22locationFilter%22%5D&tagFilters="
+      }
+    ]
+  }
+}
+
+body:text {
+  "{\"requests\":[{\"indexName\":\"jobs\",\"params\":\"filters=searchFilter%3AIsHome&hitsPerPage=200&query=&highlightPreTag=__ais-highlight__&highlightPostTag=__%2Fais-highlight__&facets=%5B%22locationFilter%22%5D&tagFilters=\"}]}"
+}

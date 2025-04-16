@@ -1,3 +1,4 @@
+import argparse
 import datetime
 from urllib.parse import urlunparse
 from pydantic_core import Url
@@ -34,3 +35,19 @@ def parse_job_url(url: str) -> str:
             None,
         )
     )
+
+
+def parse_args() -> tuple[int, int]:
+    """
+    Parses the command line arguments and returns the maximum number of jobs and the maximum age of job postings in days.
+    """
+    parser = argparse.ArgumentParser(description="Crawl job boards.")
+    parser.add_argument(
+        "--max_jobs", type=int, default=20, help="Maximum number of jobs to process."
+    )
+    parser.add_argument(
+        "--max_days", type=int, default=5, help="Maximum age of job postings in days."
+    )
+    args = parser.parse_args()
+
+    return args.max_jobs, args.max_days

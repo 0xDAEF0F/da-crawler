@@ -12,18 +12,17 @@ from my_crawler.db import (
     is_job_description_url_in_db,
 )
 from .crawler import crawl4ai, get_config
-from .utils import current_run_id, parse_job_url
+from .utils import current_run_id, parse_job_url, parse_args
 
-MAX_NUMBER_OF_JOBS_PER_SITE = 200
+
+MAX_NUMBER_OF_JOBS_PER_SITE, MAX_DAYS = parse_args()
 SLEEP_INTERVAL = 0.5
-
-JOB_DATE_THRESHOLD = 2  # days
 
 
 def get_job_date_threshold() -> datetime:
     return datetime.now().replace(
         hour=0, minute=0, second=0, microsecond=0
-    ) - timedelta(days=JOB_DATE_THRESHOLD)
+    ) - timedelta(days=MAX_DAYS)
 
 
 router = Router[PlaywrightCrawlingContext]()

@@ -1,9 +1,11 @@
 import { type } from "arktype";
 import dotenv from "dotenv";
 import TurndownService from "turndown";
-import { cleanUrl } from "../api/utils";
 import { PrismaClient } from "@prisma/client";
-import { trimSubstr } from "./utils.test";
+import { isDateTooOld, parseArguments } from "./utils";
+import { remote3CoSchema } from "./remote3-co.schema";
+
+const { max_jobs: MAX_JOBS, max_days: MAX_DAYS } = parseArguments();
 
 const prisma = new PrismaClient();
 
@@ -27,32 +29,6 @@ const turndownService = new TurndownService({
 
 const getJobsUrl =
   "https://ojpncdvueyetebptprsv.supabase.co/rest/v1/jobs?select=*%2Ccompanies%28*%29&is_draft=eq.false&order=live_at.desc&offset=0&limit=200";
-
-// Schema for the remote3.co jobs
-const remote3CoJob = type({
-  id: "number",
-  created_at: "string.date",
-  live_at: "string.date",
-  title: type("string.lower").pipe((t) => trimSubstr(t, ["| smartrecruiters"])),
-  description: "string",
-  description_format: "string.lower |> 'html'",
-  type: "string.lower |> 'full-time' | 'contract'", // no internships
-  location: "string", // worldwide
-  salary_min: "number",
-  on_site: "boolean",
-  salary_max: "number",
-  apply_url: type("string.url").pipe((url) => {
-    const urlObj = new URL(url);
-    return cleanUrl(`${urlObj.origin}${urlObj.pathname}`);
-  }),
-  slug: type("string").pipe((slug) => `https://remote3.co/remote-jobs/${slug}`),
-  categories: type("string.json.parse").to("string.lower[] |> string.trim[]"),
-  companies: type({
-    name: type("string.lower").narrow((n, ctx) =>
-      n.includes("stealth") ? ctx.mustBe("not stealth") : true
-    ),
-  }),
-});
 
 const res = await fetch(getJobsUrl, {
   headers: {
@@ -79,11 +55,16 @@ const data = (await res.json()) as [];
 
 console.log(`Initially found ${data.length} jobs`);
 
-const validatedJobs: (typeof remote3CoJob.infer)[] = [];
+const validatedJobs: (typeof remote3CoSchema.infer)[] = [];
 
 for (const jobData of data as unknown[]) {
-  const validated = remote3CoJob(jobData);
+  const validated = remote3CoSchema(jobData);
   if (validated instanceof type.errors) {
+    console.error(`Skipping job from remote3.co because it did not pass validation`);
+    continue;
+  }
+  if (isDateTooOld(validated.live_at, MAX_DAYS)) {
+    console.error(`Skipping job ${validated.title} from remote3.co because it's too old`);
     continue;
   }
   if (validated.description_format === "html") {
@@ -109,7 +90,7 @@ console.log(
   `After filtering for no longer available jobs, ${jobsToSave.length} remained.`
 );
 
-const nonDuplicateJobs: (typeof remote3CoJob.infer)[] = [];
+const nonDuplicateJobs: (typeof remote3CoSchema.infer)[] = [];
 
 // Filter out duplicate jobs
 for (const job of jobsToSave) {
@@ -120,6 +101,9 @@ for (const job of jobsToSave) {
   });
   if (!alreadySavedJob) {
     nonDuplicateJobs.push(job);
+  }
+  if (nonDuplicateJobs.length >= MAX_JOBS) {
+    break;
   }
 }
 

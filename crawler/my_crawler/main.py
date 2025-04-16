@@ -1,3 +1,4 @@
+import argparse
 from datetime import timedelta
 from crawlee import ConcurrencySettings, Request
 from crawlee.crawlers import PlaywrightCrawler
