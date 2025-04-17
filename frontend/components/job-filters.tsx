@@ -158,6 +158,30 @@ export function JobFilters({ availableTags }: JobFiltersProps) {
               </Badge>
             ))}
           </div>
+
+          {/* Quick access for popular tags */}
+          {availableTags.length > 0 && (
+            <div className="mb-4">
+              <p className="mb-1 text-xs font-medium text-gray-600 uppercase">
+                Popular tags
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {availableTags
+                  .slice(0, 5)
+                  .filter((tag) => !selectedTags.has(tag))
+                  .map((tag) => (
+                    <Badge
+                      key={`popular-${tag}`}
+                      onClick={() => handleSelectTag(tag)}
+                      className="cursor-pointer"
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+              </div>
+            </div>
+          )}
+
           {/* Command component for autosuggest */}
           <Command className="overflow-visible rounded-lg border shadow-md">
             <CommandInput

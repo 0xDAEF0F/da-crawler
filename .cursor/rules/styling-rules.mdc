@@ -1,0 +1,10 @@
+---
+description: 
+globs: *.tsx
+alwaysApply: false
+---
+
+# Rules
+
+- Use shadcn and tailwindcss for new components: `https://ui.shadcn.com/`
+
