@@ -29,12 +29,12 @@ export default async function Home({
   const [params, allTags] = await Promise.all([searchParams, fetchAllTags()]);
   const { limit, page, q, tags } = searchParamsSchema.assert(params); // let it burn
 
-  console.log({
-    limit,
-    page,
-    q,
-    tags,
-  });
+  // console.log({
+  //   limit,
+  //   page,
+  //   q,
+  //   tags,
+  // });
 
   const combinedKeywords = [...new Set([...[], ...(tags ?? [])])];
 

@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 
 // imported from monorepo
-import { JobResponse } from "~/api/types/get-jobs-api-response";
+import { JobResponse } from "~/api/routes/get-jobs/get-jobs-res";
 
 export function JobList({
   jobs_,
@@ -136,6 +136,8 @@ export function JobList({
 
       <div className="space-y-4">
         {jobs.map((job) => {
+          const [min, max] = job.compensation_amount?.split("-") ?? [];
+          console.log({ min, max });
           return (
             <Link
               href={`/jobs/${job.id}`}
@@ -150,7 +152,11 @@ export function JobList({
                   <p className="text-gray-600">{capitalize(job.company)}</p>
                 </div>
                 <div className="text-right">
-                  <span className="font-medium text-gray-900">$0 - $0</span>
+                  {min && max ? (
+                    <span className="font-medium text-gray-900">
+                      ${min} - ${max}
+                    </span>
+                  ) : null}
                 </div>
               </div>
 

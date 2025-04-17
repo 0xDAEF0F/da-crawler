@@ -1,6 +1,6 @@
 import { type } from "arktype";
 
-export const jobResponse = type({
+export const jobResponseSchema = type({
   id: "number",
   date: "string.date",
   job_title: "string",
@@ -10,6 +10,7 @@ export const jobResponse = type({
   keywords: "string[]",
   "location?": "string",
   "is_remote?": "boolean",
+  "compensation_amount?": "string",
 });
 
-export type JobResponse = typeof jobResponse.infer;
+export type JobResponse = typeof jobResponseSchema.infer;

@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test";
-import { ArkErrors } from "arktype";
+import { ArkErrors, type } from "arktype";
 import { job } from "./job";
 import { cleanUrl, normalizeWords } from "../utils";
 import { KEYWORD_MAPPINGS } from "../constants";
@@ -8,14 +8,7 @@ test("job type validation", () => {
   const inputExample = {
     title: "Quantitative Trader",
     company: "Neutrl Labs",
-    tags: [
-      "defi",
-      "delta-neutral",
-      "quant",
-      "stablecoin",
-      "synthetic dollar",
-      "trading",
-    ],
+    tags: ["defi", "delta-neutral", "quant", "stablecoin", "synthetic dollar", "trading"],
     date: "2025-04-02T00:32:29",
     is_remote: true,
     job_description: "job description",
@@ -50,4 +43,12 @@ test("clean url", () => {
   const url = "https://www.example.com/job/1234567890/apply?lala=123";
   const cleanedUrl = cleanUrl(url);
   expect(cleanedUrl).toEqual("https://www.example.com/job/1234567890");
+});
+
+test("check something", () => {
+  const aSchema = type({
+    "a?": "number",
+    b: "number",
+  });
+  const a = aSchema.assert({ b: 2, ...(false ? { a: 1 } : {}) });
 });

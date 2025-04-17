@@ -14,9 +14,11 @@ export function JobDetail({ job }: Props) {
   const [isApplying, setIsApplying] = useState(false);
 
   // Determine AI analysis details safely
+  // console.log(job.ai_compensation_amount);
   const compensationText = job.ai_compensation_amount
     ? `$${job.ai_compensation_amount.replace("-", " - $")}`
     : "N/A";
+
   const isFullTime = job.is_full_time ?? false;
   const optionToPayInCrypto = false;
   const aiSummary = job.ai_summary ?? "No summary available.";

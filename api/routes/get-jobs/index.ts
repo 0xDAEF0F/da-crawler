@@ -4,7 +4,7 @@ import { normalizeWords } from "../../utils";
 import { KEYWORD_MAPPINGS } from "../../constants";
 import { uniq } from "lodash";
 import { prisma } from "../../utils/db";
-import type { JobResponse } from "../../types/get-jobs-api-response";
+import { jobResponseSchema, type JobResponse } from "./get-jobs-res";
 import type { Context } from "hono";
 
 export const getJobs = async (c: Context) => {
@@ -91,8 +91,8 @@ export const getJobs = async (c: Context) => {
     offsetValue + limitValue
   );
 
-  const jobsResponse = jobsWithLimit.map(
-    (job): JobResponse => ({
+  const jobsResponse: JobResponse[] = jobsWithLimit.map((job) => {
+    const jobToValidate: JobResponse = {
       id: job.id,
       company: job.company,
       date: job.date.toISOString(),
@@ -101,7 +101,7 @@ export const getJobs = async (c: Context) => {
       keywords: uniq([
         ...job.ai_analysis.keywords,
         ...job.tags,
-        job.ai_analysis.option_to_pay_in_crypto ? "crypto-pay" : [],
+        job.ai_analysis?.option_to_pay_in_crypto ? "crypto-pay" : [],
       ]).flat(),
       location:
         job.ai_analysis?.country && job.ai_analysis?.region
@@ -109,8 +109,14 @@ export const getJobs = async (c: Context) => {
           : job.ai_analysis?.country || job.ai_analysis?.region || undefined,
       job_title: job.ai_analysis?.job_title || job.title,
       is_remote: job.is_remote,
-    })
-  );
+    };
+
+    if (job.ai_analysis?.compensation_amount) {
+      jobToValidate.compensation_amount = job.ai_analysis.compensation_amount;
+    }
+
+    return jobResponseSchema.assert(jobToValidate);
+  });
 
   return c.json({
     error: false,
