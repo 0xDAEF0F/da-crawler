@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useQueryState, parseAsInteger } from "nuqs";
-import { capitalize } from "@/lib/utils";
+import { capitalize, extractSource } from "@/lib/utils";
 import {
   Pagination,
   PaginationContent,
@@ -181,7 +181,11 @@ export function JobList({
               </div>
 
               <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-                <span>Source: Source</span>
+                {extractSource(job.job_url) ? (
+                  <span>Source: {extractSource(job.job_url)}</span>
+                ) : (
+                  <span className="invisible">Source: Unknown</span>
+                )}
                 <span>{formatDate(job.date)}</span>
               </div>
             </Link>

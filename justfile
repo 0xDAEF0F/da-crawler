@@ -13,5 +13,5 @@ analyze-ai:
 rebuild-api:
     bun run build:api
 
-run-api:
+run-api: rebuild-api
     bun run --hot dist/api/index.js

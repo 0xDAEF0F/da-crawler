@@ -11,9 +11,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// "hello world" => "Hello World"
-/// Throws if it does not passes validation
-export const capitalize = (str: string) => {
+/**
+ * Capitalizes a string
+ * @param str - The string to capitalize
+ * @returns The capitalized string
+ * @throws If the string is not a string
+ */
+export function capitalize(str: string) {
   const result = type("string").pipe((str) =>
     str
       .split(" ")
@@ -24,4 +28,22 @@ export const capitalize = (str: string) => {
     throw new Error("Invalid string");
   }
   return result;
-};
+}
+
+/**
+ * Extracts the source from a URL
+ * @param url - The URL to extract the source from
+ * @returns The source of the URL
+ * @throws If the URL is not valid
+ */
+export function extractSource(url: string): string {
+  const parsedUrl = new URL(url);
+  const hostname = parsedUrl.hostname;
+  const source = hostname.split(".").slice(0, -1);
+
+  if (source[0] === "www") {
+    return source.slice(1).join(".");
+  }
+
+  return source.join(".");
+}
