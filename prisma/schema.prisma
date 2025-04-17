@@ -20,6 +20,10 @@ model Job {
   tags                String         @default("[]")
   /// When did the job post was published.
   date                DateTime
+  /// The minimum salary for the job.
+  salary_min          Int            @default(0)
+  /// The maximum salary for the job.
+  salary_max          Int            @default(0)
   /// The actual job description. Markdown formatted.
   job_description     String
   /// The URL of the job description page (in source).
