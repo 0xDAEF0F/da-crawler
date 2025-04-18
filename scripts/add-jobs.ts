@@ -1,8 +1,26 @@
 import { readdir } from "node:fs/promises";
-import { job, type Job } from "../api/types/job";
 import { PrismaClient } from "@prisma/client";
 import { partition, uniqBy } from "lodash";
-import { ArkErrors } from "arktype";
+import { ArkErrors, type } from "arktype";
+import { cleanUrl } from "~/utils/clean-url";
+import { normalizeWords } from "~/utils/normalize-words";
+import { KEYWORD_MAPPINGS } from "~/utils/constants";
+
+const jobSchema = type({
+  title: "string.lower |> string.trim",
+  company: "string >= 2 |> string.trim |> string.lower",
+  tags: type("string[]")
+    .to("string.lower[] |> string.trim[]")
+    .pipe((tags) => normalizeWords(tags, KEYWORD_MAPPINGS)),
+  date: "string.date.iso.parse",
+  is_remote: "boolean",
+  job_description: "string",
+  job_url: type("string"),
+  // the `apply_url`
+  real_job_url: type("string.url").pipe(cleanUrl),
+});
+
+type JobSchema = typeof jobSchema.infer;
 
 const prisma = new PrismaClient();
 
@@ -28,7 +46,7 @@ const scrapedFilesA = await readdir(
 );
 const scrapedFilesB = await readdir(`crawler/storage/datasets/${cryptoJobsScrapeDir}`);
 
-let jobsA: Job[] = [];
+let jobsA: JobSchema[] = [];
 for (const file of scrapedFilesA) {
   if (file.includes("__meta")) {
     continue;
@@ -36,7 +54,7 @@ for (const file of scrapedFilesA) {
   const contentJson = await Bun.file(
     `crawler/storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}`
   ).json();
-  const maybeParsed = job(contentJson);
+  const maybeParsed = jobSchema(contentJson);
   if (maybeParsed instanceof ArkErrors) {
     console.error(
       `Error parsing: "crawler/storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}"`
@@ -48,7 +66,7 @@ for (const file of scrapedFilesA) {
 
 console.log(`--- Cryptocurrency Jobs: ${jobsA.length}`);
 
-let jobsB: Job[] = [];
+let jobsB: JobSchema[] = [];
 for (const file of scrapedFilesB) {
   if (file.includes("__meta")) {
     continue;
@@ -56,7 +74,7 @@ for (const file of scrapedFilesB) {
   const contentJson = await Bun.file(
     `crawler/storage/datasets/${cryptoJobsScrapeDir}/${file}`
   ).json();
-  const maybeParsed = job(contentJson);
+  const maybeParsed = jobSchema(contentJson);
   if (maybeParsed instanceof ArkErrors) {
     console.error(
       `Error parsing: "crawler/storage/datasets/${cryptoJobsScrapeDir}/${file}"`

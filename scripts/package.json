@@ -2,8 +2,10 @@
   "name": "scripts",
   "private": true,
   "type": "module",
-  "devDependencies": {
-    "@types/bun": "latest"
+  "scripts": {
+    "beincrypto": "",
+    "remote3-co": "",
+    "ai-analysis": ""
   },
   "peerDependencies": {
     "typescript": "^5"

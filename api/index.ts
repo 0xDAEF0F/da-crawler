@@ -20,9 +20,6 @@ const app = new Hono();
 app.post("/get-jobs", getJobs);
 app.get("/all-tags", getTags);
 app.get("/job/:id", getJob);
-app.get("/", (c) => {
-  console.log(`Request from: ${getConnInfo(c).remote.address}`);
-  return c.text("Hello World");
-});
+app.get("/", (c) => c.text("Hello World"));
 
 export default app;

@@ -27,6 +27,7 @@ export default async function Home({
   searchParams: SearchParams;
 }) {
   const [params, allTags] = await Promise.all([searchParams, fetchAllTags()]);
+  // TODO: implement "q"
   const { limit, page, q, tags } = searchParamsSchema.assert(params); // let it burn
 
   // console.log({
@@ -43,7 +44,7 @@ export default async function Home({
     return (page - 1) * limit;
   };
 
-  console.log(`offset: ${getOffset(page)}`);
+  // console.log(`offset: ${getOffset(page)}`);
 
   const jobs = await fetchJobs(
     limit,

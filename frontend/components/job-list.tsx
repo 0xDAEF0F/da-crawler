@@ -137,7 +137,7 @@ export function JobList({
       <div className="space-y-4">
         {jobs.map((job) => {
           const [min, max] = job.compensation_amount?.split("-") ?? [];
-          console.log({ min, max });
+          // console.log({ min, max });
           return (
             <Link
               href={`/jobs/${job.id}`}
