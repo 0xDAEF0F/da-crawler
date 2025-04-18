@@ -6,11 +6,16 @@ dotenv.config();
 
 const AI_MODEL = "google/gemini-2.0-flash-001";
 const PROMPT = `
-Summarize the job description as concisely as possible, excluding redundant details (e.g., "must be
-a team player" or "punctuality required") or obvious information (e.g., "must follow company policies")
-that applies to most jobs and isn't critical for the applicant to understand the role. Focus on the
-core responsibilities, requirements, and unique aspects of the position. Omit the name of the company
-and the job title in the summary.
+- Summarize the job description as concisely as possible, excluding redundant details (e.g., "must be
+  a team player" or "punctuality required") or obvious information (e.g., "must follow company policies")
+  that applies to most jobs and isn't critical for the applicant to understand the role.
+- Focus on the core responsibilities, requirements, and unique aspects of the position.
+- Omit the name of the company and the job title in the summary.
+- The format and style should be in a bulleted list with a new line between each bullet point and
+  a "-" at the beginning of each point.
+- The summary should have two sections, the first one should be the non technical aspects of the job
+  and the second one should be the technical aspects like tools and technologies used.
+- Each section must not exceed 3-4 bullet points so choose wisely which ones to include.
 `;
 
 const openai = new OpenAI({

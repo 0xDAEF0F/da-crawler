@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test";
-import { getJobsBody, trimmedLowerCaseStrings } from "./body-schema";
+import { getJobsBody, trimmedLowerCaseStrings } from "./body.schema";
 
 test("get jobs args", () => {
   const args = getJobsBody({
@@ -21,11 +21,6 @@ test("get jobs args", () => {
 });
 
 test("lower case and trim works", () => {
-  const result = trimmedLowerCaseStrings([
-    "  Hello World  ",
-    "Hello World",
-    "",
-    "  ",
-  ]);
+  const result = trimmedLowerCaseStrings(["  Hello World  ", "Hello World", "", "  "]);
   expect(result).toEqual(["hello world", "hello world"]);
 });

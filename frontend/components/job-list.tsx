@@ -34,6 +34,29 @@ export function JobList({
   jobs_: JobResponse[];
   totalResults: number;
 }) {
+  function parseAiSummary(summary: string):
+    | {
+        non_technical: string[];
+        technical: string[];
+      }
+    | string {
+    const hasEmptyLine = summary.includes("\n\n");
+    if (hasEmptyLine) {
+      const [non_technical, technical] = summary.split("\n\n");
+      return {
+        non_technical: non_technical
+          .split("\n")
+          .filter(Boolean)
+          .map((line) => line.replace("- ", "")),
+        technical: technical
+          .split("\n")
+          .filter(Boolean)
+          .map((line) => line.replace("- ", "")),
+      };
+    }
+    return summary;
+  }
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -63,17 +86,9 @@ export function JobList({
 
   const totalPages = Math.ceil(totalResults / itemsPerPage);
 
-  const updateUrl = (page: number, limit: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", page.toString());
-    params.set("limit", limit.toString());
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  };
-
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {
       setCurrentPage(page);
-      // updateUrl(page, itemsPerPage); // nuqs handles URL updates
     }
   };
 
@@ -152,6 +167,22 @@ export function JobList({
 
       <div className="space-y-4">
         {jobs.map((job) => {
+          let summary_;
+
+          if (job.job_summary) {
+            summary_ = parseAiSummary(job.job_summary);
+          }
+
+          if (summary_ instanceof Object) {
+            const { non_technical, technical } = summary_;
+            summary_ = `
+            ${non_technical.map((line) => `- ${line}`).join("\n")}
+
+            ${technical.map((line) => `- ${line}`).join("\n")}
+            `;
+            console.log(summary_);
+          }
+
           return (
             <div
               key={job.id}
@@ -232,7 +263,9 @@ export function JobList({
 
               <div className="mt-3 flex items-start justify-between">
                 <p className="text-sm text-gray-500">
-                  {job.job_description.slice(0, 300)}...
+                  {job.job_summary
+                    ? summary_
+                    : job.job_description.slice(0, 300) + "..."}
                 </p>
               </div>
 

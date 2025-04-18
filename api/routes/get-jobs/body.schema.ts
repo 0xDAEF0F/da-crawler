@@ -1,7 +1,7 @@
 import { type } from "arktype";
 
 export const trimmedLowerCaseStrings = type("string.lower[] |> string.trim[]").pipe(
-  (arr) => arr.filter((str) => str)
+  (arr) => arr.filter(Boolean)
 );
 
 // Schema for the `getJobs` API arguments/params in body

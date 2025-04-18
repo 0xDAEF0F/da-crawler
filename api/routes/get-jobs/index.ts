@@ -1,4 +1,4 @@
-import { getJobsBody } from "./body-schema";
+import { getJobsBody } from "./body.schema";
 import { ArkErrors } from "arktype";
 import { normalizeWords } from "~/utils/normalize-words";
 import { KEYWORD_MAPPINGS } from "~/utils/constants";
@@ -91,22 +91,22 @@ export const getJobs = async (c: Context) => {
     offsetValue + limitValue
   );
 
-  const jobsResponse: JobResponse[] = jobsWithLimit.map((job) => {
+  const jobsResponse = jobsWithLimit.map((job) => {
     const jobToValidate: JobResponse = {
       id: job.id,
       company: job.company,
-      date: job.date.toISOString(),
-      job_description: job.ai_analysis?.summary || job.job_description,
-      job_url: job.job_url,
-      keywords: uniq([
-        ...job.ai_analysis.keywords,
-        ...job.tags,
-        job.ai_analysis?.option_to_pay_in_crypto ? "crypto-pay" : [],
-      ]).flat(),
-      job_title: job.ai_analysis?.job_title || job.title,
       is_remote: job.is_remote,
       salary_min: job.salary_min,
       salary_max: job.salary_max,
+      date: job.date.toISOString(),
+      job_description: job.job_description,
+      job_url: job.job_url,
+      job_title: job.title,
+      keywords: uniq([
+        ...job.tags,
+        job.ai_analysis?.option_to_pay_in_crypto ? "crypto-pay" : [],
+      ]).flat(),
+      ...(job.ai_analysis.summary ? { job_summary: job.ai_analysis.summary } : {}),
     };
 
     if (job.ai_analysis.country) {

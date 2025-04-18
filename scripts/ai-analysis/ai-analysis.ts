@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { summarizeJob } from "./ai-analysis.utils";
 
 const MIN_JOB_DESCRIPTION_LENGTH = 500;
-const MAX_JOBS_TO_ANALYZE = 10;
+const MAX_JOBS_TO_ANALYZE = 2;
 
 const prisma = new PrismaClient();
 
@@ -58,6 +58,8 @@ for (const { job, analysis } of summarizedResults) {
     failedUpdates++; // Count skipped jobs as failures for this context
     continue;
   }
+
+  console.log(`${job.id} - ${analysis.summary}`);
 
   try {
     await prisma.job.update({
