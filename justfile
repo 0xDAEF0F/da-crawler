@@ -7,8 +7,8 @@ scrape-and-save:
     bun run scripts/beincrypto/beincrypto.ts --max_jobs {{max_jobs}} --max_days {{max_days}}
     bun run scripts/add-jobs.ts
     
-analyze-ai:
-    bun run scripts/job-analysis.ts
+ai-analysis:
+    bun run scripts/ai-analysis/ai-analysis.ts
 
 rebuild-api:
     bun run build:api

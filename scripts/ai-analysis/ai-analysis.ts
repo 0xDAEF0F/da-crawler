@@ -2,13 +2,13 @@ import { PrismaClient } from "@prisma/client";
 import { summarizeJob } from "./ai-analysis.utils";
 
 const MIN_JOB_DESCRIPTION_LENGTH = 500;
-const MAX_JOBS_TO_ANALYZE = 1;
+const MAX_JOBS_TO_ANALYZE = 10;
 
 const prisma = new PrismaClient();
 
 const jobs_ = await prisma.job.findMany({
   where: {
-    ai_analysis: null,
+    OR: [{ ai_analysis: null }, { ai_analysis: { summary: undefined } }],
   },
   orderBy: {
     date: "desc",
@@ -48,8 +48,53 @@ if (summarizationErrors > 0) {
   console.error(`${summarizationErrors} jobs were not summarized`);
 }
 
+let successfulUpdates = 0;
+let failedUpdates = 0;
+
 // Save AI analyses to the database
 for (const { job, analysis } of summarizedResults) {
-  console.log(`Saving analysis for ${job.title}`);
-  console.log(`Analysis: ${analysis.summary}`);
+  if (!analysis.summary) {
+    console.log(`Skipping job ${job.id} - no summary available`);
+    failedUpdates++; // Count skipped jobs as failures for this context
+    continue;
+  }
+
+  try {
+    await prisma.job.update({
+      where: { id: job.id },
+      data: {
+        ai_analysis: {
+          upsert: {
+            create: {
+              summary: analysis.summary,
+              job_title: job.title,
+              keywords: "[]", // TODO: Implement keyword extraction
+              compensation_amount:
+                analysis.min_salary === 0 || analysis.max_salary === 0
+                  ? null
+                  : `${analysis.min_salary}-${analysis.max_salary}`,
+            },
+            update: {
+              summary: analysis.summary,
+              compensation_amount:
+                analysis.min_salary === 0 || analysis.max_salary === 0
+                  ? null
+                  : `${analysis.min_salary}-${analysis.max_salary}`,
+            },
+          },
+        },
+      },
+    });
+    successfulUpdates++;
+  } catch (error) {
+    console.error(`Failed to update job ${job.id}:`, error);
+    failedUpdates++;
+  }
 }
+
+console.log(`Successfully saved/updated AI analysis for ${successfulUpdates} jobs.`);
+if (failedUpdates > 0) {
+  console.error(`Failed to save/update AI analysis for ${failedUpdates} jobs.`);
+}
+
+await prisma.$disconnect();

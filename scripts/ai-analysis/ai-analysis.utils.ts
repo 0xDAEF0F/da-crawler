@@ -9,7 +9,8 @@ const PROMPT = `
 Summarize the job description as concisely as possible, excluding redundant details (e.g., "must be
 a team player" or "punctuality required") or obvious information (e.g., "must follow company policies")
 that applies to most jobs and isn't critical for the applicant to understand the role. Focus on the
-core responsibilities, requirements, and unique aspects of the position.
+core responsibilities, requirements, and unique aspects of the position. Omit the name of the company
+and the job title in the summary.
 `;
 
 const openai = new OpenAI({
