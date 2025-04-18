@@ -6,6 +6,7 @@ import { cleanUrl } from "~/utils/clean-url";
 import { normalizeWords } from "~/utils/normalize-words";
 import { KEYWORD_MAPPINGS } from "~/utils/constants";
 
+// TODO: Unify the schema with the global one
 const jobSchema = type({
   title: "string.lower |> string.trim",
   company: "string >= 2 |> string.trim |> string.lower",
@@ -18,11 +19,18 @@ const jobSchema = type({
   job_url: type("string"),
   // the `apply_url`
   real_job_url: type("string.url").pipe(cleanUrl),
+  min_salary: "number",
+  max_salary: "number",
 });
 
 type JobSchema = typeof jobSchema.infer;
 
 const prisma = new PrismaClient();
+
+await prisma.jobAiAnalysis.deleteMany();
+await prisma.job.deleteMany({
+  where: { source: { in: ["cryptocurrencyjobs", "cryptojobs"] } },
+});
 
 const [cryptocurrencyJobs, cryptoJobs] = partition(
   await readdir("crawler/storage/datasets"),
@@ -87,10 +95,12 @@ for (const file of scrapedFilesB) {
 console.log(`--- Crypto Jobs: ${jobsB.length}`);
 
 const allJobs = [
-  ...jobsA.map((j) => ({
-    ...j,
-    source: "cryptocurrencyjobs",
-  })),
+  ...jobsA.map((j) => {
+    return {
+      ...j,
+      source: "cryptocurrencyjobs",
+    };
+  }),
   ...jobsB.map((j) => ({
     ...j,
     source: "cryptojobs",
@@ -124,6 +134,8 @@ for (const job of allJobsUniqBy) {
       job_url: job.real_job_url,
       job_description_url: job.job_url,
       source: job.source,
+      salary_min: job.min_salary,
+      salary_max: job.max_salary,
     },
   });
 }

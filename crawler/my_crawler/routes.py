@@ -5,6 +5,7 @@ from crawlee.storages import Dataset
 from crawlee.crawlers import PlaywrightCrawlingContext
 from crawlee.router import Router
 import asyncio
+import re
 
 from my_crawler.db import (
     is_job_title_and_company_in_db,
@@ -58,6 +59,21 @@ async def ccj_main_handler(context: PlaywrightCrawlingContext) -> None:
             is_remote_future,
         )
 
+        # Extract salary if present
+        min_salary = 0
+        max_salary = 0
+        salary_locator = li.locator("span").filter(
+            has_text="$"
+        )  # Assuming '$' might still be a primary indicator
+        if await salary_locator.count() > 0:
+            try:
+                salary_text = await salary_locator.inner_text()
+                min_salary, max_salary = parse_salary(salary_text)
+            except Exception as e:
+                context.log.warning(
+                    f"Could not parse salary for {title}@{company}: {e}"
+                )
+
         # Handle relative URLs
         if job_url.startswith("http"):
             job_url = job_url
@@ -85,6 +101,8 @@ async def ccj_main_handler(context: PlaywrightCrawlingContext) -> None:
                 "tags": tags_text,
                 "date": date,
                 "is_remote": is_remote,
+                "min_salary": min_salary,
+                "max_salary": max_salary,
             }
         )
 
@@ -172,6 +190,15 @@ async def cryptojobs_main_handler(context: PlaywrightCrawlingContext) -> None:
             .lower()
             .startswith("remote")
         )
+        min_salary = 0
+        max_salary = 0
+        salary_locator = job.locator("li.me-3").filter(has_text="USD / Year")
+        if await salary_locator.count() > 0:
+            salary_text = await salary_locator.inner_text()  # " 207,485 USD / Year "
+            salary_text = salary_text.replace(" USD / Year", "").strip()
+            salary_text = salary_text.replace(",", "")
+            min_salary = int(salary_text)
+            max_salary = min_salary
 
         if parse_date(posted) < get_job_date_threshold():
             context.log.debug(f"Skipping job: {title} because it is too old")
@@ -190,6 +217,8 @@ async def cryptojobs_main_handler(context: PlaywrightCrawlingContext) -> None:
                 "company": company,
                 "date": parse_date(posted),
                 "is_remote": is_remote,
+                "min_salary": min_salary,
+                "max_salary": max_salary,
             }
         )
 
@@ -280,3 +309,44 @@ def parse_date(date_str: str) -> datetime:
         return now - timedelta(days=30 * months)
     else:
         return now
+
+
+def parse_salary(salary_text: str) -> tuple[int, int]:
+    """
+    Only works for Cryptojobs.com
+    Parses a salary string which might contain different currency symbols and formats.
+    Assumes 'K' means '000' and '–' is the separator for ranges.
+
+    Args:
+        salary_text: The raw salary string (e.g., "$150K – $200K", "€80K–€100K", "C$ 50000 – C$ 70000").
+
+    Returns:
+        A tuple containing (min_salary, max_salary).
+    """
+    min_salary = 0
+    max_salary = 0
+
+    try:
+        min_str, max_str = salary_text.split("–")
+
+        # Process min salary
+        min_str_cleaned = re.sub(r"^\D+", "", min_str.replace("K", "000")).strip()
+        if min_str_cleaned:
+            min_salary = int(min_str_cleaned)
+
+        # Process max salary
+        max_str_cleaned = re.sub(r"^\D+", "", max_str.replace("K", "000")).strip()
+        if max_str_cleaned:
+            max_salary = int(max_str_cleaned)
+
+    except ValueError:
+        # Handle cases where there might not be a range or other parsing issues
+        cleaned_text = re.sub(r"^\D+", "", salary_text.replace("K", "000")).strip()
+        if cleaned_text:
+            try:
+                min_salary = int(cleaned_text)
+                max_salary = min_salary  # Assume single value if no range
+            except ValueError:
+                pass  # Keep salaries as 0 if final parsing fails
+
+    return min_salary, max_salary

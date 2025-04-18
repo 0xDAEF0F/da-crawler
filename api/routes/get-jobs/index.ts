@@ -105,6 +105,8 @@ export const getJobs = async (c: Context) => {
       ]).flat(),
       job_title: job.ai_analysis?.job_title || job.title,
       is_remote: job.is_remote,
+      salary_min: job.salary_min,
+      salary_max: job.salary_max,
     };
 
     if (job.ai_analysis.country) {
@@ -113,10 +115,6 @@ export const getJobs = async (c: Context) => {
 
     if (job.ai_analysis.region) {
       jobToValidate.location += ` | ${job.ai_analysis.region}`;
-    }
-
-    if (job.ai_analysis?.compensation_amount) {
-      jobToValidate.compensation_amount = job.ai_analysis.compensation_amount;
     }
 
     return jobResponseSchema.assert(jobToValidate);

@@ -8,9 +8,10 @@ export const jobResponseSchema = type({
   job_description: "string",
   job_url: "string",
   keywords: "string[]",
+  salary_min: "number",
+  salary_max: "number",
   "location?": "string",
   "is_remote?": "boolean",
-  "compensation_amount?": "string",
 });
 
 export type JobResponse = typeof jobResponseSchema.infer;

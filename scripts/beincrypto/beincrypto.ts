@@ -39,6 +39,12 @@ for (let i = 1; i <= 10 /* pages */; i++) {
       location: validatedJob.locationTags.map((lt) => lt.label),
       job_description: validatedJob.description,
       job_url: validatedJob.applyLink,
+      ...(validatedJob.salaryStart && validatedJob.salaryEnd
+        ? {
+            salary_min: validatedJob.salaryStart,
+            salary_max: validatedJob.salaryEnd,
+          }
+        : {}),
     });
     if (jobS instanceof type.errors) {
       console.error(`Unable to validate job in page ${i} from beincrypto.ts`);

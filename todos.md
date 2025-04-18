@@ -1,9 +1,13 @@
 # Todos
 
-- [ ] When sending jobs to llm dont send if description less than x characters
 - [ ] Explore vector embeddings
 - [ ] Add logging with sentry
 - [ ] Migrate to postgres
+
+## Small changes data
+
+- Add salary min/max to the job sources
+- Summary should have the tools/technologies in bullet points
 
 ## Small changes frontend
 
@@ -11,3 +15,4 @@
 - Sort by: Date
 - Fix salary ranges
 - Apply button directly in job home page
+- When you click on tags in the job details (home) they should be added to the _Tags_

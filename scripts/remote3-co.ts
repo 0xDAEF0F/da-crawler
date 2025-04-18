@@ -127,6 +127,8 @@ for (const job of nonDuplicateJobs) {
         source: "remote3-co",
         tags: JSON.stringify(job.categories),
         is_remote: job.on_site ? false : true,
+        salary_min: job.salary_min,
+        salary_max: job.salary_max,
       },
     });
   } catch (e) {

@@ -151,8 +151,6 @@ export function JobList({
 
       <div className="space-y-4">
         {jobs.map((job) => {
-          const [min, max] = job.compensation_amount?.split("-") ?? [];
-          // console.log({ min, max });
           return (
             <Link
               href={`/jobs/${job.id}`}
@@ -167,9 +165,10 @@ export function JobList({
                   <div className="flex gap-2 text-gray-600">
                     <p className="text-gray-600">{capitalize(job.company)}</p>
                     <div className="text-right text-gray-600">
-                      {min && max ? (
-                        <span className="font-sm text-gray-900">
-                          ${min} - ${max}
+                      {job.salary_min && job.salary_max ? (
+                        <span className="text-sm font-light text-gray-600">
+                          ${job.salary_min.toLocaleString()} - $
+                          {job.salary_max.toLocaleString()}
                         </span>
                       ) : null}
                     </div>
