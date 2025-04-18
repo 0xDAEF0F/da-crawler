@@ -18,6 +18,8 @@ model Job {
   company             String
   /// Tags for the job. e.g., ["javascript", "react", "typescript"]
   tags                String         @default("[]")
+  /// The location(s) of the job. e.g., ["San Francisco", "United States"]
+  location            String         @default("[]")
   /// When did the job post was published.
   date                DateTime
   /// The minimum salary for the job.

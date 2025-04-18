@@ -1,7 +1,7 @@
-import { cleanUrl } from "../utils";
 import { type } from "arktype";
-import { normalizeWords } from "../utils";
-import { KEYWORD_MAPPINGS } from "../constants";
+import { cleanUrl } from "~/utils/clean-url";
+import { normalizeWords } from "~/utils/normalize-words";
+import { KEYWORD_MAPPINGS } from "~/utils/constants";
 
 // Job schema in database
 export const job = type({

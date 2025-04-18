@@ -1,4 +1,4 @@
-import { Job } from "@prisma/client";
+import { type Job } from "@prisma/client";
 import dotenv from "dotenv";
 import { aiAnalysisSchema } from "./ai-analysis.schema";
 import OpenAI from "openai";
@@ -49,7 +49,7 @@ export async function summarizeJob(job: Job): Promise<typeof aiAnalysisSchema.in
     tool_choice: { type: "function", function: { name: "save_ai_analysis" } },
   });
 
-  const data = completion.choices[0].message.tool_calls?.[0].function.arguments;
+  const data = completion.choices[0]?.message.tool_calls?.[0]?.function?.arguments;
 
   if (!data) {
     throw new Error("No data returned from OpenAI");

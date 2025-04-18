@@ -1,4 +1,4 @@
-import { cleanUrl } from "../api/utils";
+import { cleanUrl } from "~/utils/clean-url";
 import { trimSubstr } from "./utils";
 import { type } from "arktype";
 

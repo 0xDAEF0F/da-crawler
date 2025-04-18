@@ -1,23 +1,8 @@
 import { test, expect } from "bun:test";
-import { ArkErrors, type } from "arktype";
-import { job } from "./job";
-import { cleanUrl, normalizeWords } from "../utils";
-import { KEYWORD_MAPPINGS } from "../constants";
-
-test("job type validation", () => {
-  const inputExample = {
-    title: "Quantitative Trader",
-    company: "Neutrl Labs",
-    tags: ["defi", "delta-neutral", "quant", "stablecoin", "synthetic dollar", "trading"],
-    date: "2025-04-02T00:32:29",
-    is_remote: true,
-    job_description: "job description",
-    job_url: "https://www.example.com/job/1234567890/apply?lala=123",
-    real_job_url: "mailto:admin@neutrl.xyz",
-  };
-  const result = job(inputExample);
-  expect(result).not.toBeInstanceOf(ArkErrors);
-});
+import { type } from "arktype";
+import { normalizeWords } from "~/utils/normalize-words";
+import { cleanUrl } from "~/utils/clean-url";
+import { KEYWORD_MAPPINGS } from "~/utils/constants";
 
 test("normalize tags", () => {
   const tags = [

@@ -1,10 +1,18 @@
 import { uniq } from "lodash";
 
+/**
+ * Normalizes an array of words by replacing them with their normalized counterparts
+ * based on the provided mappings.
+ *
+ * @param words - The array of words to normalize.
+ * @param mappings - The mappings of normalized words to their variants.
+ * @returns The normalized words.
+ */
 export function normalizeWords(
   words: string[],
   mappings: Record<string, string[]>
 ): string[] {
-  const uniqueWords = uniq(words);
+  const uniqueWords = uniq(words.map((word) => word.toLowerCase()));
   const normalizedWords: string[] = [];
 
   // Track which normalized tags are present
@@ -31,34 +39,4 @@ export function normalizeWords(
 
   // Add all normalized tags that were found
   return [...normalizedWords, ...normalizedTagsPresent];
-}
-
-export function cleanUrl(url: string): string {
-  try {
-    const parsedUrl = new URL(url);
-    const pathSegments = parsedUrl.pathname.split("/").filter(Boolean);
-
-    // Check if the last segment contains 'application' or 'apply'
-    const lastSegment =
-      pathSegments.length > 0 ? pathSegments[pathSegments.length - 1] : null;
-    if (
-      lastSegment &&
-      (lastSegment.includes("application") || lastSegment.includes("apply"))
-    ) {
-      pathSegments.pop();
-    }
-
-    // Reconstruct pathname without trailing slash
-    parsedUrl.pathname =
-      pathSegments.length > 0 ? `/${pathSegments.join("/")}` : "";
-
-    // Remove query parameters and hash fragment
-    parsedUrl.search = "";
-    parsedUrl.hash = "";
-
-    return parsedUrl.toString();
-  } catch (error) {
-    // Return original URL if parsing fails
-    return url;
-  }
 }

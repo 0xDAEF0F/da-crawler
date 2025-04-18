@@ -1,6 +1,6 @@
-import type { Context } from "hono";
-import { prisma } from "../utils/db";
+import { prisma } from "@/.";
 import { type } from "arktype";
+import type { Context } from "hono";
 
 // TODO: fix this schema (this is disgusting)
 const getJobSchema = type({

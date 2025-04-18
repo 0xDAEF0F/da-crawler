@@ -3,6 +3,9 @@ import { getTags } from "./routes/all-tags";
 import { getJobs } from "./routes/get-jobs";
 import { getConnInfo } from "hono/bun";
 import { getJob } from "./routes/get-job";
+import { PrismaClient } from "@prisma/client";
+
+export const prisma = new PrismaClient();
 
 console.log(
   `Server starting at ${new Date().toLocaleTimeString("en-US", {

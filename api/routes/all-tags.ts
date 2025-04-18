@@ -1,5 +1,5 @@
 import type { Context } from "hono";
-import { prisma } from "../utils/db";
+import { prisma } from "@/.";
 import { uniq } from "lodash";
 import { type } from "arktype";
 
@@ -33,7 +33,7 @@ export async function getTags(c: Context) {
   const tags_ = uniq(
     Array.from(tagFrequencyMap.entries())
       .sort((a, b) => b[1] - a[1])
-      .map(([tag]) => tag),
+      .map(([tag]) => tag)
   );
 
   const validated = type("string[]")(tags_);
@@ -45,7 +45,7 @@ export async function getTags(c: Context) {
         error: true,
         message: "Internal server error",
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
   return c.json({

@@ -2,7 +2,7 @@ import { type } from "arktype";
 
 export const beInCryptoSchema = type({
   id: "number",
-  title: "string",
+  title: "string.lower |> string.trim",
   slug: "string",
   type: "string",
   salaryStart: "number | null",
@@ -15,7 +15,7 @@ export const beInCryptoSchema = type({
   createdAt: "string",
   updatedAt: "string",
   paidInCrypto: "boolean",
-  publishedDate: "string",
+  publishedDate: "string.date.iso.parse",
   unpublishedDate: "string | null",
   locale: "string",
   closed: "boolean",
@@ -25,7 +25,7 @@ export const beInCryptoSchema = type({
   isStartUp: "boolean",
   company: {
     id: "number",
-    name: "string",
+    name: "string >= 2 |> string.lower |> string.trim",
     website: "string",
     email: "string | null",
     logoURL: "string | null",
@@ -37,8 +37,8 @@ export const beInCryptoSchema = type({
   },
   jobTags: type({
     id: "number",
-    slug: "string",
-    label: "string",
+    slug: type("string.lower |> string.trim"),
+    label: "string.lower |> string.trim",
     createdAt: "string",
     updatedAt: "string",
     locale: "string",

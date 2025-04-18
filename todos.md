@@ -3,6 +3,7 @@
 - [ ] When sending jobs to llm dont send if description less than x characters
 - [ ] Explore vector embeddings
 - [ ] Add logging with sentry
+- [ ] Migrate to postgres
 
 ## Small changes frontend
 

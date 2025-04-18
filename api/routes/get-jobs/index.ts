@@ -1,9 +1,9 @@
 import { getJobsBody } from "./body-schema";
 import { ArkErrors } from "arktype";
-import { normalizeWords } from "../../utils";
-import { KEYWORD_MAPPINGS } from "../../constants";
+import { normalizeWords } from "~/utils/normalize-words";
+import { KEYWORD_MAPPINGS } from "~/utils/constants";
 import { uniq } from "lodash";
-import { prisma } from "../../utils/db";
+import { prisma } from "@/.";
 import { jobResponseSchema, type JobResponse } from "./get-jobs-res";
 import type { Context } from "hono";
 
@@ -103,13 +103,17 @@ export const getJobs = async (c: Context) => {
         ...job.tags,
         job.ai_analysis?.option_to_pay_in_crypto ? "crypto-pay" : [],
       ]).flat(),
-      location:
-        job.ai_analysis?.country && job.ai_analysis?.region
-          ? `${job.ai_analysis.country} | ${job.ai_analysis.region}`
-          : job.ai_analysis?.country || job.ai_analysis?.region || undefined,
       job_title: job.ai_analysis?.job_title || job.title,
       is_remote: job.is_remote,
     };
+
+    if (job.ai_analysis.country) {
+      jobToValidate.location = job.ai_analysis.country;
+    }
+
+    if (job.ai_analysis.region) {
+      jobToValidate.location += ` | ${job.ai_analysis.region}`;
+    }
 
     if (job.ai_analysis?.compensation_amount) {
       jobToValidate.compensation_amount = job.ai_analysis.compensation_amount;

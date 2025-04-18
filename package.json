@@ -3,7 +3,8 @@
   "private": true,
   "workspaces": [
     "api",
-    "frontend"
+    "frontend",
+    "scripts"
   ],
   "dependencies": {
     "@prisma/client": "^6.5.0",
