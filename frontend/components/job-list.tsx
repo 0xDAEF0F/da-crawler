@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useQueryState, parseAsInteger } from "nuqs";
-import { capitalize, extractSource } from "@/lib/utils";
+import { capitalize, cn, extractSource } from "@/lib/utils";
 import {
   Pagination,
   PaginationContent,
@@ -199,19 +199,33 @@ export function JobList({
                 {job.keywords.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800"
+                    role="button"
+                    onClick={() => {
+                      const params = new URLSearchParams(
+                        searchParams.toString(),
+                      );
+                      const existingTags =
+                        params.get("tags")?.split(",").filter(Boolean) ?? [];
+                      if (!existingTags.includes(tag)) {
+                        existingTags.push(tag);
+                      }
+                      params.set("tags", existingTags.join(","));
+                      params.delete("page"); // Reset page on tag change
+                      router.push(pathname + "?" + params.toString(), {
+                        scroll: false,
+                      });
+                    }}
+                    className={cn(
+                      "inline-flex cursor-pointer items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 transition-colors hover:bg-gray-200",
+                      tag === "crypto pay" && "bg-purple-100 text-purple-800",
+                    )}
                   >
                     {tag}
                   </span>
                 ))}
                 {job.is_remote && (
                   <span className="inline-flex items-center rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
-                    Remote
-                  </span>
-                )}
-                {true && (
-                  <span className="inline-flex items-center rounded bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">
-                    Crypto Payment
+                    remote
                   </span>
                 )}
               </div>
