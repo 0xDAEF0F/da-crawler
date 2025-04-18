@@ -21,7 +21,8 @@ export function JobFilters({ availableTags }: JobFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
-  const [inputValue, setInputValue] = useState(""); // State for the tag input
+  const [inputValue, setInputValue] = useState("");
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   // Initialize selected tags from URL search params
   useEffect(() => {
@@ -65,6 +66,9 @@ export function JobFilters({ availableTags }: JobFiltersProps) {
 
   // Handle selecting a tag from the suggestion list
   const handleSelectTag = (tag: string) => {
+    // Hide suggestions after selecting a tag to avoid lingering open state
+    setIsInputFocused(false);
+    // console.log("handleSelectTag", tag);
     const newSelectedTags = new Set(selectedTags);
     newSelectedTags.add(tag);
     setSelectedTags(newSelectedTags);
@@ -188,24 +192,37 @@ export function JobFilters({ availableTags }: JobFiltersProps) {
               placeholder="Add tags..."
               value={inputValue}
               onValueChange={setInputValue}
+              onFocus={() => setIsInputFocused(true)}
+              onBlur={() => {
+                // we delay the blur to prevent a bug where if the user clicks
+                // on a tag, it does not get selected because the input loses focus
+                setTimeout(() => {
+                  setIsInputFocused(false);
+                }, 100);
+              }}
             />
             <CommandList>
               <CommandEmpty>
                 {inputValue ? "No results found." : "Type to search tags."}
               </CommandEmpty>
-              {inputValue && filteredTags.length > 0 && (
+              {(isInputFocused || inputValue) && filteredTags.length > 0 && (
                 <CommandGroup heading="Suggestions">
-                  {/* Limit displayed suggestions for performance/UX */}
-                  {filteredTags.slice(0, 10).map((tag) => (
-                    <CommandItem
-                      key={tag}
-                      value={tag} // value for Command's internal filtering/selection
-                      onSelect={() => handleSelectTag(tag)}
-                      className="cursor-pointer"
-                    >
-                      {tag}
-                    </CommandItem>
-                  ))}
+                  {filteredTags.slice(0, 10).map((tag) => {
+                    // console.log("tagmm", tag);
+                    return (
+                      <CommandItem
+                        key={tag}
+                        value={tag} // value for Command's internal filtering/selection
+                        onSelect={() => {
+                          console.log("onSelect", tag);
+                          handleSelectTag(tag);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        {tag}
+                      </CommandItem>
+                    );
+                  })}
                 </CommandGroup>
               )}
             </CommandList>

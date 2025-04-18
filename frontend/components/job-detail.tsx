@@ -128,15 +128,6 @@ export function JobDetail({ job }: Props) {
         )}
       </div>
 
-      <div className="p-6">
-        <div className="prose max-w-none">
-          {/* Treats line breaks as hard line breaks */}
-          <Markdown remarkPlugins={[remarkBreaks]}>
-            {job.job_description}
-          </Markdown>
-        </div>
-      </div>
-
       <div className="border-t border-gray-200 bg-gray-50 p-6">
         <h2 className="mb-4 text-lg font-medium">AI Analysis</h2>
         <div className="space-y-4">
