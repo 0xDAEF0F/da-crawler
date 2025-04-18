@@ -1,32 +1,9 @@
 import { prisma } from "@/.";
-import { type } from "arktype";
 import type { Context } from "hono";
-
-// TODO: fix this schema (this is disgusting)
-const getJobSchema = type({
-  id: "number",
-  title: "string",
-  company: "string",
-  keywords: "string.json.parse |> string[]",
-  date: "Date",
-  job_description: "string",
-  "is_full_time?": "boolean | undefined | null",
-  job_url: "string",
-  is_remote: "boolean",
-  "location?": "string | undefined | null",
-  // ai analysis
-  "ai_summary?": "string | undefined | null",
-  "ai_keywords?": "(string.json.parse |> string[]) | undefined | null",
-  "ai_location?": "string | undefined | null",
-  "ai_compensation_amount?": "string | undefined | null",
-});
-
-export type GetJobResponse = typeof getJobSchema.infer;
+import { getJobSchema } from "./get-job.schema";
 
 export async function getJob(c: Context) {
   const id = c.req.param("id");
-
-  // console.log(`called id: ${id}`);
 
   const job = await prisma.job.findUnique({
     where: {

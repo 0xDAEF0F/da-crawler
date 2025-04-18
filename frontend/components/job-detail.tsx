@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { GetJobResponse } from "~/api/routes/get-job"; // Assuming path
+import { GetJobResponse } from "~/api/routes/get-job/get-job.schema";
 import Markdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import { capitalize } from "@/lib/utils";

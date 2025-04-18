@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { getTags } from "./routes/all-tags";
 import { getJobs } from "./routes/get-jobs";
 import { getConnInfo } from "hono/bun";
-import { getJob } from "./routes/get-job";
+import { getJob } from "./routes/get-job/get-job";
 import { PrismaClient } from "@prisma/client";
 
 export const prisma = new PrismaClient();

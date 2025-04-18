@@ -1,5 +1,5 @@
 import { BASE_URL } from "@/lib/utils";
-import { GetJobResponse } from "~/api/routes/get-job"; // Assuming path
+import { GetJobResponse } from "~/api/routes/get-job/get-job.schema";
 import { JobPageClientContent } from "@/components/job-page-client-content";
 
 async function getJobById(id: string): Promise<GetJobResponse> {

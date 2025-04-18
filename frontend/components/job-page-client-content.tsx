@@ -1,7 +1,7 @@
 "use client";
 
 import { JobDetail } from "@/components/job-detail";
-import { GetJobResponse } from "~/api/routes/get-job"; // Assuming path
+import { GetJobResponse } from "~/api/routes/get-job/get-job.schema";
 
 interface JobPageClientContentProps {
   job: GetJobResponse;
