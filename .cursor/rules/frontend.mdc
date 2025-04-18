@@ -6,7 +6,8 @@ alwaysApply: false
 
 # Rules
 
-- Use shadcn and tailwindcss for new components: `https://ui.shadcn.com/`
+- Use shadcn components as the default, if not possible make them by scratch with tailwindcss: `https://ui.shadcn.com/`
+- Style first with shadcn way of styling and if not enough, make the overrides with tailwindcss
 - Use server components over client components (unless reactivity is necessary)
 - Fetch data within server components and pass the data as props to the client component
   that needs it (unless not viable)

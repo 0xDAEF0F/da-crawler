@@ -198,7 +198,7 @@ export function JobFilters({ availableTags }: JobFiltersProps) {
                 // on a tag, it does not get selected because the input loses focus
                 setTimeout(() => {
                   setIsInputFocused(false);
-                }, 100);
+                }, 500);
               }}
             />
             <CommandList>

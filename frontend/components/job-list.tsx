@@ -94,6 +94,16 @@ export function JobList({
     }
   };
 
+  // Add logic to disable page size options that aren't relevant
+  const limitOptions = [10, 20, 30, 40, 50];
+  const nextAboveLimit = limitOptions.find((l) => l >= totalResults);
+
+  const isLimitDisabled = (limit: number) => {
+    if (limit <= totalResults) return false;
+    if (limit === nextAboveLimit) return false;
+    return true;
+  };
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
@@ -112,8 +122,12 @@ export function JobList({
                 <SelectValue placeholder="Limit" />
               </SelectTrigger>
               <SelectContent>
-                {[10, 20, 30, 40, 50].map((limit) => (
-                  <SelectItem key={limit} value={limit.toString()}>
+                {limitOptions.map((limit) => (
+                  <SelectItem
+                    key={limit}
+                    value={limit.toString()}
+                    disabled={isLimitDisabled(limit)}
+                  >
                     {limit}
                   </SelectItem>
                 ))}
@@ -204,7 +218,12 @@ export function JobList({
 
               <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
                 {extractSource(job.job_url) ? (
-                  <span>Source: {extractSource(job.job_url)}</span>
+                  <span>
+                    Source:{" "}
+                    <span className="font-medium">
+                      {extractSource(job.job_url)}
+                    </span>
+                  </span>
                 ) : (
                   <span className="invisible">Source: Unknown</span>
                 )}
