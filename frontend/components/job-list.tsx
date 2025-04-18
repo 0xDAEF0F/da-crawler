@@ -24,6 +24,7 @@ import {
 
 // imported from monorepo
 import { JobResponse } from "~/api/routes/get-jobs/get-jobs-res";
+import { Button } from "./ui/button";
 
 export function JobList({
   jobs_,
@@ -149,15 +150,29 @@ export function JobList({
                   <h3 className="text-lg font-medium">
                     {capitalize(job.job_title)}
                   </h3>
-                  <p className="text-gray-600">{capitalize(job.company)}</p>
+                  <div className="flex gap-2 text-gray-600">
+                    <p className="text-gray-600">{capitalize(job.company)}</p>
+                    <div className="text-right text-gray-600">
+                      {min && max ? (
+                        <span className="font-sm text-gray-900">
+                          ${min} - ${max}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  {min && max ? (
-                    <span className="font-medium text-gray-900">
-                      ${min} - ${max}
-                    </span>
-                  ) : null}
-                </div>
+                {job.job_url && (
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      window.open(job.job_url, "_blank", "noopener,noreferrer");
+                    }}
+                    className="ml-4 inline-flex cursor-pointer items-center rounded-md px-3 py-1 text-xs font-medium focus:ring-offset-2 focus:outline-none"
+                  >
+                    Go to Job
+                  </Button>
+                )}
               </div>
 
               <div className="mt-2 flex flex-wrap gap-1">
@@ -181,9 +196,10 @@ export function JobList({
                 )}
               </div>
 
-              <div className="mt-3 text-sm text-gray-500">
-                {/* <p>{job.job_description}</p> */}
-                <p>{job.job_description.slice(0, 150)}...</p>
+              <div className="mt-3 flex items-start justify-between">
+                <p className="text-sm text-gray-500">
+                  {job.job_description.slice(0, 150)}...
+                </p>
               </div>
 
               <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
