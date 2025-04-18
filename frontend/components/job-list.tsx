@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ExternalLink } from "lucide-react";
 
 // imported from monorepo
 import { JobResponse } from "~/api/routes/get-jobs/get-jobs-res";
@@ -152,16 +153,17 @@ export function JobList({
       <div className="space-y-4">
         {jobs.map((job) => {
           return (
-            <Link
-              href={`/jobs/${job.id}`}
+            <div
               key={job.id}
               className="block rounded-md border border-gray-200 p-4 transition-colors hover:border-gray-400"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-lg font-medium">
-                    {capitalize(job.job_title)}
-                  </h3>
+                  <Link href={`/jobs/${job.id}`} className="cursor-pointer">
+                    <h3 className="text-lg font-medium hover:underline">
+                      {capitalize(job.job_title)}
+                    </h3>
+                  </Link>
                   <div className="flex gap-2 text-gray-600">
                     <p className="text-gray-600">{capitalize(job.company)}</p>
                     <div className="text-right text-gray-600">
@@ -175,16 +177,21 @@ export function JobList({
                   </div>
                 </div>
                 {job.job_url && (
-                  <Button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      window.open(job.job_url, "_blank", "noopener,noreferrer");
-                    }}
-                    className="ml-4 inline-flex cursor-pointer items-center rounded-md px-3 py-1 text-xs font-medium focus:ring-offset-2 focus:outline-none"
+                  <Link
+                    href={job.job_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    Go to Job
-                  </Button>
+                    <Button
+                      asChild
+                      className="hover:bg-primary/90 ml-4 inline-flex cursor-pointer items-center rounded-md px-3 py-1 text-xs font-medium focus:ring-offset-2 focus:outline-none"
+                    >
+                      <span className="flex items-center">
+                        Apply
+                        <ExternalLink className="h-3 w-3" />
+                      </span>
+                    </Button>
+                  </Link>
                 )}
               </div>
 
@@ -228,7 +235,7 @@ export function JobList({
                 )}
                 <span>{formatDate(job.date)}</span>
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>

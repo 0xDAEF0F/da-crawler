@@ -6,7 +6,6 @@
 
 ## Small changes data
 
-- Add salary min/max to the job sources
 - Summary should have the tools/technologies in bullet points
 
 ## Small changes frontend
