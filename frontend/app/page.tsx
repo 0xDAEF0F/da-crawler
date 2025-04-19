@@ -54,15 +54,11 @@ export default async function Home({
 
   return (
     <main className="container mx-auto max-w-6xl px-4 py-8">
-      <h1 className="mb-8 text-3xl font-bold">Developer Jobs</h1>
-
       <SearchBar />
-
       <div className="mt-6 flex flex-col gap-6 md:flex-row">
         <aside className="w-full shrink-0 md:w-64">
           <JobFilters availableTags={allTags} />
         </aside>
-
         <section className="flex-1">
           <JobList jobs_={jobs.jobs} totalResults={jobs.totalResults} />
         </section>

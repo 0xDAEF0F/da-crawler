@@ -3,6 +3,7 @@ import "./globals.css";
 import { NuqsAdapter } from "nuqs/adapters/next";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Briefcase, Bookmark, User } from "lucide-react";
 import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -21,31 +22,37 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <header className="border-b border-gray-200">
+        <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/75 shadow-md backdrop-blur">
           <div className="container mx-auto flex items-center justify-between px-4 py-4">
-            <Link href="/" className="text-xl font-bold">
+            <Link href="/" className="text-2xl font-bold text-gray-900">
               DevJobs
             </Link>
             <nav>
-              <ul className="flex space-x-6">
+              <ul className="flex space-x-8">
                 <li>
-                  <Link href="/" className="text-gray-600 hover:text-gray-900">
+                  <Link
+                    href="/"
+                    className="flex items-center text-gray-600 transition-colors hover:text-gray-900"
+                  >
+                    <Briefcase className="mr-2" size={20} />
                     Find Jobs
                   </Link>
                 </li>
                 <li>
                   <Link
                     href="/saved"
-                    className="text-gray-600 hover:text-gray-900"
+                    className="flex items-center text-gray-600 transition-colors hover:text-gray-900"
                   >
+                    <Bookmark className="mr-2" size={20} />
                     Saved Jobs
                   </Link>
                 </li>
                 <li>
                   <Link
                     href="/account"
-                    className="text-gray-600 hover:text-gray-900"
+                    className="flex items-center text-gray-600 transition-colors hover:text-gray-900"
                   >
+                    <User className="mr-2" size={20} />
                     Account
                   </Link>
                 </li>
