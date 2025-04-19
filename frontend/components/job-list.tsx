@@ -38,12 +38,6 @@ export function JobList({
   const pathname = usePathname();
   const [sortBy, setSortBy] = useState<"date" | "salary">("date");
 
-  console.log(
-    jobs_.reduce((a, c) => {
-      return a + (c.job_summary ? 1 : 0);
-    }, 0),
-  );
-
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
     parseAsInteger.withDefault(1).withOptions({
@@ -231,8 +225,10 @@ export function JobList({
                 <div className="text-sm text-gray-500">
                   {job.job_summary ? (
                     <Summary summary={job.job_summary} />
-                  ) : (
+                  ) : job.job_description.length > 300 ? (
                     job.job_description.slice(0, 300) + "..."
+                  ) : (
+                    job.job_description
                   )}
                 </div>
               </div>

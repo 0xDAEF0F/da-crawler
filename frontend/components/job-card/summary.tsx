@@ -8,24 +8,33 @@ export default function Summary(props: Props) {
   const { summary } = props;
   const { mainSummary, technicalSummary } = parseAiSummary(summary);
 
+  // Limit the number of items displayed
+  const mainSummaryLimited = mainSummary.slice(0, 2);
+  const technicalSummaryLimited = technicalSummary.slice(0, 2);
+
   return (
-    <div className="space-y-3 text-sm">
-      {mainSummary.length > 0 && (
+    <div className="space-y-0 text-sm">
+      {mainSummaryLimited.length > 0 && (
         <div>
           {/* <h4 className="font-medium text-gray-700 mb-1">Summary:</h4> */}
-          <ul className="list-inside list-disc space-y-1 text-gray-600">
-            {mainSummary.map((item, index) => (
-              <li key={`main-${index}`}>{item}</li>
+          <ul className="ml-3 list-outside list-disc space-y-1 text-gray-600">
+            {mainSummaryLimited.map((item, index) => (
+              <li key={`main-${index}`} className="list-item">
+                {item.length > 200 ? item.slice(0, 200) + "..." : item}
+              </li>
             ))}
           </ul>
         </div>
       )}
-      {technicalSummary.length > 0 && (
+      {technicalSummaryLimited.length > 0 && (
         <div>
+          <hr className="my-2" />
           {/* <h4 className="font-medium text-gray-700 mb-1">Technical requirements:</h4> */}
-          <ul className="list-inside list-disc space-y-1 text-gray-600">
-            {technicalSummary.map((item, index) => (
-              <li key={`tech-${index}`}>{item}</li>
+          <ul className="ml-3 list-outside list-disc space-y-1 text-gray-600">
+            {technicalSummaryLimited.map((item, index) => (
+              <li key={`tech-${index}`} className="list-item">
+                {item}
+              </li>
             ))}
           </ul>
         </div>
@@ -34,21 +43,29 @@ export default function Summary(props: Props) {
   );
 }
 
+function cleanAndSplit(text: string | undefined): string[] {
+  if (!text) {
+    return [];
+  }
+  return text
+    .split("\n")
+    .map((line) => line.trim()) // Trim whitespace
+    .map((line) => line.replace(/^[-*]\s*/, "")) // Remove leading - or *
+    .filter(Boolean); // Remove empty lines
+}
+
 function parseAiSummary(summary: string): {
   mainSummary: string[];
   technicalSummary: string[];
 } {
-  const hasEmptyLine = summary.includes("\n\n");
-  if (hasEmptyLine) {
-    const [non_technical, technical] = summary.split("\n\n");
-    return {
-      mainSummary: non_technical.split("\n").filter(Boolean),
-      technicalSummary: technical.split("\n").filter(Boolean),
-    };
-  } else {
-    return {
-      mainSummary: [summary],
-      technicalSummary: [],
-    };
-  }
+  // Split by one or more newlines to handle different spacings robustly
+  const parts = summary.split(/\n\n+/);
+  const nonTechnical = parts[0];
+  // Join the remaining parts (if any) back with double newlines, then split/clean
+  const technical = parts.length > 1 ? parts.slice(1).join("\n\n") : undefined;
+
+  return {
+    mainSummary: cleanAndSplit(nonTechnical),
+    technicalSummary: cleanAndSplit(technical),
+  };
 }
