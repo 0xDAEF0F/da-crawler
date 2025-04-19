@@ -1,12 +1,11 @@
-import type React from "react";
 import "./globals.css";
 import { NuqsAdapter } from "nuqs/adapters/next";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import { Briefcase, Bookmark, User } from "lucide-react";
 import Link from "next/link";
 
-const inter = Inter({ subsets: ["latin"] });
+const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "DevJobs - Find Your Next Developer Role",
@@ -21,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${spaceGrotesk.className} antialiased`}>
         <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/75 shadow-md backdrop-blur">
           <div className="container mx-auto flex items-center justify-between px-4 py-4">
             <Link href="/" className="text-2xl font-bold text-gray-900">
