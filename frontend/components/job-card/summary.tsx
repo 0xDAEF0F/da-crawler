@@ -28,7 +28,9 @@ export default function Summary(props: Props) {
       )}
       {technicalSummaryLimited.length > 0 && (
         <div>
-          <hr className="my-2" />
+          <div className="mx-auto my-4 w-[90%]">
+            <hr />
+          </div>
           {/* <h4 className="font-medium text-gray-700 mb-1">Technical requirements:</h4> */}
           <ul className="ml-3 list-outside list-disc space-y-1 text-gray-600">
             {technicalSummaryLimited.map((item, index) => (

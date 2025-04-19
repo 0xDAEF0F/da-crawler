@@ -10,6 +10,8 @@
 
 ## Small changes frontend
 
+- Icons logo on companies
+- Hover on the company should take you to the company's website
 - Jobs (x of x) | should work correctly
 - Sort by: Date
 - Fix salary ranges

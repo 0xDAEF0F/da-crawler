@@ -156,7 +156,13 @@ export function JobList({
                     </h3>
                   </Link>
                   <div className="flex gap-2 text-gray-600">
-                    <p className="text-gray-600">{capitalize(job.company)}</p>
+                    {/* Container for logo and company name */}
+                    <div className="flex items-center gap-2">
+                      {/* Placeholder for Logo */}
+                      <div className="h-5 w-5 rounded-full bg-gray-300"></div>
+                      <p className="text-gray-600">{capitalize(job.company)}</p>
+                    </div>
+                    {/* Salary */}
                     <div className="text-right text-gray-600">
                       {job.salary_min && job.salary_max ? (
                         <span className="text-sm font-light text-gray-600">
@@ -244,7 +250,9 @@ export function JobList({
                 ) : (
                   <span className="invisible">Source: Unknown</span>
                 )}
-                <span>{formatDate(job.date)}</span>
+                <span className="text-xs font-bold">
+                  {formatDate(job.date)}
+                </span>
               </div>
             </div>
           );
