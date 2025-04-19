@@ -12,3 +12,4 @@ alwaysApply: false
 - Use server components over client components (unless reactivity is necessary)
 - Fetch data within server components and pass the data as props to the client component
   that needs it (unless not viable)
+- React components' argument should be called `props` and the type defined as `type Props = {}` must be located above the component.

@@ -22,10 +22,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ExternalLink } from "lucide-react";
-
-// imported from monorepo
-import { JobResponse } from "~/api/routes/get-jobs/get-jobs-res";
 import { Button } from "./ui/button";
+import { JobResponse } from "~/api/routes/get-jobs/get-jobs-res";
+import Summary from "./job-card/summary";
 
 export function JobList({
   jobs_,
@@ -34,33 +33,16 @@ export function JobList({
   jobs_: JobResponse[];
   totalResults: number;
 }) {
-  function parseAiSummary(summary: string):
-    | {
-        non_technical: string[];
-        technical: string[];
-      }
-    | string {
-    const hasEmptyLine = summary.includes("\n\n");
-    if (hasEmptyLine) {
-      const [non_technical, technical] = summary.split("\n\n");
-      return {
-        non_technical: non_technical
-          .split("\n")
-          .filter(Boolean)
-          .map((line) => line.replace("- ", "")),
-        technical: technical
-          .split("\n")
-          .filter(Boolean)
-          .map((line) => line.replace("- ", "")),
-      };
-    }
-    return summary;
-  }
-
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const [sortBy, setSortBy] = useState<"date" | "salary">("date");
+
+  console.log(
+    jobs_.reduce((a, c) => {
+      return a + (c.job_summary ? 1 : 0);
+    }, 0),
+  );
 
   const [currentPage, setCurrentPage] = useQueryState(
     "page",
@@ -167,22 +149,6 @@ export function JobList({
 
       <div className="space-y-4">
         {jobs.map((job) => {
-          let summary_;
-
-          if (job.job_summary) {
-            summary_ = parseAiSummary(job.job_summary);
-          }
-
-          if (summary_ instanceof Object) {
-            const { non_technical, technical } = summary_;
-            summary_ = `
-            ${non_technical.map((line) => `- ${line}`).join("\n")}
-
-            ${technical.map((line) => `- ${line}`).join("\n")}
-            `;
-            console.log(summary_);
-          }
-
           return (
             <div
               key={job.id}
@@ -262,11 +228,13 @@ export function JobList({
               </div>
 
               <div className="mt-3 flex items-start justify-between">
-                <p className="text-sm text-gray-500">
-                  {job.job_summary
-                    ? summary_
-                    : job.job_description.slice(0, 300) + "..."}
-                </p>
+                <div className="text-sm text-gray-500">
+                  {job.job_summary ? (
+                    <Summary summary={job.job_summary} />
+                  ) : (
+                    job.job_description.slice(0, 300) + "..."
+                  )}
+                </div>
               </div>
 
               <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
@@ -422,7 +390,7 @@ function formatDate(date: Date): string {
     (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24),
   );
 
-  if (diffDays === 0) return "Today";
+  if (diffDays <= 0) return "Today";
   if (diffDays === 1) return "Yesterday";
   if (diffDays < 7) return `${diffDays} days ago`;
 
