@@ -1,7 +1,18 @@
+import { type } from "arktype";
 import dotenv from "dotenv";
+import { remote3CoSchema, type Remote3CoJob } from "./remote3-co.schema";
+import { isDateTooOld } from "@/utils";
+
 dotenv.config();
 
-export async function fetchRemote3CoJobs(limit: number = 200): Promise<unknown[]> {
+type Opts = {
+  limit?: number;
+  maxDays?: number;
+};
+
+export async function fetchRemote3CoJobs(opts?: Opts): Promise<Remote3CoJob[]> {
+  const { limit = 200, maxDays = 7 } = opts ?? {};
+
   const url = `https://ojpncdvueyetebptprsv.supabase.co/rest/v1/jobs?select=*%2Ccompanies%28*%29&is_draft=eq.false&order=live_at.desc&offset=0&limit=${limit}`;
   const res = await fetch(url, {
     headers: {
@@ -24,5 +35,16 @@ export async function fetchRemote3CoJobs(limit: number = 200): Promise<unknown[]
     method: "GET",
   });
   const data = (await res.json()) as unknown[];
-  return data;
+
+  const remote3CoJobs: Remote3CoJob[] = [];
+
+  for (const job of data) {
+    const validated = remote3CoSchema(job);
+    if (validated instanceof type.errors || isDateTooOld(validated.live_at, maxDays)) {
+      continue;
+    }
+    remote3CoJobs.push(validated);
+  }
+
+  return remote3CoJobs;
 }

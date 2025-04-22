@@ -1,4 +1,5 @@
 import { parseArgs } from "util";
+import { type Browser } from "playwright";
 
 /**
  * Removes specified substrings from a string and cleans up whitespace.
@@ -53,4 +54,57 @@ export function parseArguments(): {
     max_jobs: parseInt(values.max_jobs),
     max_days: parseInt(values.max_days),
   };
+}
+
+/**
+ * Fetches the content of a URL and checks if it contains any of the specified keywords (case-insensitive).
+ *
+ * @param url The URL to fetch.
+ * @param keywords An array of keywords to search for in the page content.
+ * @param browser The browser instance to use for fetching the page.
+ * @param timeout The timeout in milliseconds for fetching the page.
+ * @returns A promise that resolves to true if any keyword is found, false otherwise or if an error occurs.
+ */
+export async function urlSiteHasText(
+  url: string,
+  keywords: string[],
+  browser: Browser
+): Promise<boolean> {
+  if (keywords.length === 0) {
+    console.log("No keywords provided to urlSiteHasText, returning false.");
+    return false;
+  }
+  let context = null;
+  let page = null;
+  try {
+    context = await browser.newContext();
+    page = await context.newPage();
+
+    await Promise.race([
+      page.goto(url, { waitUntil: "load" }),
+      new Promise(
+        (_, reject) =>
+          setTimeout(() => reject(new Error(`Timeout fetching ${url}`)), 7000) // 7 seconds timeout
+      ),
+    ]);
+
+    // @ts-ignore - document is available in the browser context
+    const textContent: string = await page.evaluate(() => document.body.innerText);
+    const lowerCaseText = textContent.toLowerCase();
+    const foundKeyword = keywords.some((k) => lowerCaseText.includes(k.toLowerCase()));
+
+    await page.close();
+    await context.close();
+
+    return foundKeyword;
+  } catch (error) {
+    console.error(`Error checking URL ${url}:`, error);
+    if (page && !page.isClosed()) {
+      await page.close();
+    }
+    if (context) {
+      await context.close();
+    }
+    return false;
+  }
 }

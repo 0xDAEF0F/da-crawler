@@ -25,31 +25,13 @@ const turndownService = new TurndownService({
   linkStyle: "referenced",
 });
 
-const data = await fetchRemote3CoJobs(MAX_JOBS);
+const remote3Jobs = await fetchRemote3CoJobs({ maxDays: MAX_DAYS, limit: MAX_JOBS });
 
-console.log(`Initially found ${data.length} jobs`);
-
-const validatedJobs: (typeof remote3CoSchema.infer)[] = [];
-
-for (const jobData of data as unknown[]) {
-  const validated = remote3CoSchema(jobData);
-  if (validated instanceof type.errors) {
-    console.error("Error validating: " + validated.summary);
-    continue;
-  }
-  if (isDateTooOld(validated.live_at, MAX_DAYS)) {
-    console.error(`Skipping job ${validated.title} from remote3.co because it's too old`);
-    continue;
-  }
-  validated.description = turndownService.turndown(validated.description);
-  validatedJobs.push(validated);
-}
-
-console.log(`${data.length - validatedJobs.length} jobs did not pass validation filter`);
+console.log(`Found ${remote3Jobs.length} jobs from remote3.co`);
 
 // Filter out no longer available jobs
 const jobsToSave = await Promise.all(
-  validatedJobs.filter(async (job) => {
+  remote3Jobs.filter(async (job) => {
     const isNoLongerAvailable = await checkUrlContainsText(
       job.apply_url,
       "Sorry, we couldn't find anything here"

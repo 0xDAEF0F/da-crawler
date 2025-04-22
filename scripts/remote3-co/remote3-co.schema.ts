@@ -26,3 +26,5 @@ export const remote3CoSchema = type({
     ),
   }),
 });
+
+export type Remote3CoJob = typeof remote3CoSchema.infer;
