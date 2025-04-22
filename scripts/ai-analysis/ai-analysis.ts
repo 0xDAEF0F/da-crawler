@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { summarizeJob } from "./ai-analysis.utils";
 
 const MIN_JOB_DESCRIPTION_LENGTH = 500;
-const MAX_JOBS_TO_ANALYZE = 2;
+const MAX_JOBS_TO_ANALYZE = 100;
 
 const prisma = new PrismaClient();
 
@@ -70,7 +70,7 @@ for (const { job, analysis } of summarizedResults) {
             create: {
               summary: analysis.summary,
               job_title: job.title,
-              keywords: "[]", // TODO: Implement keyword extraction
+              keywords: JSON.stringify(analysis.keywords),
               compensation_amount:
                 analysis.min_salary === 0 || analysis.max_salary === 0
                   ? null

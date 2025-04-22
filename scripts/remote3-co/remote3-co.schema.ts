@@ -1,5 +1,5 @@
 import { cleanUrl } from "~/utils/clean-url";
-import { trimSubstr } from "./utils";
+import { trimSubstr } from "@/utils";
 import { type } from "arktype";
 
 export const remote3CoSchema = type({
@@ -8,18 +8,18 @@ export const remote3CoSchema = type({
   live_at: "string.date.parse",
   title: type("string.lower").pipe((t) => trimSubstr(t, ["| smartrecruiters"])),
   description: "string",
-  description_format: "string.lower |> 'html'",
+  description_format: "string.lower |> 'html' | 'bbcode'",
   type: "string.lower |> 'full-time' | 'contract'", // no internships
   location: "string", // worldwide
-  salary_min: "number",
   on_site: "boolean",
-  salary_max: "number",
+  salary_min: type("number | null").pipe((val) => val ?? 0),
+  salary_max: type("number | null").pipe((val) => val ?? 0),
   apply_url: type("string.url").pipe((url) => {
     const urlObj = new URL(url);
     return cleanUrl(`${urlObj.origin}${urlObj.pathname}`);
   }),
   slug: type("string").pipe((slug) => `https://remote3.co/remote-jobs/${slug}`),
-  categories: type("string.json.parse").to("string.lower[] |> string.trim[]"),
+  categories: type("string | null").pipe((cat) => (cat === null ? [] : [cat])),
   companies: type({
     name: type("string.lower").narrow((n, ctx) =>
       n.includes("stealth") ? ctx.mustBe("not stealth") : true

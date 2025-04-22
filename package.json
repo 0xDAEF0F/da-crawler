@@ -8,7 +8,8 @@
   ],
   "dependencies": {
     "@prisma/client": "^6.5.0",
-    "arktype": "^2"
+    "arktype": "^2",
+    "playwright": "^1.52.0"
   },
   "scripts": {
     "dev": "concurrently -n api,front \"bun run --cwd api dev\" \"bun run --cwd frontend dev\"",

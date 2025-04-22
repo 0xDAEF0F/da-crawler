@@ -1,4 +1,4 @@
-max_jobs := "50"
+max_jobs := "100"
 max_days := "5"
 
 scrape-and-save:
