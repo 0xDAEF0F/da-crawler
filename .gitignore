@@ -1,3 +1,4 @@
+.cursor/
 storage
 .venv
 node_modules
