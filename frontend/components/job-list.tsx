@@ -57,7 +57,7 @@ export function JobList({
   const jobs = jobs_.map((j) => ({
     ...j,
     id: j.id,
-    date: new Date(j.date),
+    date: new Date(j.publishedAt),
   }));
 
   const totalPages = Math.ceil(totalResults / itemsPerPage);
@@ -152,7 +152,7 @@ export function JobList({
                 <div>
                   <Link href={`/jobs/${job.id}`} className="cursor-pointer">
                     <h3 className="text-lg font-medium hover:underline">
-                      {capitalize(job.job_title)}
+                      {capitalize(job.jobTitle)}
                     </h3>
                   </Link>
                   <div className="flex gap-2 text-gray-600">
@@ -164,18 +164,18 @@ export function JobList({
                     </div>
                     {/* Salary */}
                     <div className="text-right text-gray-600">
-                      {job.salary_min && job.salary_max ? (
+                      {job.salaryMin && job.salaryMax ? (
                         <span className="text-sm font-light text-gray-600">
-                          ${job.salary_min.toLocaleString()} - $
-                          {job.salary_max.toLocaleString()}
+                          ${job.salaryMin.toLocaleString()} - $
+                          {job.salaryMax.toLocaleString()}
                         </span>
                       ) : null}
                     </div>
                   </div>
                 </div>
-                {job.job_url && (
+                {job.jobUrl && (
                   <Link
-                    href={job.job_url}
+                    href={job.jobUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -220,7 +220,7 @@ export function JobList({
                     {tag}
                   </span>
                 ))}
-                {job.is_remote && (
+                {job.isRemote && (
                   <span className="inline-flex items-center rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
                     remote
                   </span>
@@ -229,22 +229,22 @@ export function JobList({
 
               <div className="mt-3 flex items-start justify-between">
                 <div className="text-sm text-gray-500">
-                  {job.job_summary ? (
-                    <Summary summary={job.job_summary} />
-                  ) : job.job_description.length > 300 ? (
-                    job.job_description.slice(0, 300) + "..."
+                  {job.jobSummary ? (
+                    <Summary summary={job.jobSummary} />
+                  ) : job.jobDescription.length > 300 ? (
+                    job.jobDescription.slice(0, 300) + "..."
                   ) : (
-                    job.job_description
+                    job.jobDescription
                   )}
                 </div>
               </div>
 
               <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-                {extractSource(job.job_url) ? (
+                {extractSource(job.jobUrl) ? (
                   <span>
                     Source:{" "}
                     <span className="font-medium">
-                      {extractSource(job.job_url)}
+                      {extractSource(job.jobUrl)}
                     </span>
                   </span>
                 ) : (
