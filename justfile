@@ -14,4 +14,4 @@ rebuild-api:
     bun run build
 
 run-api: rebuild-api
-    bun run --hot dist/api/index.js
+    bun run --hot api/dist/index.js
