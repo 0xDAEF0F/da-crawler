@@ -9,6 +9,7 @@
 ## Small changes
 
 - Change schema in db
+- Favicon
 - Icons logo on companies
 - Hover on the company should take you to the company's website
 - Jobs (x of x) | should work correctly

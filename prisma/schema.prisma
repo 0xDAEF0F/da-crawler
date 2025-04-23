@@ -46,5 +46,5 @@ model JobAiAnalysis {
   salaryMin           Int?     @map("salary_min")
   salaryMax           Int?     @map("salary_max")
 
-  job Job @relation(fields: [jobId], references: [id])
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
 }
