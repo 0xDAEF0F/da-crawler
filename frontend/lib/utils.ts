@@ -47,3 +47,29 @@ export function extractSource(url: string): string {
 
   return source.join(".");
 }
+
+/**
+ * Formats a date relative to the current time.
+ * @param date - The date to format
+ * @returns A string representing the formatted date (e.g., "Today", "Yesterday", "3 days ago", "Jan 1")
+ */
+export function formatDate(date: Date): string {
+  const now = new Date();
+  // Normalize dates to the start of the day for accurate day difference calculation
+  const startOfDate = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+  );
+  const startOfNow = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  const diffTime = startOfNow.getTime() - startOfDate.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays < 7) return `${diffDays} days ago`;
+
+  // Format for dates older than a week
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}

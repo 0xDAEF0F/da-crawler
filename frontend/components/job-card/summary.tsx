@@ -1,5 +1,3 @@
-import { ListChecks } from "lucide-react";
-
 type Props = {
   summary: string;
 };
