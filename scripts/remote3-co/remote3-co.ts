@@ -1,10 +1,9 @@
-import { type } from "arktype";
 import TurndownService from "turndown";
 import { PrismaClient } from "@prisma/client";
-import { isDateTooOld, parseArguments } from "../utils";
-import { remote3CoSchema } from "./remote3-co.schema";
+import { parseArguments } from "@/utils";
 import { fetchRemote3CoJobs } from "./remote3-co.fetch";
-import { saveJobInDb } from "../../utils/save-job-db";
+import { saveJobInDb } from "~/utils/save-job-db";
+import { type Remote3CoJob } from "./remote3-co.schema";
 
 const { max_jobs: MAX_JOBS, max_days: MAX_DAYS } = parseArguments();
 
@@ -31,21 +30,25 @@ const remote3Jobs = await fetchRemote3CoJobs({ maxDays: MAX_DAYS, limit: MAX_JOB
 console.log(`Found ${remote3Jobs.length} jobs from remote3.co`);
 
 // Filter out no longer available jobs
-const jobsToSave = await Promise.all(
-  remote3Jobs.filter(async (job) => {
-    const isNoLongerAvailable = await checkUrlContainsText(
-      job.apply_url,
-      "Sorry, we couldn't find anything here"
-    );
-    return !isNoLongerAvailable;
-  })
-);
+const jobsToSave = (
+  await Promise.all(
+    remote3Jobs.flatMap(async (job) => {
+      const isNoLongerAvailable = await checkUrlContainsText(
+        job.apply_url,
+        "Sorry, we couldn't find anything here"
+      );
+      if (isNoLongerAvailable) return [];
+      const markdown = turndownService.turndown(job.description).trim();
+      return [{ ...job, description: markdown }];
+    })
+  )
+).flat();
 
 console.log(
   `After filtering for no longer available jobs, ${jobsToSave.length} remained.`
 );
 
-const nonDuplicateJobs: (typeof remote3CoSchema.infer)[] = [];
+const nonDuplicateJobs: Remote3CoJob[] = [];
 
 // Filter out duplicate jobs
 for (const job of jobsToSave) {
@@ -96,3 +99,5 @@ for (const job of nonDuplicateJobs) {
     console.error(`Error persisting job: ${job.title}`);
   }
 }
+
+await prisma.$disconnect();

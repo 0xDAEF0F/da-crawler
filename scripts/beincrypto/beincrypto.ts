@@ -3,8 +3,9 @@ import { PrismaClient } from "@prisma/client";
 import { isDateTooOld, parseArguments } from "../utils";
 import { beInCryptoSchema } from "./beincrypto.schema";
 import { fetchBeInCryptoJobs } from "./beincrypto.fetch";
-import { jobSchema } from "~/utils/job.schema";
+import { jobSchema, type JobSchema } from "~/utils/job.schema";
 import { saveJobInDb } from "~/utils/save-job-db";
+
 const { max_jobs: MAX_JOBS, max_days: MAX_DAYS } = parseArguments();
 
 const prisma = new PrismaClient();
@@ -30,24 +31,26 @@ for (let i = 1; i <= 10 /* pages */; i++) {
     const jobS = jobSchema({
       title: validatedJob.title,
       source: "beincrypto",
-      company: validatedJob.company.name,
+      company: {
+        name: validatedJob.company.name,
+      },
       tags: validatedJob.jobTags.map((jt) => jt.label),
-      date: validatedJob.publishedDate,
-      is_remote: validatedJob.locationTags.some((lt) =>
+      publishedAt: validatedJob.publishedDate,
+      isRemote: validatedJob.locationTags.some((lt) =>
         lt.label.toLowerCase().includes("remote")
       ),
       location: validatedJob.locationTags.map((lt) => lt.label),
-      job_description: validatedJob.description,
-      job_url: validatedJob.applyLink,
+      jobDescription: validatedJob.description,
+      jobUrl: validatedJob.applyLink,
       ...(validatedJob.salaryStart && validatedJob.salaryEnd
         ? {
-            salary_min: validatedJob.salaryStart,
-            salary_max: validatedJob.salaryEnd,
+            salaryMin: validatedJob.salaryStart,
+            salaryMax: validatedJob.salaryEnd,
           }
         : {}),
     });
     if (jobS instanceof type.errors) {
-      console.error(`Unable to validate job in page ${i} from beincrypto.ts`);
+      console.error(`Unable to validate "jobSchema" in page ${i} from beincrypto.ts`);
       continue;
     }
     if (isDateTooOld(jobS.publishedAt, MAX_DAYS)) {
@@ -86,10 +89,12 @@ for (const job of uniqueJobsToSave) {
 
 console.log(`Persisted ${uniqueJobsToSave.length} jobs`);
 
+await prisma.$disconnect();
+
 // ---
 
-async function filterDuplicateJobs(jobs: (typeof jobSchema.infer)[]) {
-  const uniqueJobs = [];
+async function filterDuplicateJobs(jobs: JobSchema[]) {
+  const uniqueJobs: JobSchema[] = [];
   for (const job of jobs) {
     const existingJob = await prisma.job.findUnique({
       where: {

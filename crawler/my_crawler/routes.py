@@ -10,7 +10,6 @@ import re
 from my_crawler.db import (
     is_job_title_and_company_in_db,
     is_real_job_url_in_db,
-    is_job_description_url_in_db,
 )
 from .crawler import crawl4ai, get_config
 from .utils import current_run_id, parse_job_url, parse_args
@@ -84,9 +83,6 @@ async def ccj_main_handler(context: PlaywrightCrawlingContext) -> None:
 
         if date < get_job_date_threshold():
             context.log.info(f"Job: {title}, too old. Skipping")
-            continue
-        elif False and is_job_description_url_in_db(job_url):
-            context.log.info(f"Job: {title} already in db. Skipping")
             continue
         elif is_job_title_and_company_in_db(title, company):
             context.log.info(f"Job: {title}@{company} already in db. Skipping")
@@ -199,9 +195,6 @@ async def cryptojobs_main_handler(context: PlaywrightCrawlingContext) -> None:
 
         if parse_date(posted) < get_job_date_threshold():
             context.log.debug(f"Skipping job: {title} because it is too old")
-            continue
-        elif is_job_description_url_in_db(job_url):
-            context.log.debug(f"Job: {title} already in db. Skipping")
             continue
         elif is_job_title_and_company_in_db(title, company):
             context.log.debug(f"Job: {title}@{company} already in db. Skipping")

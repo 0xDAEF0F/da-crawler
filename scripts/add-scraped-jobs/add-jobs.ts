@@ -124,3 +124,5 @@ for (const job of allJobsUniqBy) {
 }
 
 console.log(`--- Done!`);
+
+await prisma.$disconnect();

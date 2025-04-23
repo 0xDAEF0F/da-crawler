@@ -97,8 +97,8 @@ export const getJobs = async (c: Context) => {
       id: job.id,
       company: job.company.name,
       isRemote: job.isRemote ?? undefined,
-      salaryMin: job.salaryMin ?? undefined,
-      salaryMax: job.salaryMax ?? undefined,
+      salaryMin: job.salaryMin,
+      salaryMax: job.salaryMax,
       location:
         JSON.parse(job.location).length > 1
           ? JSON.parse(job.location)

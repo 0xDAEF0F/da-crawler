@@ -15,8 +15,8 @@ export const scrapedJobSchema = type({
   job_url: type("string"),
   // the `apply_url`
   real_job_url: type("string.url").pipe(cleanUrl),
-  min_salary: "number?",
-  max_salary: "number?",
+  min_salary: "number | null",
+  max_salary: "number | null",
 });
 
 export type ScrapedJobSchema = typeof scrapedJobSchema.infer;

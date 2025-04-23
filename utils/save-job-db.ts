@@ -28,6 +28,6 @@ export async function saveJobInDb(job: JobSchema, prisma: PrismaClient): Promise
       },
     });
   } catch (err) {
-    throw err;
+    console.error(`Error saving job: ${job.title} because of: ${err}`);
   }
 }

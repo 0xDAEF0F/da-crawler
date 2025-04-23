@@ -9,8 +9,8 @@ export const jobResponseSchema = type({
   jobUrl: "string",
   jobSummary: "string?", // ai summary
   keywords: "string[]",
-  salaryMin: "number?",
-  salaryMax: "number?",
+  salaryMin: "number | null",
+  salaryMax: "number | null",
   location: "string[]?",
   isRemote: "boolean?",
 });
