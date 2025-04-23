@@ -41,7 +41,6 @@ console.log(`Found ${failedRedirects.length} jobs with error redirects`);
 
 let deletedCount = 0;
 for (const { job, location } of failedRedirects) {
-  await prisma.jobAiAnalysis.deleteMany({ where: { jobId: job.id } });
   await prisma.job.delete({
     where: { id: job.id },
   });
