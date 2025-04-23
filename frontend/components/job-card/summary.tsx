@@ -2,7 +2,7 @@ type Props = {
   summary: string;
 };
 
-export default function Summary(props: Props) {
+export function Summary(props: Props) {
   const { summary } = props;
   const { mainSummary, technicalSummary } = parseAiSummary(summary);
 

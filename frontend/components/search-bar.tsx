@@ -1,7 +1,5 @@
 "use client";
 
-import type React from "react";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -11,7 +9,6 @@ export function SearchBar() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would update the URL with search params
     router.push(`/?q=${encodeURIComponent(query)}`);
   };
 

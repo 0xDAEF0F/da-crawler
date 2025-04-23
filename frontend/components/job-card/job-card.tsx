@@ -1,19 +1,20 @@
 import Link from "next/link";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { capitalize, cn, extractSource, formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { JobResponse } from "~/api/routes/get-jobs/get-jobs-res";
-import Summary from "./summary"; // Assuming Summary is also in job-card directory or adjust path
+import { Summary } from "./summary";
 
 type Props = {
-  job: JobResponse & { date: Date }; // Add the processed date field
+  job: JobResponse & { date: Date };
   searchParams: ReturnType<typeof useSearchParams>;
   pathname: string;
   router: ReturnType<typeof useRouter>;
 };
 
-export function JobCard({ job, searchParams, pathname, router }: Props) {
+export function JobCard(props: Props) {
+  const { job, searchParams, pathname, router } = props;
   return (
     <div
       key={job.id}
@@ -21,7 +22,12 @@ export function JobCard({ job, searchParams, pathname, router }: Props) {
     >
       <div className="flex items-start justify-between">
         <div>
-          <Link href={`/jobs/${job.id}`} className="cursor-pointer">
+          <Link
+            href={job.jobUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cursor-pointer"
+          >
             <h3 className="text-lg font-medium hover:underline">
               {capitalize(job.jobTitle)}
             </h3>

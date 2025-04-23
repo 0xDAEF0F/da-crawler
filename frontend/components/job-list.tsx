@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useQueryState, parseAsInteger } from "nuqs";
-import { capitalize, cn, extractSource } from "@/lib/utils";
 import {
   Pagination,
   PaginationContent,
@@ -21,9 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "./ui/button";
 import { JobResponse } from "~/api/routes/get-jobs/get-jobs-res";
-import Summary from "./job-card/summary";
 import { JobCard } from "./job-card/job-card";
 
 export function JobList({

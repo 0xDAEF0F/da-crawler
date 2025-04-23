@@ -13,11 +13,11 @@ import {
   CommandList,
 } from "@/components/ui/command";
 
-type JobFiltersProps = {
+type Props = {
   availableTags: string[];
 };
 
-export function JobFilters({ availableTags }: JobFiltersProps) {
+export function JobFilters({ availableTags }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
