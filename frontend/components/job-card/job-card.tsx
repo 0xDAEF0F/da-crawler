@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ExternalLink } from "lucide-react";
+import Image from "next/image";
 import { capitalize, cn, extractSource, formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { JobResponse } from "~/api/routes/get-jobs/get-jobs-res";
@@ -35,12 +36,13 @@ export function JobCard(props: Props) {
           <div className="flex gap-2 text-gray-600">
             {/* Container for logo and company name */}
             <div className="flex items-center gap-2">
-              {/* TODO: verify this and change to next js Image */}
               {job.companyLogoUrl ? (
-                <img
+                <Image
                   src={job.companyLogoUrl}
                   alt={`${job.company} logo`}
-                  className="h-5 w-5 rounded-full object-contain"
+                  width={20}
+                  height={20}
+                  className="rounded-full object-contain"
                 />
               ) : (
                 <div className="h-5 w-5 rounded-full bg-gray-300"></div>

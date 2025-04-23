@@ -8,6 +8,7 @@
 
 ## Small changes
 
+- Companies logos should redirect to the companies website
 - Change schema in db
 - Favicon
 - Icons logo on companies
