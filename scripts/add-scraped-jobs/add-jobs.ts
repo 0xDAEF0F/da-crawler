@@ -46,7 +46,8 @@ for (const file of scrapedFilesA) {
     console.error(
       `Error parsing: "crawler/storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}"`
     );
-    throw new Error(maybeParsed.summary);
+    console.error(maybeParsed.summary);
+    continue;
   }
   jobsA.push(maybeParsed);
 }
@@ -66,7 +67,8 @@ for (const file of scrapedFilesB) {
     console.error(
       `Error parsing: "crawler/storage/datasets/${cryptoJobsScrapeDir}/${file}"`
     );
-    throw new Error(maybeParsed.summary);
+    console.error(maybeParsed.summary);
+    continue;
   }
   jobsB.push(maybeParsed);
 }
