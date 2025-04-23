@@ -26,6 +26,14 @@ export const remote3CoSchema = type({
     name: type("string.lower").narrow((n, ctx) =>
       n.includes("stealth") ? ctx.mustBe("not stealth") : true
     ),
+    logo: type("string")
+      .pipe.try((s) => {
+        if (s.startsWith("//")) {
+          return "https:" + s;
+        }
+        return s;
+      })
+      .to("string.url"),
   }),
 });
 

@@ -1,6 +1,10 @@
 import TurndownService from "turndown";
 import { PrismaClient } from "@prisma/client";
-import { parseArguments } from "@/utils";
+import {
+  addCompanyLogoIfMissing,
+  checkIfUrlFetchReturnsText,
+  parseArguments,
+} from "@/utils";
 import { fetchRemote3CoJobs } from "./remote3-co.fetch";
 import { saveJobInDb } from "~/utils/save-job-db";
 import { type Remote3CoJob } from "./remote3-co.schema";
@@ -9,23 +13,21 @@ const { max_jobs: MAX_JOBS, max_days: MAX_DAYS } = parseArguments();
 
 const prisma = new PrismaClient();
 
-async function checkUrlContainsText(url: string, searchText: string): Promise<boolean> {
-  try {
-    const response = await fetch(url);
-    const text = await response.text();
-    return text.includes(searchText);
-  } catch (error) {
-    console.error(`Error checking URL ${url}:`, error);
-    return false;
-  }
-}
-
 const turndownService = new TurndownService({
   linkReferenceStyle: "collapsed",
   linkStyle: "referenced",
 });
 
-const remote3Jobs = await fetchRemote3CoJobs({ maxDays: MAX_DAYS, limit: MAX_JOBS });
+const remote3Jobs: Remote3CoJob[] = await fetchRemote3CoJobs({
+  maxDays: MAX_DAYS,
+  limit: MAX_JOBS,
+});
+
+await Promise.all(
+  remote3Jobs.map(async (job) => {
+    await addCompanyLogoIfMissing(job.companies.logo, job.companies.name, prisma);
+  })
+);
 
 console.log(`Found ${remote3Jobs.length} jobs from remote3.co`);
 
@@ -33,7 +35,7 @@ console.log(`Found ${remote3Jobs.length} jobs from remote3.co`);
 const jobsToSave = (
   await Promise.all(
     remote3Jobs.flatMap(async (job) => {
-      const isNoLongerAvailable = await checkUrlContainsText(
+      const isNoLongerAvailable = await checkIfUrlFetchReturnsText(
         job.apply_url,
         "Sorry, we couldn't find anything here"
       );
@@ -79,7 +81,7 @@ for (const job of nonDuplicateJobs) {
       source: "remote3-co",
       company: {
         name: job.companies.name,
-        logoUrl: undefined, // remote3-co does not provide logo
+        logoUrl: job.companies.logo,
       },
       tags: Array.isArray(job.categories)
         ? job.categories

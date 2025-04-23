@@ -35,8 +35,16 @@ export function JobCard(props: Props) {
           <div className="flex gap-2 text-gray-600">
             {/* Container for logo and company name */}
             <div className="flex items-center gap-2">
-              {/* Placeholder for Logo */}
-              <div className="h-5 w-5 rounded-full bg-gray-300"></div>
+              {/* TODO: verify this and change to next js Image */}
+              {job.companyLogoUrl ? (
+                <img
+                  src={job.companyLogoUrl}
+                  alt={`${job.company} logo`}
+                  className="h-5 w-5 rounded-full object-contain"
+                />
+              ) : (
+                <div className="h-5 w-5 rounded-full bg-gray-300"></div>
+              )}
               <p className="text-gray-600">{capitalize(job.company)}</p>
             </div>
             {/* Salary */}

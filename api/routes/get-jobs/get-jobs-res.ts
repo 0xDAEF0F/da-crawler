@@ -5,6 +5,7 @@ export const jobResponseSchema = type({
   publishedAt: "string",
   jobTitle: "string",
   company: "string",
+  companyLogoUrl: "string?",
   jobDescription: "string",
   jobUrl: "string",
   jobSummary: "string?", // ai summary

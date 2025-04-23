@@ -1,5 +1,6 @@
 import { parseArgs } from "util";
 import { type Browser } from "playwright";
+import type { PrismaClient } from "@prisma/client";
 
 /**
  * Removes specified substrings from a string and cleans up whitespace.
@@ -105,6 +106,55 @@ export async function urlSiteHasText(
     if (context) {
       await context.close();
     }
+    return false;
+  }
+}
+
+/**
+ * Adds a company logo if it is missing in the database.
+ *
+ * @param logoUrl The URL of the logo to add.
+ * @param companyId The ID of the company to update.
+ * @param prisma The Prisma client instance.
+ */
+export async function addCompanyLogoIfMissing(
+  logoUrl: string,
+  companyName: string,
+  prisma: PrismaClient
+): Promise<void> {
+  try {
+    const company = await prisma.company.findUnique({
+      where: { name: companyName },
+    });
+    if (!company) return;
+    if (company.logoUrl) return;
+    const _ = await prisma.company.update({
+      where: { id: company.id },
+      data: { logoUrl },
+    });
+    console.log(`Added missing logo to ${companyName}`);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+/**
+ * Checks if a URL returns a specific text when fetched.
+ *
+ * @param url The URL to check.
+ * @param searchText The text to search for in the response.
+ * @returns A promise that resolves to true if the text is found, false otherwise or if an error occurs.
+ */
+export async function checkIfUrlFetchReturnsText(
+  url: string,
+  searchText: string
+): Promise<boolean> {
+  try {
+    const response = await fetch(url);
+    const text = await response.text();
+    return text.includes(searchText);
+  } catch (error) {
+    console.error(`Error checking URL ${url}:`, error);
     return false;
   }
 }

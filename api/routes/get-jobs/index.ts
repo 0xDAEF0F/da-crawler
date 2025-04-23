@@ -112,6 +112,7 @@ export const getJobs = async (c: Context) => {
         job.aiAnalysis?.optionToPayInCrypto ? "crypto-pay" : [],
       ]).flat(),
       ...(job.aiAnalysis.summary ? { jobSummary: job.aiAnalysis.summary } : {}),
+      ...(job.company.logoUrl ? { companyLogoUrl: job.company.logoUrl } : {}),
     };
 
     return jobResponseSchema.assert(jobToValidate);
