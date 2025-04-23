@@ -11,7 +11,7 @@ ai-analysis:
     bun run scripts/ai-analysis/ai-analysis.ts
 
 rebuild-api:
-    bun run build:api
+    bun run build
 
 run-api: rebuild-api
     bun run --hot dist/api/index.js

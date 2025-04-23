@@ -7,11 +7,6 @@ export async function getTags(c: Context) {
   const tags = await prisma.job.findMany({
     select: {
       keywords: true,
-      aiAnalysis: {
-        select: {
-          keywords: true,
-        },
-      },
     },
   });
 
@@ -21,7 +16,7 @@ export async function getTags(c: Context) {
   tags.forEach((t) => {
     const combinedTags = [
       ...JSON.parse(t.keywords),
-      ...(JSON.parse(t.aiAnalysis?.keywords ?? "[]") as string[]),
+      // ...(JSON.parse(t.aiAnalysis?.keywords ?? "[]") as string[]),
     ];
     combinedTags.forEach((tag) => {
       // const tag_ = tag.toLowerCase().trim();
