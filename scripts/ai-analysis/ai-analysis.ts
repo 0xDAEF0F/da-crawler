@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { summarizeJob } from "./ai-analysis.utils";
 
 const MIN_JOB_DESCRIPTION_LENGTH = 500;
-const MAX_JOBS_TO_ANALYZE = 100;
+const MAX_JOBS_TO_ANALYZE = 1000;
 
 const prisma = new PrismaClient();
 

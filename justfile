@@ -1,5 +1,5 @@
-max_jobs := "10"
-max_days := "1"
+max_jobs := "100"
+max_days := "7"
 
 scrape-and-save:
     uv run --directory crawler -m my_crawler --max_jobs {{max_jobs}} --max_days {{max_days}}
