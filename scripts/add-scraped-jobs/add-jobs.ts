@@ -1,29 +1,8 @@
 import { readdir } from "node:fs/promises";
 import { PrismaClient } from "@prisma/client";
 import { partition, uniqBy } from "lodash";
-import { ArkErrors, type } from "arktype";
-import { cleanUrl } from "~/utils/clean-url";
-import { normalizeWords } from "~/utils/normalize-words";
-import { KEYWORD_MAPPINGS } from "~/utils/constants";
-
-// TODO: Unify the schema with the global one
-const jobSchema = type({
-  title: "string.lower |> string.trim",
-  company: "string >= 2 |> string.trim |> string.lower",
-  tags: type("string[]")
-    .to("string.lower[] |> string.trim[]")
-    .pipe((tags) => normalizeWords(tags, KEYWORD_MAPPINGS)),
-  date: "string.date.iso.parse",
-  is_remote: "boolean",
-  job_description: "string",
-  job_url: type("string"),
-  // the `apply_url`
-  real_job_url: type("string.url").pipe(cleanUrl),
-  min_salary: "number",
-  max_salary: "number",
-});
-
-type JobSchema = typeof jobSchema.infer;
+import { ArkErrors } from "arktype";
+import { scrapedJobSchema, type ScrapedJobSchema } from "./scraped-job.schema";
 
 const prisma = new PrismaClient();
 
@@ -54,7 +33,7 @@ const scrapedFilesA = await readdir(
 );
 const scrapedFilesB = await readdir(`crawler/storage/datasets/${cryptoJobsScrapeDir}`);
 
-let jobsA: JobSchema[] = [];
+let jobsA: ScrapedJobSchema[] = [];
 for (const file of scrapedFilesA) {
   if (file.includes("__meta")) {
     continue;
@@ -62,7 +41,7 @@ for (const file of scrapedFilesA) {
   const contentJson = await Bun.file(
     `crawler/storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}`
   ).json();
-  const maybeParsed = jobSchema(contentJson);
+  const maybeParsed = scrapedJobSchema(contentJson);
   if (maybeParsed instanceof ArkErrors) {
     console.error(
       `Error parsing: "crawler/storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}"`
@@ -74,7 +53,7 @@ for (const file of scrapedFilesA) {
 
 console.log(`--- Cryptocurrency Jobs: ${jobsA.length}`);
 
-let jobsB: JobSchema[] = [];
+let jobsB: ScrapedJobSchema[] = [];
 for (const file of scrapedFilesB) {
   if (file.includes("__meta")) {
     continue;
@@ -82,7 +61,7 @@ for (const file of scrapedFilesB) {
   const contentJson = await Bun.file(
     `crawler/storage/datasets/${cryptoJobsScrapeDir}/${file}`
   ).json();
-  const maybeParsed = jobSchema(contentJson);
+  const maybeParsed = scrapedJobSchema(contentJson);
   if (maybeParsed instanceof ArkErrors) {
     console.error(
       `Error parsing: "crawler/storage/datasets/${cryptoJobsScrapeDir}/${file}"`
@@ -126,8 +105,9 @@ for (const job of allJobsUniqBy) {
   await prisma.job.create({
     data: {
       company: {
-        create: {
-          name: job.company,
+        connectOrCreate: {
+          where: { name: job.company },
+          create: { name: job.company },
         },
       },
       title: job.title,

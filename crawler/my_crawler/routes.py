@@ -60,8 +60,7 @@ async def ccj_main_handler(context: PlaywrightCrawlingContext) -> None:
         )
 
         # Extract salary if present
-        min_salary = 0
-        max_salary = 0
+        min_salary, max_salary = None, None
         salary_locator = li.locator("span").filter(
             has_text="$"
         )  # Assuming '$' might still be a primary indicator
@@ -86,7 +85,7 @@ async def ccj_main_handler(context: PlaywrightCrawlingContext) -> None:
         if date < get_job_date_threshold():
             context.log.info(f"Job: {title}, too old. Skipping")
             continue
-        elif is_job_description_url_in_db(job_url):
+        elif False and is_job_description_url_in_db(job_url):
             context.log.info(f"Job: {title} already in db. Skipping")
             continue
         elif is_job_title_and_company_in_db(title, company):
@@ -190,15 +189,13 @@ async def cryptojobs_main_handler(context: PlaywrightCrawlingContext) -> None:
             .lower()
             .startswith("remote")
         )
-        min_salary = 0
-        max_salary = 0
+        min_salary, max_salary = None, None
         salary_locator = job.locator("li.me-3").filter(has_text="USD / Year")
         if await salary_locator.count() > 0:
             salary_text = await salary_locator.inner_text()  # " 207,485 USD / Year "
             salary_text = salary_text.replace(" USD / Year", "").strip()
             salary_text = salary_text.replace(",", "")
             min_salary = int(salary_text)
-            max_salary = min_salary
 
         if parse_date(posted) < get_job_date_threshold():
             context.log.debug(f"Skipping job: {title} because it is too old")
@@ -311,7 +308,7 @@ def parse_date(date_str: str) -> datetime:
         return now
 
 
-def parse_salary(salary_text: str) -> tuple[int, int]:
+def parse_salary(salary_text: str) -> tuple[int | None, int | None]:
     """
     Only works for Cryptojobs.com
     Parses a salary string which might contain different currency symbols and formats.
@@ -348,5 +345,8 @@ def parse_salary(salary_text: str) -> tuple[int, int]:
                 max_salary = min_salary  # Assume single value if no range
             except ValueError:
                 pass  # Keep salaries as 0 if final parsing fails
+
+    if min_salary == 0 and max_salary == 0:
+        return None, None
 
     return min_salary, max_salary
