@@ -10,7 +10,8 @@ export async function getJob(c: Context) {
       id: parseInt(id),
     },
     include: {
-      ai_analysis: true,
+      aiAnalysis: true,
+      company: true,
     },
   });
 
@@ -21,19 +22,19 @@ export async function getJob(c: Context) {
   const response = {
     id: job.id,
     title: job.title,
-    company: job.company,
-    keywords: job.tags,
-    date: job.date,
-    job_description: job.job_description,
-    job_url: job.job_url,
-    is_remote: job.is_remote,
-    is_full_time: job.ai_analysis?.is_full_time,
-    location: job.ai_analysis?.country,
+    company: job.company.name,
+    keywords: job.keywords,
+    date: job.publishedAt,
+    jobDescription: job.jobDescription,
+    jobUrl: job.jobUrl,
+    isRemote: job.isRemote,
+    isFullTime: job.aiAnalysis?.isFullTime,
+    location: job.aiAnalysis?.location,
     // ai analysis
-    ai_summary: job.ai_analysis?.summary,
-    ai_keywords: job.ai_analysis?.keywords,
-    ai_location: job.ai_analysis?.country,
-    ai_compensation_amount: job.ai_analysis?.compensation_amount,
+    aiSummary: job.aiAnalysis?.summary,
+    aiKeywords: job.aiAnalysis?.keywords,
+    aiLocation: job.aiAnalysis?.location,
+    aiCompensationAmount: job.aiAnalysis?.salaryMin,
   };
 
   const validated = getJobSchema.assert(response);

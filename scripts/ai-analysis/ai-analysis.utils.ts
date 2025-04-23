@@ -40,7 +40,7 @@ export async function summarizeJob(job: Job): Promise<typeof aiAnalysisSchema.in
       },
       {
         role: "user",
-        content: `Job Description:\n${job.job_description}`,
+        content: `Job Description:\n${job.jobDescription}`,
       },
     ],
     tools: [

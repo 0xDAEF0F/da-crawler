@@ -1,23 +1,33 @@
 import { PrismaClient } from "@prisma/client";
-import { jobSchema } from "./job.schema";
+import { type JobSchema } from "./job.schema";
 
-export async function saveJobInDb(
-  job: typeof jobSchema.infer,
-  prisma: PrismaClient
-): Promise<void> {
-  const job_ = {
-    ...job,
-    tags: JSON.stringify(job.tags),
-    location: JSON.stringify(job.location),
-  };
-  if (job.job_description_url) {
-    job_.job_description_url = job.job_description_url;
-  }
+export async function saveJobInDb(job: JobSchema, prisma: PrismaClient): Promise<void> {
   try {
-    await prisma.job.create({
-      data: job_,
+    const company = await prisma.company.upsert({
+      where: { name: job.company.name },
+      update: { logoUrl: job.company.logoUrl ?? undefined },
+      create: {
+        name: job.company.name,
+        logoUrl: job.company.logoUrl ?? undefined,
+      },
     });
-  } catch (e) {
-    console.error(`Unable to save job ${job.title} to db. Reason: ${e}`);
+
+    await prisma.job.create({
+      data: {
+        title: job.title,
+        source: job.source,
+        companyId: company.id,
+        keywords: JSON.stringify(job.tags),
+        location: JSON.stringify(job.location),
+        publishedAt: job.publishedAt,
+        salaryMin: job.salaryMin ?? undefined,
+        salaryMax: job.salaryMax ?? undefined,
+        jobDescription: job.jobDescription,
+        jobUrl: job.jobUrl,
+        isRemote: job.isRemote ?? undefined,
+      },
+    });
+  } catch (err) {
+    throw err;
   }
 }

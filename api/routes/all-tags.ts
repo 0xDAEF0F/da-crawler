@@ -6,8 +6,8 @@ import { type } from "arktype";
 export async function getTags(c: Context) {
   const tags = await prisma.job.findMany({
     select: {
-      tags: true,
-      ai_analysis: {
+      keywords: true,
+      aiAnalysis: {
         select: {
           keywords: true,
         },
@@ -20,8 +20,8 @@ export async function getTags(c: Context) {
 
   tags.forEach((t) => {
     const combinedTags = [
-      ...JSON.parse(t.tags),
-      ...(JSON.parse(t.ai_analysis?.keywords ?? "[]") as string[]),
+      ...JSON.parse(t.keywords),
+      ...(JSON.parse(t.aiAnalysis?.keywords ?? "[]") as string[]),
     ];
     combinedTags.forEach((tag) => {
       // const tag_ = tag.toLowerCase().trim();

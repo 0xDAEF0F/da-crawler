@@ -115,7 +115,7 @@ console.log(`--- Unique Jobs (filtered by real_job_url): ${allJobsUniqBy.length}
 
 for (const job of allJobsUniqBy) {
   const alreadyExists = await prisma.job.findUnique({
-    where: { job_url: job.real_job_url },
+    where: { jobUrl: job.real_job_url },
   });
 
   if (alreadyExists) {
@@ -125,17 +125,20 @@ for (const job of allJobsUniqBy) {
 
   await prisma.job.create({
     data: {
-      company: job.company,
+      company: {
+        create: {
+          name: job.company,
+        },
+      },
       title: job.title,
-      tags: JSON.stringify(job.tags),
-      date: job.date,
-      is_remote: job.is_remote,
-      job_description: job.job_description,
-      job_url: job.real_job_url,
-      job_description_url: job.job_url,
+      keywords: JSON.stringify(job.tags),
+      publishedAt: job.date,
+      isRemote: job.is_remote,
+      jobDescription: job.job_description,
+      jobUrl: job.real_job_url,
       source: job.source,
-      salary_min: job.min_salary,
-      salary_max: job.max_salary,
+      salaryMin: job.min_salary,
+      salaryMax: job.max_salary,
     },
   });
 }

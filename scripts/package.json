@@ -3,9 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "beincrypto": "",
-    "remote3-co": "",
-    "ai-analysis": ""
+    "check": "tsc --noEmit"
   },
   "peerDependencies": {
     "typescript": "^5"

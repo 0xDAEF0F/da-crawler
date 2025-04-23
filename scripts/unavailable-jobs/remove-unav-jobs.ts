@@ -8,16 +8,16 @@ fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
 
 console.log(`Checking jobs since ${fiveDaysAgo.toISOString()} for redirects`);
 const jobs = await prisma.job.findMany({
-  where: { date: { gte: fiveDaysAgo } },
+  where: { publishedAt: { gte: fiveDaysAgo } },
 });
 
 console.log(`Found ${jobs.length} jobs to check`);
 
 // Perform all fetches concurrently and collect jobs redirecting to error locations
 const redirectChecks = jobs.map(async (job) => {
-  if (job.job_url.startsWith("mailto:")) return null;
+  if (job.jobUrl.startsWith("mailto:")) return null;
   try {
-    const response = await fetch(job.job_url, { redirect: "manual" });
+    const response = await fetch(job.jobUrl, { redirect: "manual" });
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get("location");
       const isError = ["error", "not_found", "not-found"].some((e) =>
@@ -28,7 +28,7 @@ const redirectChecks = jobs.map(async (job) => {
       }
     }
   } catch (error) {
-    console.error(`Error fetching URL ${job.job_url}:`, error);
+    console.error(`Error fetching URL ${job.jobUrl}:`, error);
   }
   return null;
 });
@@ -41,7 +41,7 @@ console.log(`Found ${failedRedirects.length} jobs with error redirects`);
 
 let deletedCount = 0;
 for (const { job, location } of failedRedirects) {
-  await prisma.jobAiAnalysis.deleteMany({ where: { job_id: job.id } });
+  await prisma.jobAiAnalysis.deleteMany({ where: { jobId: job.id } });
   await prisma.job.delete({
     where: { id: job.id },
   });

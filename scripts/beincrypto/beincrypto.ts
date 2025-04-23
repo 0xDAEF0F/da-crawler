@@ -50,7 +50,7 @@ for (let i = 1; i <= 10 /* pages */; i++) {
       console.error(`Unable to validate job in page ${i} from beincrypto.ts`);
       continue;
     }
-    if (isDateTooOld(jobS.date, MAX_DAYS)) {
+    if (isDateTooOld(jobS.publishedAt, MAX_DAYS)) {
       console.warn(`Skipping job ${jobS.title} because it's too old`);
       continue;
     }
@@ -93,7 +93,7 @@ async function filterDuplicateJobs(jobs: (typeof jobSchema.infer)[]) {
   for (const job of jobs) {
     const existingJob = await prisma.job.findUnique({
       where: {
-        job_url: job.job_url,
+        jobUrl: job.jobUrl,
       },
     });
     if (!existingJob) {

@@ -1,11 +1,14 @@
 # Todos
 
+## Big changes
+
 - Explore vector embeddings
 - Add logging with sentry
 - Migrate to postgres
 
-## Small changes frontend
+## Small changes
 
+- Change schema in db
 - Icons logo on companies
 - Hover on the company should take you to the company's website
 - Jobs (x of x) | should work correctly

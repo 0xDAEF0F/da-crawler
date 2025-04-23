@@ -37,8 +37,8 @@ export const getJobs = async (c: Context) => {
   const jobs = (
     await prisma.job.findMany({
       where: {
-        is_remote: isRemote,
-        date: { gte: sinceWhen },
+        isRemote: isRemote,
+        publishedAt: { gte: sinceWhen },
         AND: [
           ...(excludeFromTitle ?? []).map((term) => ({
             NOT: {
@@ -50,23 +50,24 @@ export const getJobs = async (c: Context) => {
         ],
       },
       include: {
-        ai_analysis: true,
+        aiAnalysis: true,
+        company: true,
       },
-      orderBy: { date: "desc" },
+      orderBy: { publishedAt: "desc" },
     })
   ).map((job) => ({
     ...job,
-    tags: JSON.parse(job.tags) as string[],
-    ai_analysis: {
-      ...job.ai_analysis,
-      keywords: JSON.parse(job.ai_analysis?.keywords ?? "[]") as string[],
+    tags: JSON.parse(job.keywords) as string[],
+    aiAnalysis: {
+      ...job.aiAnalysis,
+      keywords: JSON.parse(job.aiAnalysis?.keywords ?? "[]") as string[],
     },
   }));
 
   // filter jobs by keywords/tags
   const jobsWithTagFilter = jobs.filter((job) => {
     if (keywords.length === 0) return true;
-    const jobKeywords = uniq([...job.tags, ...job.ai_analysis.keywords]);
+    const jobKeywords = uniq([...job.tags, ...job.aiAnalysis.keywords]);
     for (const keyword of keywords) {
       if (jobKeywords.includes(keyword)) return true;
     }
@@ -76,7 +77,7 @@ export const getJobs = async (c: Context) => {
   // filter jobs by excludeKeywords
   const jobsWithExcludeFilter = jobsWithTagFilter.filter((job) => {
     if (excludeKeywords.length === 0) return true;
-    const jobKeywords = uniq([...job.tags, ...job.ai_analysis.keywords]);
+    const jobKeywords = uniq([...job.tags, ...job.aiAnalysis.keywords]);
     for (const excludeKeyword of excludeKeywords) {
       if (jobKeywords.includes(excludeKeyword)) return false;
     }
@@ -94,28 +95,24 @@ export const getJobs = async (c: Context) => {
   const jobsResponse = jobsWithLimit.map((job) => {
     const jobToValidate: JobResponse = {
       id: job.id,
-      company: job.company,
-      is_remote: job.is_remote,
-      salary_min: job.salary_min,
-      salary_max: job.salary_max,
-      date: job.date.toISOString(),
-      job_description: job.job_description,
-      job_url: job.job_url,
-      job_title: job.title,
+      company: job.company.name,
+      isRemote: job.isRemote ?? undefined,
+      salaryMin: job.salaryMin ?? undefined,
+      salaryMax: job.salaryMax ?? undefined,
+      location:
+        JSON.parse(job.location).length > 1
+          ? JSON.parse(job.location)
+          : JSON.parse(job.aiAnalysis.location ?? "[]"),
+      publishedAt: job.publishedAt.toISOString(),
+      jobDescription: job.jobDescription,
+      jobUrl: job.jobUrl,
+      jobTitle: job.title,
       keywords: uniq([
         ...job.tags,
-        job.ai_analysis?.option_to_pay_in_crypto ? "crypto-pay" : [],
+        job.aiAnalysis?.optionToPayInCrypto ? "crypto-pay" : [],
       ]).flat(),
-      ...(job.ai_analysis.summary ? { job_summary: job.ai_analysis.summary } : {}),
+      ...(job.aiAnalysis.summary ? { jobSummary: job.aiAnalysis.summary } : {}),
     };
-
-    if (job.ai_analysis.country) {
-      jobToValidate.location = job.ai_analysis.country;
-    }
-
-    if (job.ai_analysis.region) {
-      jobToValidate.location += ` | ${job.ai_analysis.region}`;
-    }
 
     return jobResponseSchema.assert(jobToValidate);
   });

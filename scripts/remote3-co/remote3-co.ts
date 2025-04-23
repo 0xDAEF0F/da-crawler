@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { isDateTooOld, parseArguments } from "../utils";
 import { remote3CoSchema } from "./remote3-co.schema";
 import { fetchRemote3CoJobs } from "./remote3-co.fetch";
+import { saveJobInDb } from "../../utils/save-job-db";
 
 const { max_jobs: MAX_JOBS, max_days: MAX_DAYS } = parseArguments();
 
@@ -50,7 +51,7 @@ const nonDuplicateJobs: (typeof remote3CoSchema.infer)[] = [];
 for (const job of jobsToSave) {
   const alreadySavedJob = await prisma.job.findFirst({
     where: {
-      OR: [{ job_url: job.apply_url }, { job_description_url: job.slug }],
+      jobUrl: job.apply_url,
     },
   });
   if (!alreadySavedJob) {
@@ -70,21 +71,27 @@ console.log(
 // Save the unique jobs to the database
 for (const job of nonDuplicateJobs) {
   try {
-    await prisma.job.create({
-      data: {
-        company: job.companies.name,
-        date: job.live_at,
-        job_description: job.description,
-        job_url: job.apply_url,
-        job_description_url: job.slug,
-        title: job.title,
-        source: "remote3-co",
-        tags: JSON.stringify(job.categories),
-        is_remote: job.on_site ? false : true,
-        salary_min: job.salary_min,
-        salary_max: job.salary_max,
+    const jobToSave = {
+      title: job.title,
+      source: "remote3-co",
+      company: {
+        name: job.companies.name,
+        logoUrl: undefined, // remote3-co does not provide logo
       },
-    });
+      tags: Array.isArray(job.categories)
+        ? job.categories
+        : job.categories
+          ? [job.categories]
+          : [],
+      location: job.location ? job.location.split(",").map((s) => s.trim()) : [],
+      publishedAt: new Date(job.live_at),
+      salaryMin: job.salary_min ?? undefined,
+      salaryMax: job.salary_max ?? undefined,
+      jobDescription: job.description,
+      jobUrl: job.apply_url,
+      isRemote: job.on_site ? false : true,
+    };
+    await saveJobInDb(jobToSave, prisma);
   } catch (e) {
     console.error(`Error persisting job: ${job.title}`);
   }

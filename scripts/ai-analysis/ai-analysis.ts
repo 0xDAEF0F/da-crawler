@@ -8,17 +8,17 @@ const prisma = new PrismaClient();
 
 const jobs_ = await prisma.job.findMany({
   where: {
-    OR: [{ ai_analysis: null }, { ai_analysis: { summary: undefined } }],
+    OR: [{ aiAnalysis: null }, { aiAnalysis: { summary: undefined } }],
   },
   orderBy: {
-    date: "desc",
+    publishedAt: "desc",
   },
 });
 
 console.log(`Found ${jobs_.length} jobs with no ai analysis`);
 
 const jobs = jobs_.filter((job) => {
-  return job.job_description.length > MIN_JOB_DESCRIPTION_LENGTH;
+  return job.jobDescription.length > MIN_JOB_DESCRIPTION_LENGTH;
 });
 
 console.log(
@@ -65,23 +65,19 @@ for (const { job, analysis } of summarizedResults) {
     await prisma.job.update({
       where: { id: job.id },
       data: {
-        ai_analysis: {
+        aiAnalysis: {
           upsert: {
             create: {
               summary: analysis.summary,
-              job_title: job.title,
               keywords: JSON.stringify(analysis.keywords),
-              compensation_amount:
-                analysis.min_salary === 0 || analysis.max_salary === 0
-                  ? null
-                  : `${analysis.min_salary}-${analysis.max_salary}`,
+              salaryMin: analysis.minSalary === 0 ? null : analysis.minSalary,
+              salaryMax: analysis.maxSalary === 0 ? null : analysis.maxSalary,
             },
             update: {
               summary: analysis.summary,
-              compensation_amount:
-                analysis.min_salary === 0 || analysis.max_salary === 0
-                  ? null
-                  : `${analysis.min_salary}-${analysis.max_salary}`,
+              keywords: JSON.stringify(analysis.keywords),
+              salaryMin: analysis.minSalary === 0 ? null : analysis.minSalary,
+              salaryMax: analysis.maxSalary === 0 ? null : analysis.maxSalary,
             },
           },
         },

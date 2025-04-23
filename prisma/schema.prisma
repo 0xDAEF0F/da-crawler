@@ -9,58 +9,42 @@ datasource db {
 
 /// A job post obtained by web scraping
 model Job {
-  id                  Int            @id @default(autoincrement())
-  /// Job title. e.g., "Frontend JS Engineer"
-  title               String
-  /// Where did we find this job. e.g., "cryptocurrencyjobs.co"
-  source              String
-  /// The company that posted the job. e.g., "wintermute"
-  company             String
-  /// Tags for the job. e.g., ["javascript", "react", "typescript"]
-  tags                String         @default("[]")
-  /// The location(s) of the job. e.g., ["San Francisco", "United States"]
-  location            String         @default("[]")
-  /// When did the job post was published.
-  date                DateTime
-  /// The minimum salary for the job.
-  salary_min          Int            @default(0)
-  /// The maximum salary for the job.
-  salary_max          Int            @default(0)
-  /// The actual job description. Markdown formatted.
-  job_description     String
-  /// The URL of the job description page (in source).
-  job_description_url String?
-  /// The URL of the job post.
-  job_url             String         @unique
-  /// Whether the job is remote.
-  is_remote           Boolean
-  /// The ai generated analysis of the job.
-  ai_analysis         JobAiAnalysis?
+  id             Int      @id @default(autoincrement())
+  title          String
+  source         String /// Where did we find this job
+  companyId      Int      @map("company_id")
+  keywords       String   @default("[]") /// Job associated keywords
+  location       String   @default("[]") /// e.g., ["San Francisco", "United States"]
+  publishedAt    DateTime @map("published_at")
+  salaryMin      Int?     @map("salary_min")
+  salaryMax      Int?     @map("salary_max")
+  jobDescription String   @map("job_description") /// In markdown format
+  jobUrl         String   @unique @map("job_url") /// URL of real job post
+  isRemote       Boolean? @map("is_remote")
+
+  aiAnalysis JobAiAnalysis?
+  company    Company        @relation(fields: [companyId], references: [id])
+}
+
+model Company {
+  id      Int     @id @default(autoincrement())
+  name    String  @unique
+  logoUrl String? @map("logo_url")
+  jobs    Job[]
 }
 
 /// AI generated analysis of the job.
 model JobAiAnalysis {
-  id                      Int      @id @default(autoincrement())
-  job_id                  Int      @unique
-  /// ai generated job title from the job description
-  job_title               String
-  /// ai generated summary of the job
-  summary                 String
-  /// ai generated keywords for the job
-  keywords                String
-  /// whether ai think the job is remote or not
-  is_remote               Boolean?
-  /// is there indication that the job is focused on a specific country?
-  country                 String?
-  /// is there indication that the job is focused on a specific region?
-  region                  String?
-  /// ai generated is_full_time for the job
-  is_full_time            Boolean?
-  /// is there any indication if the job can pay in cryptocurrencies?
-  option_to_pay_in_crypto Boolean?
-  /// (range based) e.g., "100000-120000"
-  compensation_amount     String?
+  id                  Int      @id @default(autoincrement())
+  jobId               Int      @unique @map("job_id")
+  summary             String
+  keywords            String
+  isRemote            Boolean? @map("is_remote")
+  location            String?  @default("[]") /// e.g., ["San Francisco", "United States"]
+  isFullTime          Boolean? @map("is_full_time")
+  optionToPayInCrypto Boolean? @map("option_to_pay_in_crypto")
+  salaryMin           Int?     @map("salary_min")
+  salaryMax           Int?     @map("salary_max")
 
-  /// relation to the job obtained by scraping the web
-  job Job @relation(fields: [job_id], references: [id])
+  job Job @relation(fields: [jobId], references: [id])
 }

@@ -14,7 +14,8 @@
   "scripts": {
     "dev": "concurrently -n api,front \"bun run --cwd api dev\" \"bun run --cwd frontend dev\"",
     "test": "bun test api && bun test frontend && bun test scripts",
-    "build": "bun run --cwd api build"
+    "build": "bun run --cwd api build",
+    "check": "bun run --cwd api check && bun run --cwd frontend lint && bun run --cwd scripts check"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
