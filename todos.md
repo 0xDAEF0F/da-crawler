@@ -1,12 +1,8 @@
 # Todos
 
-- [ ] Explore vector embeddings
-- [ ] Add logging with sentry
-- [ ] Migrate to postgres
-
-## Small changes data
-
-- Summary should have the tools/technologies in bullet points
+- Explore vector embeddings
+- Add logging with sentry
+- Migrate to postgres
 
 ## Small changes frontend
 

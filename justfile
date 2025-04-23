@@ -3,7 +3,7 @@ max_days := "5"
 
 scrape-and-save:
     uv run --directory crawler -m my_crawler --max_jobs {{max_jobs}} --max_days {{max_days}}
-    bun run scripts/remote3-co.ts --max_jobs {{max_jobs}} --max_days {{max_days}}
+    bun run scripts/remote3-co/remote3-co.ts --max_jobs {{max_jobs}} --max_days {{max_days}}
     bun run scripts/beincrypto/beincrypto.ts --max_jobs {{max_jobs}} --max_days {{max_days}}
     bun run scripts/add-jobs.ts
     

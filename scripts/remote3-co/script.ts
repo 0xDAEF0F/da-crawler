@@ -13,9 +13,6 @@ async function getJobSlugs(): Promise<string[]> {
   return slugs;
 }
 
-/**
- * Filters a list of slugs by checking if their rendered content contains any of the specified keywords using urlSiteHasText.
- */
 async function filterSlugsByKeywords(
   slugs: string[],
   keywords: string[]
