@@ -1,15 +1,16 @@
 import { checkUrlForKeywords } from "@/url-content-checker";
 import { PrismaClient } from "@prisma/client";
-import { chromium } from "playwright-extra";
-import stealthPlugin from "puppeteer-extra-plugin-stealth";
-
-chromium.use(stealthPlugin());
+import { chromium } from "playwright";
 
 const MAX_DAYS: number = 7;
-const KEYWORDS: string[] = ["sorry,", "job not found", "page not found"];
+const KEYWORDS: string[] = [
+  "job not found",
+  "page not found",
+  "this job is no longer available",
+];
 
+// start resources
 const prisma = new PrismaClient();
-
 const browser = await chromium.launch({ headless: true });
 
 const jobs = await prisma.job.findMany({
@@ -25,16 +26,19 @@ const jobs = await prisma.job.findMany({
   take: 100,
 });
 
-const matchedJobs = jobs.flatMap(async (job) => {
-  const matches = await checkUrlForKeywords(job.jobUrl, KEYWORDS, browser);
-  if (matches) return [job];
-  return [];
-});
-const matchedJobs_ = (await Promise.all(matchedJobs)).flat();
+const matchedJobs = (
+  await Promise.all(
+    jobs.flatMap(async (job) => {
+      const matches = await checkUrlForKeywords(job.jobUrl, KEYWORDS, browser);
+      if (matches) return [job];
+      return [];
+    })
+  )
+).flat();
 
 console.log(`Found ${matchedJobs.length} jobs with the matched keywords`);
 
-for (const job of matchedJobs_) {
+for (const job of matchedJobs) {
   await prisma.job.delete({
     where: { id: job.id },
   });
@@ -42,5 +46,6 @@ for (const job of matchedJobs_) {
 
 console.log(`Deleted ${matchedJobs.length} jobs`);
 
+// close resources
 await browser.close();
 await prisma.$disconnect();

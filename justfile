@@ -15,3 +15,7 @@ rebuild-api:
 
 run-api: rebuild-api
     bun run --hot api/dist/index.js
+
+remove-unav-jobs:
+    bun run scripts/unavailable-jobs/remove-unav-jobs.ts
+    bun run scripts/unavailable-jobs/remove-unav-jobs-dynamic.ts

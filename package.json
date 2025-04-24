@@ -9,8 +9,7 @@
   "dependencies": {
     "@prisma/client": "^6.5.0",
     "arktype": "^2",
-    "playwright-extra": "^4.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "playwright": "^1.52.0"
   },
   "scripts": {
     "dev": "concurrently -n api,front \"bun run --cwd api dev\" \"bun run --cwd frontend dev\"",

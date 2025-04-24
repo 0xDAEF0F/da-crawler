@@ -17,7 +17,10 @@ console.log(`Found ${jobs.length} jobs to check`);
 const redirectChecks = jobs.map(async (job) => {
   if (job.jobUrl.startsWith("mailto:")) return null;
   try {
-    const response = await fetch(job.jobUrl, { redirect: "manual" });
+    const response = await fetch(job.jobUrl, {
+      redirect: "manual",
+      signal: AbortSignal.timeout(10000),
+    });
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get("location");
       const isError = ["error", "not_found", "not-found"].some((e) =>
@@ -27,8 +30,12 @@ const redirectChecks = jobs.map(async (job) => {
         return { job, location };
       }
     }
-  } catch (error) {
-    console.error(`Error fetching URL ${job.jobUrl}:`, error);
+  } catch (e) {
+    if (e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError")) {
+      console.error(`Error fetching URL ${job.jobUrl} (timeout)`);
+    } else {
+      console.error(`Error fetching URL ${job.jobUrl}`);
+    }
   }
   return null;
 });

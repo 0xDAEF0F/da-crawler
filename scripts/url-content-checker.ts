@@ -22,12 +22,10 @@ export async function checkUrlForKeywords(
     page = await browser.newPage();
     await page.goto(url, { waitUntil: "networkidle", timeout: 10000 });
 
-    // Get the page content
-    const content = await page.content();
+    const content = (await page.content()).toLowerCase();
 
-    // Check if any keyword is present in the content
     for (const keyword of keywords) {
-      if (content.toLowerCase().includes(keyword)) {
+      if (content.includes(keyword)) {
         return true;
       }
     }
