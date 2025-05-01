@@ -1,5 +1,5 @@
+import { describe, expect, test } from "bun:test";
 import { type } from "arktype";
-import { describe, test, expect } from "bun:test";
 import { remote3CoSchema } from "./remote3-co.schema";
 
 const mockRawJob = {

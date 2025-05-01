@@ -1,6 +1,6 @@
-import { cleanUrl } from "~/utils/clean-url";
 import { trimSubstr } from "@/utils";
 import { type } from "arktype";
+import { cleanUrl } from "~/utils/clean-url";
 
 export const remote3CoSchema = type({
   id: "number",
@@ -21,15 +21,15 @@ export const remote3CoSchema = type({
     return cleanUrl(`${urlObj.origin}${urlObj.pathname}`);
   }),
   slug: type("string").pipe((slug) => `https://remote3.co/remote-jobs/${slug}`),
-  categories: type("string | null").pipe((cat) => (cat === null ? [] : [cat])),
+  categories: type("string | null").pipe((c) => (!c ? [] : JSON.parse(c))),
   companies: type({
     name: type("string.lower").narrow((n, ctx) =>
-      n.includes("stealth") ? ctx.mustBe("not stealth") : true
+      n.includes("stealth") ? ctx.mustBe("not stealth") : true,
     ),
     logo: type("string")
       .pipe.try((s) => {
         if (s.startsWith("//")) {
-          return "https:" + s;
+          return `https:${s}`;
         }
         return s;
       })

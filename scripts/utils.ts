@@ -1,6 +1,6 @@
-import { parseArgs } from "util";
-import { type Browser } from "playwright";
+import { parseArgs } from "node:util";
 import type { PrismaClient } from "@prisma/client";
+import type { Browser } from "playwright";
 
 /**
  * Removes specified substrings from a string and cleans up whitespace.
@@ -52,8 +52,8 @@ export function parseArguments(): {
     allowPositionals: true,
   });
   return {
-    max_jobs: parseInt(values.max_jobs),
-    max_days: parseInt(values.max_days),
+    max_jobs: Number.parseInt(values.max_jobs),
+    max_days: Number.parseInt(values.max_days),
   };
 }
 
@@ -69,7 +69,7 @@ export function parseArguments(): {
 export async function urlSiteHasText(
   url: string,
   keywords: string[],
-  browser: Browser
+  browser: Browser,
 ): Promise<boolean> {
   if (keywords.length === 0) {
     console.log("No keywords provided to urlSiteHasText, returning false.");
@@ -84,8 +84,7 @@ export async function urlSiteHasText(
     await Promise.race([
       page.goto(url, { waitUntil: "load" }),
       new Promise(
-        (_, reject) =>
-          setTimeout(() => reject(new Error(`Timeout fetching ${url}`)), 7000) // 7 seconds timeout
+        (_, reject) => setTimeout(() => reject(new Error(`Timeout fetching ${url}`)), 7000), // 7 seconds timeout
       ),
     ]);
 
@@ -120,9 +119,11 @@ export async function urlSiteHasText(
 export async function addCompanyLogoIfMissing(
   logoUrl: string,
   companyName: string,
-  prisma: PrismaClient
+  prisma: PrismaClient,
 ): Promise<void> {
   try {
+    if (!(await isFetch200(logoUrl))) return;
+
     const company = await prisma.company.findUnique({
       where: { name: companyName },
     });
@@ -138,6 +139,15 @@ export async function addCompanyLogoIfMissing(
   }
 }
 
+async function isFetch200(url: string): Promise<boolean> {
+  try {
+    const response = await fetch(url);
+    return response.status === 200;
+  } catch (error) {
+    return false;
+  }
+}
+
 /**
  * Checks if a URL returns a specific text when fetched.
  *
@@ -147,7 +157,7 @@ export async function addCompanyLogoIfMissing(
  */
 export async function checkIfUrlFetchReturnsText(
   url: string,
-  searchText: string
+  searchText: string,
 ): Promise<boolean> {
   try {
     const response = await fetch(url);

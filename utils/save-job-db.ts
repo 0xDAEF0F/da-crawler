@@ -1,5 +1,5 @@
-import { PrismaClient } from "@prisma/client";
-import { type JobSchema } from "./job.schema";
+import type { PrismaClient } from "@prisma/client";
+import type { JobSchema } from "./job.schema";
 
 export async function saveJobInDb(job: JobSchema, prisma: PrismaClient): Promise<void> {
   try {

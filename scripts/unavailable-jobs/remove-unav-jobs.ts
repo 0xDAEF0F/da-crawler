@@ -1,4 +1,4 @@
-import { PrismaClient, type Job } from "@prisma/client";
+import { type Job, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -23,9 +23,7 @@ const redirectChecks = jobs.map(async (job) => {
     });
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get("location");
-      const isError = ["error", "not_found", "not-found"].some((e) =>
-        location?.includes(e)
-      );
+      const isError = ["error", "not_found", "not-found"].some((e) => location?.includes(e));
       if (location && isError) {
         return { job, location };
       }
@@ -41,7 +39,7 @@ const redirectChecks = jobs.map(async (job) => {
 });
 const redirectResults = await Promise.all(redirectChecks);
 const failedRedirects = redirectResults.filter(
-  (r): r is { job: Job; location: string } => r !== null
+  (r): r is { job: Job; location: string } => r !== null,
 );
 
 console.log(`Found ${failedRedirects.length} jobs with error redirects`);

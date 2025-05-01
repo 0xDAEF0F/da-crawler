@@ -1,4 +1,4 @@
-import { type Browser, type Page } from "playwright";
+import type { Browser, Page } from "playwright";
 
 /**
  * Checks if a URL's page content contains any of the specified keywords
@@ -10,7 +10,7 @@ import { type Browser, type Page } from "playwright";
 export async function checkUrlForKeywords(
   url: string,
   keywords: string[],
-  browser: Browser
+  browser: Browser,
 ): Promise<boolean> {
   if (!url || !browser || keywords.length === 0) {
     return false;

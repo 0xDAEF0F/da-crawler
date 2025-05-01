@@ -1,9 +1,7 @@
-import { type } from "arktype";
-import dotenv from "dotenv";
-import { remote3CoSchema, type Remote3CoJob } from "./remote3-co.schema";
+import "dotenv/config";
 import { isDateTooOld } from "@/utils";
-
-dotenv.config();
+import { type } from "arktype";
+import { type Remote3CoJob, remote3CoSchema } from "./remote3-co.schema";
 
 type Opts = {
   limit?: number;

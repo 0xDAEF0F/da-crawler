@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "format": "biome format --write"
   },
   "peerDependencies": {
     "typescript": "^5"
