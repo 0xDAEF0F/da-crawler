@@ -39,7 +39,7 @@ export function JobCard(props: Props) {
               {job.companyLogoUrl ? (
                 <Image
                   src={job.companyLogoUrl}
-                  alt={`${job.company} logo`}
+                  alt={""}
                   width={20}
                   height={20}
                   className="rounded-full object-contain"
@@ -47,7 +47,15 @@ export function JobCard(props: Props) {
               ) : (
                 <div className="h-5 w-5 rounded-full bg-gray-300" />
               )}
-              <p className="text-gray-600">{capitalize(job.company)}</p>
+              {job.companyUrl ? (
+                <Link href={job.companyUrl} target="_blank" rel="noopener noreferrer">
+                  <p className="text-gray-600 hover:underline">
+                    {capitalize(job.company)}
+                  </p>
+                </Link>
+              ) : (
+                <p className="text-gray-600">{capitalize(job.company)}</p>
+              )}
             </div>
             {/* Salary */}
             <div className="text-right text-gray-600">

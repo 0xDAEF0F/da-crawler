@@ -1,11 +1,11 @@
-import { getJobsBody } from "./body.schema";
-import { ArkErrors } from "arktype";
-import { normalizeWords } from "~/utils/normalize-words";
-import { KEYWORD_MAPPINGS } from "~/utils/constants";
-import { uniq } from "lodash";
 import { prisma } from "@/.";
-import { jobResponseSchema, type JobResponse } from "./get-jobs-res";
+import { ArkErrors } from "arktype";
 import type { Context } from "hono";
+import { uniq } from "lodash";
+import { KEYWORD_MAPPINGS } from "~/utils/constants";
+import { normalizeWords } from "~/utils/normalize-words";
+import { getJobsBody } from "./body.schema";
+import { type JobResponse, jobResponseSchema } from "./get-jobs-res";
 
 export const getJobs = async (c: Context) => {
   const body = await c.req.json();
@@ -113,6 +113,7 @@ export const getJobs = async (c: Context) => {
       ]).flat(),
       ...(job.aiAnalysis.summary ? { jobSummary: job.aiAnalysis.summary } : {}),
       ...(job.company.logoUrl ? { companyLogoUrl: job.company.logoUrl } : {}),
+      ...(job.company.companyUrl ? { companyUrl: job.company.companyUrl } : {}),
     };
 
     return jobResponseSchema.assert(jobToValidate);
