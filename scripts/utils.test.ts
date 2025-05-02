@@ -6,7 +6,7 @@ test("trimSubstr", () => {
   expect(trimSubstr("hola como estas putin", ["putin", "como"])).toBe("hola estas");
   expect(trimSubstr("hello world", ["world", "hello"])).toBe("");
   expect(trimSubstr("hello | smartrecruiters", ["world", "| smartrecruiters"])).toBe(
-    "hello"
+    "hello",
   );
 });
 

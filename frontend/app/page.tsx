@@ -10,12 +10,8 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 const searchParamsSchema = type({
   limit: "string = '10'",
   page: "string = '1'",
-  "q?": type("string | undefined").pipe(
-    (s) => s?.split(" ").filter(Boolean) ?? [],
-  ), // user search bar query
-  "tags?": type("string | undefined").pipe(
-    (s) => s?.split(",").filter(Boolean) ?? [],
-  ), // user selected tags
+  "q?": type("string | undefined").pipe((s) => s?.split(" ").filter(Boolean) ?? []), // user search bar query
+  "tags?": type("string | undefined").pipe((s) => s?.split(",").filter(Boolean) ?? []), // user selected tags
 }).to({
   limit: "string.numeric.parse",
   page: "string.numeric.parse",

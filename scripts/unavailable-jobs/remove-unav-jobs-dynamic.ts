@@ -3,7 +3,11 @@ import { PrismaClient } from "@prisma/client";
 import { chromium } from "playwright";
 
 const MAX_DAYS: number = 7;
-const KEYWORDS: string[] = ["job not found", "page not found", "this job is no longer available"];
+const KEYWORDS: string[] = [
+  "job not found",
+  "page not found",
+  "this job is no longer available",
+];
 
 // start resources
 const prisma = new PrismaClient();

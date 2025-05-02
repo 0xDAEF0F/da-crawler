@@ -1,5 +1,5 @@
 // imported from monorepo
-import { JobResponse } from "~/api/routes/get-jobs/get-jobs-res";
+import type { JobResponse } from "~/api/routes/get-jobs/get-jobs-res";
 import { BASE_URL } from "./utils";
 
 type GetLastJobsResponse = {

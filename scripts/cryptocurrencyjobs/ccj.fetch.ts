@@ -57,7 +57,7 @@ export async function fetchCryptocurrencyJobs(): Promise<unknown[]> {
 
   if (!res.ok) {
     throw new Error(
-      `Failed to fetch Cryptocurrency Jobs: ${res.status} ${res.statusText}`
+      `Failed to fetch Cryptocurrency Jobs: ${res.status} ${res.statusText}`,
     );
   }
 

@@ -22,7 +22,7 @@ const jobs = jobs_.filter((job) => {
 });
 
 console.log(
-  `Found ${jobs.length} jobs with a description longer than ${MIN_JOB_DESCRIPTION_LENGTH} characters`
+  `Found ${jobs.length} jobs with a description longer than ${MIN_JOB_DESCRIPTION_LENGTH} characters`,
 );
 
 if (jobs.length === 0) {
@@ -34,7 +34,7 @@ const maybeSummarizedResults = await Promise.allSettled(
   jobs.slice(0, MAX_JOBS_TO_ANALYZE).map(async (job) => {
     const analysis = await summarizeJob(job);
     return { job, analysis };
-  })
+  }),
 );
 
 let summarizationErrors = 0;

@@ -37,7 +37,7 @@ for (let i = 1; i <= 10 /* pages */; i++) {
       tags: validatedJob.jobTags.map((jt) => jt.label),
       publishedAt: validatedJob.publishedDate,
       isRemote: validatedJob.locationTags.some((lt) =>
-        lt.label.toLowerCase().includes("remote")
+        lt.label.toLowerCase().includes("remote"),
       ),
       location: validatedJob.locationTags.map((lt) => lt.label),
       jobDescription: validatedJob.description,

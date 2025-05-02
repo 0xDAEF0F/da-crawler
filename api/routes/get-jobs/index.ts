@@ -31,7 +31,7 @@ export const getJobs = async (c: Context) => {
   } = args;
   const keywords = normalizeWords(kw, KEYWORD_MAPPINGS).map((k) => k.toLowerCase());
   const excludeKeywords = normalizeWords(ekw, KEYWORD_MAPPINGS).map((k) =>
-    k.toLowerCase()
+    k.toLowerCase(),
   );
 
   const jobs = (
@@ -89,7 +89,7 @@ export const getJobs = async (c: Context) => {
   const limitValue = limit ?? 10;
   const jobsWithLimit = jobsWithExcludeFilter.slice(
     offsetValue,
-    offsetValue + limitValue
+    offsetValue + limitValue,
   );
 
   const jobsResponse = jobsWithLimit.map((job) => {

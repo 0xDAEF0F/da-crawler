@@ -1,5 +1,5 @@
 import { type } from "arktype";
-import { clsx, type ClassValue } from "clsx";
+import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export const BASE_URL =
@@ -56,11 +56,7 @@ export function extractSource(url: string): string {
 export function formatDate(date: Date): string {
   const now = new Date();
   // Normalize dates to the start of the day for accurate day difference calculation
-  const startOfDate = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-  );
+  const startOfDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   const startOfNow = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   const diffTime = startOfNow.getTime() - startOfDate.getTime();

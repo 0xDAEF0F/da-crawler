@@ -53,8 +53,7 @@ export function JobCard(props: Props) {
             <div className="text-right text-gray-600">
               {job.salaryMin && job.salaryMax ? (
                 <span className="text-sm font-light text-gray-600">
-                  ${job.salaryMin.toLocaleString()} - $
-                  {job.salaryMax.toLocaleString()}
+                  ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}
                 </span>
               ) : null}
             </div>
@@ -82,8 +81,7 @@ export function JobCard(props: Props) {
             role="button"
             onClick={() => {
               const params = new URLSearchParams(searchParams.toString());
-              const existingTags =
-                params.get("tags")?.split(",").filter(Boolean) ?? [];
+              const existingTags = params.get("tags")?.split(",").filter(Boolean) ?? [];
               if (!existingTags.includes(tag)) {
                 existingTags.push(tag);
               }
@@ -123,8 +121,7 @@ export function JobCard(props: Props) {
       <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
         {extractSource(job.jobUrl) ? (
           <span>
-            Source:{" "}
-            <span className="font-medium">{extractSource(job.jobUrl)}</span>
+            Source: <span className="font-medium">{extractSource(job.jobUrl)}</span>
           </span>
         ) : (
           <span className="invisible">Source: Unknown</span>

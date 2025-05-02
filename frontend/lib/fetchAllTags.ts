@@ -24,10 +24,11 @@ export async function fetchAllTags(): Promise<string[]> {
 
     if (!data.error && validated) {
       return validated;
-    } else {
-      console.error("API returned an error or invalid data for tags:", data);
-      return [];
     }
+
+    console.error("API returned an error or invalid data for tags:", data);
+
+    return [];
   } catch (error) {
     console.error("Error fetching tags:", error);
     return []; // Return empty array on catch

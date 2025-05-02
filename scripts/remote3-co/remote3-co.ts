@@ -1,4 +1,8 @@
-import { addCompanyLogoIfMissing, checkIfUrlFetchReturnsText, parseArguments } from "@/utils";
+import {
+  addCompanyLogoIfMissing,
+  checkIfUrlFetchReturnsText,
+  parseArguments,
+} from "@/utils";
 import { PrismaClient } from "@prisma/client";
 import TurndownService from "turndown";
 import { saveJobInDb } from "~/utils/save-job-db";
@@ -42,7 +46,9 @@ const jobsToSave = (
   )
 ).flat();
 
-console.log(`After filtering for no longer available jobs, ${jobsToSave.length} remained.`);
+console.log(
+  `After filtering for no longer available jobs, ${jobsToSave.length} remained.`,
+);
 
 const nonDuplicateJobs: Remote3CoJob[] = [];
 
@@ -77,7 +83,11 @@ for (const job of nonDuplicateJobs) {
         name: job.companies.name,
         logoUrl: job.companies.logo,
       },
-      tags: Array.isArray(job.categories) ? job.categories : job.categories ? [job.categories] : [],
+      tags: Array.isArray(job.categories)
+        ? job.categories
+        : job.categories
+          ? [job.categories]
+          : [],
       location: job.location ? job.location.split(",").map((s) => s.trim()) : [],
       publishedAt: new Date(job.live_at),
       salaryMin: job.salary_min ?? undefined,

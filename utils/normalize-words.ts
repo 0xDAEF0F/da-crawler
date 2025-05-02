@@ -10,7 +10,7 @@ import { uniq } from "lodash";
  */
 export function normalizeWords(
   words: string[],
-  mappings: Record<string, string[]>
+  mappings: Record<string, string[]>,
 ): string[] {
   const uniqueWords = uniq(words.map((word) => word.toLowerCase()));
   const normalizedWords: string[] = [];

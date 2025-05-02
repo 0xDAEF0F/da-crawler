@@ -9,8 +9,7 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "DevJobs - Find Your Next Developer Role",
-  description:
-    "A job board focused on developer roles with a focus on user experience",
+  description: "A job board focused on developer roles with a focus on user experience",
 };
 
 export default function RootLayout({

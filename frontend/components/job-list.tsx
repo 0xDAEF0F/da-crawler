@@ -102,10 +102,7 @@ export function JobList({
           {/* Items per page selector */}
           <div className="flex items-center">
             <span className="mr-2 text-sm text-gray-500">Show:</span>
-            <Select
-              value={itemsPerPage.toString()}
-              onValueChange={handleLimitChange}
-            >
+            <Select value={itemsPerPage.toString()} onValueChange={handleLimitChange}>
               <SelectTrigger className="w-[80px] text-sm focus:ring-gray-500 focus:outline-none">
                 <SelectValue placeholder="Limit" />
               </SelectTrigger>
@@ -162,9 +159,7 @@ export function JobList({
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                   className={
-                    currentPage === 1
-                      ? "pointer-events-none opacity-50"
-                      : undefined
+                    currentPage === 1 ? "pointer-events-none opacity-50" : undefined
                   }
                 />
               </PaginationItem>

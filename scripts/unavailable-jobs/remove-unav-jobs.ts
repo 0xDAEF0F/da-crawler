@@ -23,7 +23,9 @@ const redirectChecks = jobs.map(async (job) => {
     });
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get("location");
-      const isError = ["error", "not_found", "not-found"].some((e) => location?.includes(e));
+      const isError = ["error", "not_found", "not-found"].some((e) =>
+        location?.includes(e),
+      );
       if (location && isError) {
         return { job, location };
       }

@@ -84,7 +84,8 @@ export async function urlSiteHasText(
     await Promise.race([
       page.goto(url, { waitUntil: "load" }),
       new Promise(
-        (_, reject) => setTimeout(() => reject(new Error(`Timeout fetching ${url}`)), 7000), // 7 seconds timeout
+        (_, reject) =>
+          setTimeout(() => reject(new Error(`Timeout fetching ${url}`)), 7000), // 7 seconds timeout
       ),
     ]);
 

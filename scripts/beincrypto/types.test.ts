@@ -20,7 +20,7 @@ test("normalize tags", () => {
   ];
   const normalizedTags = normalizeWords(tags, KEYWORD_MAPPINGS);
   expect(new Set(normalizedTags)).toEqual(
-    new Set(["frontend", "backend", "fullstack", "papa-johns"])
+    new Set(["frontend", "backend", "fullstack", "papa-johns"]),
   );
 });
 

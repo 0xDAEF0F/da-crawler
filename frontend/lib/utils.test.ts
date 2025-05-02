@@ -13,8 +13,6 @@ test("extract source from URL", () => {
     ),
   ).toBe("jobs.ashbyhq");
   expect(
-    extractSource(
-      "https://jobs.lever.co/crypto/1f8b5c9f-258d-4d73-8c23-fa6aa09f3e6b",
-    ),
+    extractSource("https://jobs.lever.co/crypto/1f8b5c9f-258d-4d73-8c23-fa6aa09f3e6b"),
   ).toBe("jobs.lever");
 });

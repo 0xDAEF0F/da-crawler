@@ -13,7 +13,7 @@ await prisma.job.deleteMany({
 
 const [cryptocurrencyJobs, cryptoJobs] = partition(
   await readdir("crawler/storage/datasets"),
-  (dir) => dir.includes("cryptocurrencyjobs")
+  (dir) => dir.includes("cryptocurrencyjobs"),
 );
 
 const dateReducer = (curr: string, acc: string) => {
@@ -29,7 +29,7 @@ console.log(`--- Cryptocurrency Jobs Scrape Dir: ${cryptocurrencyJobsScrapeDir}`
 console.log(`--- Crypto Jobs Scrape Dir: ${cryptoJobsScrapeDir}`);
 
 const scrapedFilesA = await readdir(
-  `crawler/storage/datasets/${cryptocurrencyJobsScrapeDir}`
+  `crawler/storage/datasets/${cryptocurrencyJobsScrapeDir}`,
 );
 const scrapedFilesB = await readdir(`crawler/storage/datasets/${cryptoJobsScrapeDir}`);
 
@@ -39,12 +39,12 @@ for (const file of scrapedFilesA) {
     continue;
   }
   const contentJson = await Bun.file(
-    `crawler/storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}`
+    `crawler/storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}`,
   ).json();
   const maybeParsed = scrapedJobSchema(contentJson);
   if (maybeParsed instanceof ArkErrors) {
     console.error(
-      `Error parsing: "crawler/storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}"`
+      `Error parsing: "crawler/storage/datasets/${cryptocurrencyJobsScrapeDir}/${file}"`,
     );
     console.error(maybeParsed.summary);
     continue;
@@ -60,12 +60,12 @@ for (const file of scrapedFilesB) {
     continue;
   }
   const contentJson = await Bun.file(
-    `crawler/storage/datasets/${cryptoJobsScrapeDir}/${file}`
+    `crawler/storage/datasets/${cryptoJobsScrapeDir}/${file}`,
   ).json();
   const maybeParsed = scrapedJobSchema(contentJson);
   if (maybeParsed instanceof ArkErrors) {
     console.error(
-      `Error parsing: "crawler/storage/datasets/${cryptoJobsScrapeDir}/${file}"`
+      `Error parsing: "crawler/storage/datasets/${cryptoJobsScrapeDir}/${file}"`,
     );
     console.error(maybeParsed.summary);
     continue;

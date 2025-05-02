@@ -1,11 +1,7 @@
 {
   "name": "devjobs",
   "private": true,
-  "workspaces": [
-    "api",
-    "frontend",
-    "scripts"
-  ],
+  "workspaces": ["api", "frontend", "scripts"],
   "dependencies": {
     "@prisma/client": "^6.5.0",
     "arktype": "^2",
@@ -16,11 +12,11 @@
     "test": "bun test api && bun test frontend && bun test scripts",
     "build": "bun run --cwd api build",
     "check": "bun run --cwd api check && bun run --cwd frontend lint && bun run --cwd scripts check",
-    "format": "bun run --cwd scripts format"
+    "format": "biome format --write"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@types/bun": "latest",
-    "biome": "^0.3.3",
     "concurrently": "^9.1.2"
   }
 }

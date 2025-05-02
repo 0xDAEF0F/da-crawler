@@ -87,8 +87,7 @@ export function JobFilters({ availableTags }: Props) {
   // Filter available tags based on input, excluding already selected tags
   const filteredTags = availableTags.filter(
     (tag) =>
-      tag.toLowerCase().includes(inputValue.toLowerCase()) &&
-      !selectedTags.has(tag),
+      tag.toLowerCase().includes(inputValue.toLowerCase()) && !selectedTags.has(tag),
   );
 
   return (
@@ -117,10 +116,7 @@ export function JobFilters({ availableTags }: Props) {
             checked={filters.fullTime}
             onChange={() => handleFilterChange("fullTime")}
           />
-          <label
-            htmlFor="fullTime"
-            className="ml-2 block text-sm text-gray-700"
-          >
+          <label htmlFor="fullTime" className="ml-2 block text-sm text-gray-700">
             Full-time Only
           </label>
         </div>
@@ -133,10 +129,7 @@ export function JobFilters({ availableTags }: Props) {
             checked={filters.cryptoPayment}
             onChange={() => handleFilterChange("cryptoPayment")}
           />
-          <label
-            htmlFor="cryptoPayment"
-            className="ml-2 block text-sm text-gray-700"
-          >
+          <label htmlFor="cryptoPayment" className="ml-2 block text-sm text-gray-700">
             Crypto Payment Option
           </label>
         </div>
@@ -146,11 +139,7 @@ export function JobFilters({ availableTags }: Props) {
           {/* Display selected tags as Badges */}
           <div className="mb-2 flex min-h-[26px] flex-wrap gap-1">
             {Array.from(selectedTags).map((tag) => (
-              <Badge
-                key={tag}
-                variant="secondary"
-                className="flex items-center"
-              >
+              <Badge key={tag} variant="secondary" className="flex items-center">
                 {tag}
                 <button
                   onClick={() => handleRemoveTag(tag)}
