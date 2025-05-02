@@ -11,6 +11,10 @@
 ### Frontend
 
 - Companies logos should redirect to the companies website
+  - [ ] beincrypto
+  - [ ] cryptojobs
+  - [ ] cryptocurrencyjobs
+  - [ ] remote3-co
 - Favicon
 - Icons logo on companies (if no logo, default broken logo)
 - Hover on the company logo should take you to the company's website

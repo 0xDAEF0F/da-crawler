@@ -16,10 +16,11 @@ const mockRawJob = {
   salary_max: 150000,
   apply_url: "https://example.com/apply?utm_source=remote3",
   slug: "senior-software-engineer-12345",
-  categories: "Software Development",
+  categories: JSON.stringify(["Software development"]),
   companies: {
     name: "Example Inc.",
     logo: "//logos.example.com/logo.png",
+    website: "https://example.com",
   },
 };
 

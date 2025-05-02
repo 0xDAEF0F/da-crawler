@@ -9,6 +9,7 @@ export async function saveJobInDb(job: JobSchema, prisma: PrismaClient): Promise
       create: {
         name: job.company.name,
         logoUrl: job.company.logoUrl ?? undefined,
+        // companyUrl: job.company
       },
     });
 

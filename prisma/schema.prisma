@@ -27,10 +27,11 @@ model Job {
 }
 
 model Company {
-  id      Int     @id @default(autoincrement())
-  name    String  @unique
-  logoUrl String? @map("logo_url")
-  jobs    Job[]
+  id         Int     @id @default(autoincrement())
+  name       String  @unique
+  companyUrl String? @map("company_url")
+  logoUrl    String? @map("logo_url")
+  jobs       Job[]
 }
 
 /// AI generated analysis of the job.

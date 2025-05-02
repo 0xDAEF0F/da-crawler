@@ -21,9 +21,15 @@ export const remote3CoSchema = type({
     return cleanUrl(`${urlObj.origin}${urlObj.pathname}`);
   }),
   slug: type("string").pipe((slug) => `https://remote3.co/remote-jobs/${slug}`),
-  categories: type("string | null").pipe((c) =>
-    !c ? [] : JSON.parse(c).map((c: string) => c.toLowerCase()),
-  ),
+  categories: type("string | null").pipe((c) => {
+    if (!c) return [];
+    const categories = type("string.lower[]")(c);
+    if (categories instanceof type.errors) {
+      console.error(`Invalid categories: ${c}`);
+      return [];
+    }
+    return categories;
+  }),
   companies: type({
     name: type("string.lower").narrow((n, ctx) =>
       n.includes("stealth") ? ctx.mustBe("not stealth") : true,
@@ -36,6 +42,10 @@ export const remote3CoSchema = type({
         return s;
       })
       .to("string.url"),
+    website: type("string | null").pipe((w) => {
+      if (!w) return null;
+      return type("string.url")(w) instanceof type.errors ? null : w;
+    }),
   }),
 });
 

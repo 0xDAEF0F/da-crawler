@@ -5,7 +5,6 @@ import {
 } from "@/utils";
 import { PrismaClient } from "@prisma/client";
 import TurndownService from "turndown";
-import { saveJobInDb } from "~/utils/save-job-db";
 import { fetchRemote3CoJobs } from "./remote3-co.fetch";
 import type { Remote3CoJob } from "./remote3-co.schema";
 
@@ -76,29 +75,39 @@ console.log(
 // Save the unique jobs to the database
 for (const job of nonDuplicateJobs) {
   try {
-    const jobToSave = {
-      title: job.title,
-      source: "remote3-co",
-      company: {
-        name: job.companies.name,
-        logoUrl: job.companies.logo,
+    // TODO: this is updating the companies `logoUrl` and `companyUrl` even if they are already set
+    const company = await prisma.company.upsert({
+      where: { name: job.companies.name },
+      update: {
+        logoUrl: job.companies.logo ?? undefined,
+        companyUrl: job.companies.website ?? undefined,
       },
-      tags: Array.isArray(job.categories)
-        ? job.categories
-        : job.categories
-          ? [job.categories]
-          : [],
-      location: job.location ? job.location.split(",").map((s) => s.trim()) : [],
-      publishedAt: new Date(job.live_at),
-      salaryMin: job.salary_min ?? undefined,
-      salaryMax: job.salary_max ?? undefined,
-      jobDescription: job.description,
-      jobUrl: job.apply_url,
-      isRemote: !job.on_site,
-    };
-    await saveJobInDb(jobToSave, prisma);
+      create: {
+        name: job.companies.name,
+        logoUrl: job.companies.logo ?? undefined,
+        companyUrl: job.companies.website ?? undefined,
+      },
+    });
+
+    await prisma.job.create({
+      data: {
+        title: job.title,
+        source: "remote3-co",
+        companyId: company.id,
+        keywords: JSON.stringify(job.categories),
+        location: JSON.stringify(
+          job.location ? job.location.split(",").map((s) => s.trim()) : [],
+        ),
+        publishedAt: new Date(job.live_at),
+        salaryMin: job.salary_min ?? undefined,
+        salaryMax: job.salary_max ?? undefined,
+        jobDescription: job.description,
+        jobUrl: job.apply_url,
+        isRemote: !job.on_site,
+      },
+    });
   } catch (e) {
-    console.error(`Error persisting job: ${job.title}`);
+    console.error(`Error persisting job: ${job.title}`, e);
   }
 }
 
