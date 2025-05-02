@@ -140,7 +140,7 @@ export async function addCompanyLogoIfMissing(
   }
 }
 
-async function isFetch200(url: string): Promise<boolean> {
+export async function isFetch200(url: string): Promise<boolean> {
   try {
     const response = await fetch(url);
     return response.status === 200;
