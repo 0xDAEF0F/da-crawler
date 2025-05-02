@@ -21,7 +21,9 @@ export const remote3CoSchema = type({
     return cleanUrl(`${urlObj.origin}${urlObj.pathname}`);
   }),
   slug: type("string").pipe((slug) => `https://remote3.co/remote-jobs/${slug}`),
-  categories: type("string | null").pipe((c) => (!c ? [] : JSON.parse(c))),
+  categories: type("string | null").pipe((c) =>
+    !c ? [] : JSON.parse(c).map((c: string) => c.toLowerCase()),
+  ),
   companies: type({
     name: type("string.lower").narrow((n, ctx) =>
       n.includes("stealth") ? ctx.mustBe("not stealth") : true,
