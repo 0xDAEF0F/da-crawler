@@ -26,7 +26,7 @@ export const beInCryptoSchema = type({
   company: {
     id: "number",
     name: "string >= 2 |> string.lower |> string.trim",
-    website: "string",
+    website: "string.url",
     email: "string | null",
     logoURL: "string | null",
     description: "string",

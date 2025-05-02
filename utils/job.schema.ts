@@ -7,6 +7,7 @@ export const jobSchema = type({
   company: type({
     name: "string.lower |> string.trim",
     logoUrl: "string.url?",
+    website: "string.url?",
   }),
   tags: "string.lower[] |> string.trim[]",
   location: "string[]",

@@ -33,6 +33,8 @@ for (let i = 1; i <= 10 /* pages */; i++) {
       source: "beincrypto",
       company: {
         name: validatedJob.company.name,
+        logoUrl: validatedJob.company.logoURL,
+        website: validatedJob.company.website,
       },
       tags: validatedJob.jobTags.map((jt) => jt.label),
       publishedAt: validatedJob.publishedDate,
