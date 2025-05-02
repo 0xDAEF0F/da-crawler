@@ -1,10 +1,10 @@
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { capitalize, cn, extractSource, formatDate } from "@/lib/utils";
 import { ExternalLink } from "lucide-react";
 import Image from "next/image";
-import { capitalize, cn, extractSource, formatDate } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { JobResponse } from "~/api/routes/get-jobs/get-jobs-res";
+import Link from "next/link";
+import type { useRouter, useSearchParams } from "next/navigation";
+import type { JobResponse } from "~/api/routes/get-jobs/get-jobs-res";
 import { Summary } from "./summary";
 
 type Props = {
@@ -45,7 +45,7 @@ export function JobCard(props: Props) {
                   className="rounded-full object-contain"
                 />
               ) : (
-                <div className="h-5 w-5 rounded-full bg-gray-300"></div>
+                <div className="h-5 w-5 rounded-full bg-gray-300" />
               )}
               <p className="text-gray-600">{capitalize(job.company)}</p>
             </div>
@@ -76,8 +76,11 @@ export function JobCard(props: Props) {
 
       <div className="mt-2 flex flex-wrap gap-1">
         {job.keywords.map((tag) => (
+          // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
+          // biome-ignore lint/a11y/useFocusableInteractive: <explanation>
           <span
             key={tag}
+            // biome-ignore lint/a11y/useSemanticElements: <explanation>
             role="button"
             onClick={() => {
               const params = new URLSearchParams(searchParams.toString());
@@ -87,7 +90,7 @@ export function JobCard(props: Props) {
               }
               params.set("tags", existingTags.join(","));
               params.delete("page"); // Reset page on tag change
-              router.push(pathname + "?" + params.toString(), {
+              router.push(`${pathname}?${params.toString()}`, {
                 scroll: false,
               });
             }}
@@ -111,7 +114,7 @@ export function JobCard(props: Props) {
           {job.jobSummary ? (
             <Summary summary={job.jobSummary} />
           ) : job.jobDescription.length > 300 ? (
-            job.jobDescription.slice(0, 300) + "..."
+            `${job.jobDescription.slice(0, 300)}...`
           ) : (
             job.jobDescription
           )}

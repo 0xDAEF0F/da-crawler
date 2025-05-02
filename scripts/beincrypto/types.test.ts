@@ -1,8 +1,7 @@
-import { test, expect } from "bun:test";
-import { type } from "arktype";
-import { normalizeWords } from "~/utils/normalize-words";
+import { expect, test } from "bun:test";
 import { cleanUrl } from "~/utils/clean-url";
 import { KEYWORD_MAPPINGS } from "~/utils/constants";
+import { normalizeWords } from "~/utils/normalize-words";
 
 test("normalize tags", () => {
   const tags = [
@@ -28,12 +27,4 @@ test("clean url", () => {
   const url = "https://www.example.com/job/1234567890/apply?lala=123";
   const cleanedUrl = cleanUrl(url);
   expect(cleanedUrl).toEqual("https://www.example.com/job/1234567890");
-});
-
-test("check something", () => {
-  const aSchema = type({
-    "a?": "number",
-    b: "number",
-  });
-  const a = aSchema.assert({ b: 2, ...(false ? { a: 1 } : {}) });
 });

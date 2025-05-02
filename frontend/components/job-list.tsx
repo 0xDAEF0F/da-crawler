@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { JobResponse } from "~/api/routes/get-jobs/get-jobs-res";
+import type { JobResponse } from "~/api/routes/get-jobs/get-jobs-res";
 import { JobCard } from "./job-card/job-card";
 
 export function JobList({
@@ -65,7 +65,7 @@ export function JobList({
   };
 
   const handleLimitChange = (limitStr: string) => {
-    const newLimit = parseInt(limitStr, 10);
+    const newLimit = Number.parseInt(limitStr, 10);
     if ([10, 20, 30, 40, 50].includes(newLimit)) {
       const newTotalPages = Math.ceil(totalResults / newLimit);
       const newPage = Math.min(currentPage ?? 1, newTotalPages); // Ensure page stays within bounds

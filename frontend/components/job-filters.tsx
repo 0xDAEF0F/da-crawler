@@ -1,8 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Command,
@@ -12,6 +9,9 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { X } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type Props = {
   availableTags: string[];
@@ -142,6 +142,7 @@ export function JobFilters({ availableTags }: Props) {
               <Badge key={tag} variant="secondary" className="flex items-center">
                 {tag}
                 <button
+                  type="button"
                   onClick={() => handleRemoveTag(tag)}
                   className="ring-offset-background hover:bg-background/50 focus:ring-ring ml-1 rounded-full p-0.5 outline-none focus:ring-2 focus:ring-offset-2"
                   aria-label={`Remove ${tag} tag`}

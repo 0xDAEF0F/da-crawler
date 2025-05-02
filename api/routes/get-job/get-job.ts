@@ -7,7 +7,7 @@ export async function getJob(c: Context) {
 
   const job = await prisma.job.findUnique({
     where: {
-      id: parseInt(id),
+      id: Number.parseInt(id),
     },
     include: {
       aiAnalysis: true,

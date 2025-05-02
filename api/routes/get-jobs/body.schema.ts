@@ -8,7 +8,7 @@ export const trimmedLowerCaseStrings = type("string.lower[] |> string.trim[]").p
 export const getJobsBody = type({
   // 1d, 1w, 2d, 42w
   sinceWhen: type("/^[0-9]+[dw]$/").pipe((str) => {
-    const amount = parseInt(str.slice(0, -1));
+    const amount = Number.parseInt(str.slice(0, -1));
     const date = new Date();
     if (amount === 0) return date;
     const units = str.slice(-1); // d or w

@@ -1,10 +1,10 @@
-import { type } from "arktype";
 import { PrismaClient } from "@prisma/client";
-import { isDateTooOld, parseArguments } from "../utils";
-import { beInCryptoSchema } from "./beincrypto.schema";
-import { fetchBeInCryptoJobs } from "./beincrypto.fetch";
-import { jobSchema, type JobSchema } from "~/utils/job.schema";
+import { type } from "arktype";
+import { type JobSchema, jobSchema } from "~/utils/job.schema";
 import { saveJobInDb } from "~/utils/save-job-db";
+import { isDateTooOld, parseArguments } from "../utils";
+import { fetchBeInCryptoJobs } from "./beincrypto.fetch";
+import { beInCryptoSchema } from "./beincrypto.schema";
 
 const { max_jobs: MAX_JOBS, max_days: MAX_DAYS } = parseArguments();
 
@@ -18,7 +18,7 @@ for (let i = 1; i <= 10 /* pages */; i++) {
   try {
     data = await fetchBeInCryptoJobs(i);
   } catch (e) {
-    console.error(`UNABLE TO FETCH JOBS FROM BEINCRYPTO.TS --- ABORTING`);
+    console.error("UNABLE TO FETCH JOBS FROM BEINCRYPTO.TS --- ABORTING");
     break;
   }
   const validatedJobs: (typeof jobSchema.infer)[] = [];
@@ -73,7 +73,7 @@ for (let i = 1; i <= 10 /* pages */; i++) {
 }
 
 if (jobsToPersist.length === 0) {
-  console.log(`No jobs to persist in beincrypto.ts --- Exiting`);
+  console.log("No jobs to persist in beincrypto.ts --- Exiting");
   process.exit(0);
 }
 

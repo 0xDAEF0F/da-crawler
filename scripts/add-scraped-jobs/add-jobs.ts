@@ -1,8 +1,8 @@
 import { readdir } from "node:fs/promises";
 import { PrismaClient } from "@prisma/client";
-import { partition, uniqBy } from "lodash";
 import { ArkErrors } from "arktype";
-import { scrapedJobSchema, type ScrapedJobSchema } from "./scraped-job.schema";
+import { partition, uniqBy } from "lodash";
+import { type ScrapedJobSchema, scrapedJobSchema } from "./scraped-job.schema";
 
 const prisma = new PrismaClient();
 
@@ -33,7 +33,7 @@ const scrapedFilesA = await readdir(
 );
 const scrapedFilesB = await readdir(`crawler/storage/datasets/${cryptoJobsScrapeDir}`);
 
-let jobsA: ScrapedJobSchema[] = [];
+const jobsA: ScrapedJobSchema[] = [];
 for (const file of scrapedFilesA) {
   if (file.includes("__meta")) {
     continue;
@@ -54,7 +54,7 @@ for (const file of scrapedFilesA) {
 
 console.log(`--- Cryptocurrency Jobs: ${jobsA.length}`);
 
-let jobsB: ScrapedJobSchema[] = [];
+const jobsB: ScrapedJobSchema[] = [];
 for (const file of scrapedFilesB) {
   if (file.includes("__meta")) {
     continue;
@@ -90,7 +90,7 @@ const allJobs = [
 
 console.log(`--- All Jobs: ${allJobs.length}`);
 
-let allJobsUniqBy = uniqBy(allJobs, "real_job_url");
+const allJobsUniqBy = uniqBy(allJobs, "real_job_url");
 
 console.log(`--- Unique Jobs (filtered by real_job_url): ${allJobsUniqBy.length}`);
 
@@ -125,6 +125,6 @@ for (const job of allJobsUniqBy) {
   });
 }
 
-console.log(`--- Done!`);
+console.log("--- Done!");
 
 await prisma.$disconnect();

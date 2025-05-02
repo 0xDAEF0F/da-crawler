@@ -1,7 +1,8 @@
-import { type Job } from "@prisma/client";
+import type { Job } from "@prisma/client";
 import dotenv from "dotenv";
-import { aiAnalysisSchema } from "./ai-analysis.schema";
 import OpenAI from "openai";
+import type { FunctionParameters } from "openai/resources/shared.mjs";
+import { aiAnalysisSchema } from "./ai-analysis.schema";
 dotenv.config();
 
 const AI_MODEL = "google/gemini-2.0-flash-001";
@@ -49,7 +50,7 @@ export async function summarizeJob(job: Job): Promise<typeof aiAnalysisSchema.in
         function: {
           name: "save_ai_analysis",
           description: "Saves the AI analysis of the job description.",
-          parameters: aiAnalysisSchema.toJsonSchema() as any,
+          parameters: aiAnalysisSchema.toJsonSchema() as FunctionParameters,
         },
       },
     ],

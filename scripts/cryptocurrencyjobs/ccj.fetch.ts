@@ -45,9 +45,9 @@ type AlgoliaResponse = {
 
 export async function fetchCryptocurrencyJobs(): Promise<unknown[]> {
   const url = new URL(options.url);
-  Object.entries(options.qs).forEach(([key, value]) => {
+  for (const [key, value] of Object.entries(options.qs)) {
     url.searchParams.append(key, value);
-  });
+  }
 
   const res = await fetch(url.toString(), {
     method: options.method,
