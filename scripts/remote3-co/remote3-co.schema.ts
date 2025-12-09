@@ -23,12 +23,8 @@ export const remote3CoSchema = type({
   slug: type("string").pipe((slug) => `https://remote3.co/remote-jobs/${slug}`),
   categories: type("string | null").pipe((c) => {
     if (!c) return [];
-    const categories = type("string.lower[]")(c);
-    if (categories instanceof type.errors) {
-      console.error(`Invalid categories: ${c}`);
-      return [];
-    }
-    return categories;
+    const parsed = JSON.parse(c) as string[];
+    return parsed.map((cat) => cat.toLowerCase());
   }),
   companies: type({
     name: type("string.lower").narrow((n, ctx) =>
